@@ -7,5 +7,5 @@ import (
 
 func main() {
   logger.StartupInfo()
-  utils.initShellParser()
+  utils.InitShellParser()
 }
