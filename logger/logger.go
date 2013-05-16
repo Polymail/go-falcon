@@ -16,6 +16,6 @@ func FatalError(format string, v ...interface{}) {
 }
 
 func StartupInfo() {
-  Info("HamstersHorde, built with Go", runtime.Version())
+  Info("Go-Falcon, built with Go", runtime.Version())
   Info("(c) leopard aka Alexey Vasiliev")
 }
