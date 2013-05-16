@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+  "github.com/le0pard/logger"
 )
 
 func main() {
-	fmt.Printf("Hello, world.\n")
+  logger.StartupInfo()
 }
