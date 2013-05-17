@@ -10,6 +10,7 @@ import (
 // as declared in its config.yaml file.
 type Config struct {
   Smtp struct {
+    Enabled   bool
     Host      string
     Port      string
   }
