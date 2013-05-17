@@ -8,6 +8,7 @@ import (
 
 var (
   configFile = flag.String("config", "config.yml", "YAML config for Falcon")
+  verbose = flag.Bool("v", false, "verbose mode")
 )
 
 func InitShellParser() (*config.Config, error) {
