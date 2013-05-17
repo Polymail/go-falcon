@@ -2,7 +2,7 @@ package utils
 
 import (
   "flag"
-  "github.com/le0pard/go-falcon/logger"
+  "github.com/le0pard/go-falcon/log"
   "github.com/kylelemons/go-gypsy/yaml"
 )
 
@@ -13,12 +13,12 @@ var (
 
 func InitShellParser() {
   flag.Parse()
-  logger.Info("Using config file", *configFile)
+  log.Infof("Using config file", *configFile)
 
   //yamlConfig, err := yaml.ReadFile(*configFile)
   _, err := yaml.ReadFile(*configFile)
   if err != nil {
-    logger.FatalError("Error read file: readfile(%q): %s", *configFile, err)
+    log.Errorf("Error read file: readfile(%q): %s", *configFile, err)
   }
 
 }
