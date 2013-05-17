@@ -2,3 +2,8 @@ smtp:
   enabled: true
   host: 127.0.0.1
   port: 25
+
+lmtp:
+  enabled: true
+  host: 127.0.0.1
+  port: 2525

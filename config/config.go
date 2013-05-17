@@ -6,10 +6,15 @@ import (
   "launchpad.net/goyaml"
 )
 
-// Config represents the supported configuration options for a charm,
-// as declared in its config.yaml file.
+// Config represents the supported configuration options for a falcon,
+// as declared in its config.yml file.
 type Config struct {
   Smtp struct {
+    Enabled   bool
+    Host      string
+    Port      string
+  }
+  Lmtp struct {
     Enabled   bool
     Host      string
     Port      string
@@ -21,8 +26,8 @@ func NewConfig() *Config {
   return &Config{}
 }
 
-// ReadEnvirons reads the juju config.yaml file
-// and returns the result of running ParseEnvironments
+// ReadEnvirons reads the juju config.yml file
+// and returns the result of running Config
 // on the file's contents.
 func ReadConfig(filename string) (*Config, error) {
   data, err := ioutil.ReadFile(filename)
@@ -38,10 +43,8 @@ func ReadConfig(filename string) (*Config, error) {
   return e, nil
 }
 
-// ReadConfigBytes parses the contents of an config.yaml file
-// and returns its representation. An environment with an unknown type
-// will only generate an error when New is called for that environment.
-// Attributes for environments with known types are checked.
+// ReadConfigBytes parses the contents of an config.yml file
+// and returns its representation.
 func ReadConfigBytes(data []byte) (*Config, error) {
   config := NewConfig()
   err := goyaml.Unmarshal(data, &config)
@@ -50,5 +53,3 @@ func ReadConfigBytes(data []byte) (*Config, error) {
   }
   return config, nil
 }
-
-
