@@ -12,12 +12,18 @@ type Config struct {
   Smtp struct {
     Enabled   bool
     Host      string
-    Port      string
+    Port      int
   }
   Lmtp struct {
     Enabled   bool
     Host      string
-    Port      string
+    Port      int
+  }
+  Storage struct {
+    Host      string
+    Port      int
+    Username  string
+    Password  string
   }
 }
 
