@@ -2,7 +2,6 @@ package utils
 
 import (
   "flag"
-  "os"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
 )
@@ -11,12 +10,13 @@ var (
   configFile = flag.String("config", "config.yaml", "YAML config for Falcon")
 )
 
-func InitShellParser() {
+func InitShellParser() (*config.Config, error) {
   flag.Parse()
   log.Infof("Using config file %s", *configFile)
   yamlConfig, err := config.ReadConfig(*configFile)
   if err != nil {
-    os.Exit(1)
+    return nil, err
   }
-  log.Noticef("--- t:\n%v\n\n", yamlConfig)
+  log.Noticef("\n%v\n\n", yamlConfig)
+  return yamlConfig, nil
 }
