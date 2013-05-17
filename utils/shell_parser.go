@@ -7,7 +7,7 @@ import (
 )
 
 var (
-  configFile = flag.String("config", "config.yaml", "YAML config for Falcon")
+  configFile = flag.String("config", "config.yml", "YAML config for Falcon")
 )
 
 func InitShellParser() (*config.Config, error) {

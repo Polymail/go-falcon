@@ -26,11 +26,13 @@ func NewConfig() *Config {
 func ReadConfig(filename string) (*Config, error) {
   data, err := ioutil.ReadFile(filename)
   if err != nil {
-    return nil, log.Errorf("cannot read file %q: %v", filename, err)
+    log.Errorf("cannot read file %q: %v", filename, err)
+    return nil, err
   }
   e, err := ReadConfigBytes(data)
   if err != nil {
-    return nil, log.Errorf("cannot parse file %q: %v", filename, err)
+    log.Errorf("cannot parse file %q: %v", filename, err)
+    return nil, err
   }
   return e, nil
 }
