@@ -3,7 +3,7 @@ package utils
 import (
   "flag"
   "github.com/le0pard/go-falcon/log"
-  "github.com/kylelemons/go-gypsy/yaml"
+  //"launchpad.net/goyaml"
 )
 
 var (
@@ -13,14 +13,14 @@ var (
 
 func InitShellParser() {
   flag.Parse()
-  log.Infof("Using config file", *configFile)
-
-  //yamlConfig, err := yaml.ReadFile(*configFile)
+  log.Infof("Using config file %s", *configFile)
+  /*
+  yamlConfig, err := yaml.ReadFile(*configFile)
   _, err := yaml.ReadFile(*configFile)
   if err != nil {
     log.Errorf("Error read file: readfile(%q): %s", *configFile, err)
   }
-
+  */
 }
 
 /*
