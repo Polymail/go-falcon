@@ -36,6 +36,6 @@ func nginxHTTPAuth() {
 
 func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request) {
   w.Header().Add("Auth-Status", "OK")
-  w.Header().Add("Auth-Server", gConfig.Proxy.Host)
-  w.Header().Add("Auth-Port", string(gConfig.Proxy.Port))
+  w.Header().Add("Auth-Server", gConfig.Adapter.Host)
+  w.Header().Add("Auth-Port", string(gConfig.Adapter.Port))
 }
