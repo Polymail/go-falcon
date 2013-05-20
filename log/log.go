@@ -73,6 +73,6 @@ func Debugf(format string, a ...interface{}) (err error) {
 
 // Stratup Info
 func StartupInfo() {
-  Infof("Go-Falcon, built with Go %s", runtime.Version())
+  Infof("Falcon, built with Go %s", runtime.Version())
   Infof("(c) leopard aka Alexey Vasiliev\n\n")
 }
