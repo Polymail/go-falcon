@@ -22,7 +22,7 @@ func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
 }
 
 func onNewMail(c smtpd.Connection, from smtpd.MailAddress) (smtpd.Envelope, error) {
-  log.Infof("ajas: new mail from %q", from)
+  log.Infof("new mail from %q", from)
   return &env{new(smtpd.BasicEnvelope)}, nil
 }
 
