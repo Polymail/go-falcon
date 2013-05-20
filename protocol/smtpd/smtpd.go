@@ -253,7 +253,8 @@ func (s *session) serve() {
       // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
       s.sendlinef("250 2.0.0 OK")
     case "AUTH":
-      s.sendlinef("235 2.0.0 ok, go ahead")
+      log.Printf("TODO: %s", string(line.Arg()))
+      s.sendlinef("235 2.0.0 OK, go ahead")
     default:
       log.Printf("Client: %q, verhb: %q", line, line.Verb())
       s.sendlinef("502 5.5.2 Error: command not recognized")
@@ -269,7 +270,7 @@ func (s *session) handleHello(greeting, host string) {
   fmt.Fprintf(s.bw, "250-%s\r\n", s.srv.hostname())
   extensions := []string{}
   if s.srv.PlainAuth {
-    extensions = append(extensions, "250-AUTH LOGIN PLAIN CRAM-MD5 DIGEST-MD5 GSSAPI MSN NTLM")
+    extensions = append(extensions, "250-AUTH PLAIN")
   }
   if s.srv.TslAuth {
     extensions = append(extensions, "250-STARTTLS")

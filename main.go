@@ -6,6 +6,7 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/utils"
+  "github.com/le0pard/go-falcon/proxy"
   "github.com/le0pard/go-falcon/protocol"
 )
 
@@ -24,7 +25,7 @@ func main() {
     return
   }
   // start nginx proxy
-  utils.StartNginxHTTPProxy(gConfig)
+  proxy.StartNginxHTTPProxy(gConfig)
   // start protocol listeners
   protocol.StartMailServer(gConfig)
 }

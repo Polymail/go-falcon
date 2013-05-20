@@ -11,7 +11,7 @@ END
 Net::SMTP.start('localhost',
                 2525,
                 'localhost',
-                'loader-io-staging-6fa21af6ed8810a6', '9ceabdd7bddfd88e', :plain) do |smtp|
+                'username', 'password', :plain) do |smtp|
   smtp.send_message message, 'me@fromdomain.com',
                              'test@todomain.com'
 end
