@@ -63,6 +63,7 @@ type Connection interface {
 // EMAIL
 
 type Envelope interface {
+  AddSender(from MailAddress) error
   AddRecipient(rcpt MailAddress) error
   BeginData() error
   Write(line []byte) error
@@ -73,6 +74,11 @@ type BasicEnvelope struct {
   from      MailAddress
   rcpts     []MailAddress
   mailBody  []byte
+}
+
+func (e *BasicEnvelope) AddSender(from MailAddress) error {
+  e.from = from
+  return nil
 }
 
 func (e *BasicEnvelope) AddRecipient(rcpt MailAddress) error {
@@ -95,7 +101,7 @@ func (e *BasicEnvelope) Write(line []byte) error {
 
 func (e *BasicEnvelope) Close() error {
   log.Printf("Message finished")
-  log.Printf("Mail: %q", string(e.mailBody))
+  log.Printf("Mail: %v", e)
   return nil
 }
 
@@ -314,13 +320,15 @@ func (s *session) handleMailFrom(email string) {
     return
   }
   s.env = nil
-  env, err := cb(s, addrString(email))
+  fromEmail := addrString(email)
+  env, err := cb(s, fromEmail)
   if err != nil {
     log.Printf("rejecting MAIL FROM %q: %v", email, err)
     // TODO: send it back to client if warranted, like above
     return
   }
   s.env = env
+  s.env.AddSender(fromEmail)
   s.sendlinef("250 2.1.0 Ok")
 }
 

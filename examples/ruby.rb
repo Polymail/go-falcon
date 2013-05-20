@@ -3,6 +3,7 @@ require 'net/smtp'
 message = <<-END.split("\n").map!(&:strip).join("\n")
 From: Private Person <me@fromdomain.com>
 To: A Test User <test@todomain.com>
+CC: <test2@todomain.com>
 Subject: SMTP e-mail test
 
 This is a test e-mail message.
@@ -13,5 +14,5 @@ Net::SMTP.start('localhost',
                 'localhost',
                 'username', 'password', :plain) do |smtp|
   smtp.send_message message, 'me@fromdomain.com',
-                             'test@todomain.com'
+                             ['test@todomain.com', 'test2@todomain.com']
 end
