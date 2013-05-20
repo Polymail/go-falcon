@@ -1,12 +1,9 @@
-smtp:
-  enabled: true
+adapter:
+  protocol: smtp # smtp or lmtp
   host: 127.0.0.1
   port: 25
-
-lmtp:
-  enabled: true
-  host: 127.0.0.1
-  port: 2525
+  workers_number: 3
+  allow_hosts: 127.0.0.1
 
 storage:
   adapter: postgresql
@@ -14,3 +11,4 @@ storage:
   port: 5432
   username: postgres
   password: password
+  database: go-falcon

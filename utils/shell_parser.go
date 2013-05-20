@@ -18,6 +18,5 @@ func InitShellParser() (*config.Config, error) {
   if err != nil {
     return nil, err
   }
-  log.Noticef("\n%v\n\n", yamlConfig)
   return yamlConfig, nil
 }

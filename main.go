@@ -10,5 +10,11 @@ import (
 func main() {
   log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   log.StartupInfo()
-  utils.InitShellParser()
+  // parse shell and config
+  config, err := utils.InitShellParser()
+  if err != nil {
+    return
+  }
+  // begin
+  log.Noticef("\n%v\n\n", config)
 }

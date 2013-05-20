@@ -8,22 +8,27 @@ import (
 
 // Config represents the supported configuration options for a falcon,
 // as declared in its config.yml file.
+type protocolType string
+
+const (
+    protocolSmtp protocolType = "smtp"
+    protocolLmtp protocolType = "lmtp"
+)
+
 type Config struct {
-  Smtp struct {
-    Enabled   bool
-    Host      string
-    Port      int
-  }
-  Lmtp struct {
-    Enabled   bool
-    Host      string
-    Port      int
+  Adapter struct {
+    Protocol        protocolType
+    Host            string
+    Port            int
+    Workers_Number  int
+    Allow_Hosts     string
   }
   Storage struct {
-    Host      string
-    Port      int
-    Username  string
-    Password  string
+    Host          string
+    Port          int
+    Username      string
+    Password      string
+    Database      string
   }
 }
 
@@ -46,7 +51,32 @@ func ReadConfig(filename string) (*Config, error) {
     log.Errorf("cannot parse file %q: %v", filename, err)
     return nil, err
   }
+  setDefaultValues(e)
   return e, nil
+}
+
+// setDefaultValues for yaml config
+func setDefaultValues(config *Config) {
+  // default for Adapter
+  if config.Adapter.Protocol != protocolSmtp && config.Adapter.Protocol != protocolLmtp {
+    config.Adapter.Protocol = protocolSmtp
+  }
+  if config.Adapter.Host == "" {
+    config.Adapter.Host = "localhost"
+  }
+  if config.Adapter.Port <= 0 {
+    config.Adapter.Port = 25
+  }
+  if config.Adapter.Workers_Number <= 0 {
+    config.Adapter.Workers_Number = 50
+  }
+  // default for Storage
+  if config.Storage.Host == "" {
+    config.Storage.Host = "localhost"
+  }
+  if config.Storage.Port <= 0 {
+    config.Storage.Port = 5432
+  }
 }
 
 // ReadConfigBytes parses the contents of an config.yml file
