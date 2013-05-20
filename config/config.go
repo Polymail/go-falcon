@@ -51,17 +51,17 @@ func ReadConfig(filename string) (*Config, error) {
     log.Errorf("cannot read file %q: %v", filename, err)
     return nil, err
   }
-  e, err := ReadConfigBytes(data)
+  e, err := readConfigBytes(data)
   if err != nil {
     log.Errorf("cannot parse file %q: %v", filename, err)
     return nil, err
   }
-  setDefaultValues(e)
+  e.setDefaultValues()
   return e, nil
 }
 
 // setDefaultValues for yaml config
-func setDefaultValues(config *Config) {
+func (config *Config) setDefaultValues() {
   // default for Adapter
   if config.Adapter.Protocol != protocolSmtp && config.Adapter.Protocol != protocolLmtp {
     config.Adapter.Protocol = protocolSmtp
@@ -82,11 +82,18 @@ func setDefaultValues(config *Config) {
   if config.Storage.Port <= 0 {
     config.Storage.Port = 5432
   }
+  // default for Proxy
+  if config.Proxy.Host == "" {
+    config.Proxy.Host = "localhost"
+  }
+  if config.Proxy.Port <= 0 {
+    config.Proxy.Port = 2525
+  }
 }
 
-// ReadConfigBytes parses the contents of an config.yml file
+// readConfigBytes parses the contents of an config.yml file
 // and returns its representation.
-func ReadConfigBytes(data []byte) (*Config, error) {
+func readConfigBytes(data []byte) (*Config, error) {
   config := NewConfig()
   err := goyaml.Unmarshal(data, &config)
   if err != nil {

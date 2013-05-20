@@ -20,8 +20,9 @@ func main() {
   if err != nil {
     return
   }
-  // begin
+  // begin work
   log.Noticef("\n%v\n\n", gConfig)
-  // start proxy
-  utils.StartNginxHTTPAuth(gConfig)
+  // start nginx proxy
+  utils.StartNginxHTTPProxy(gConfig)
+  // start protocol listeners
 }

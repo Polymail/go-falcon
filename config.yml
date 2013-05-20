@@ -16,4 +16,4 @@ storage:
 proxy:
   enabled: false
   host: localhost
-  port: 2524
+  port: 2525
