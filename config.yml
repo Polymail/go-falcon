@@ -12,3 +12,8 @@ storage:
   username: postgres
   password: password
   database: go-falcon
+
+proxy:
+  enabled: false
+  host: localhost
+  port: 2524

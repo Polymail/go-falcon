@@ -30,6 +30,11 @@ type Config struct {
     Password      string
     Database      string
   }
+  Proxy struct {
+    Enabled       bool
+    Host          string
+    Port          int
+  }
 }
 
 // NewConfig returns a new Config without any options.
