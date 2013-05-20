@@ -35,6 +35,9 @@ type Config struct {
     Host          string
     Port          int
   }
+  Log struct {
+    Debug         bool
+  }
 }
 
 // NewConfig returns a new Config without any options.
