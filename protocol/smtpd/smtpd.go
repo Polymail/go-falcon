@@ -18,21 +18,24 @@ import (
   "strings"
   "time"
   "unicode"
+  "github.com/le0pard/go-falcon/config"
 )
 
 var (
-  rcptToRE = regexp.MustCompile(`[Tt][Oo]:[\s*]<(.+)>`)
-  mailFromRE = regexp.MustCompile(`[Ff][Rr][Oo][Mm]:[\s*]<(.*)>`)
+  rcptToRE = regexp.MustCompile(`[Tt][Oo]:[\s*]?<(.+)>`)
+  mailFromRE = regexp.MustCompile(`[Ff][Rr][Oo][Mm]:[\s*]?<(.*)>`)
 )
 
 // Server is an SMTP server.
 type Server struct {
-  Addr         string // TCP address to listen on, ":25" if empty
+  Addr         string // TCP address to listen on, ":2525" if empty
   Hostname     string // optional Hostname to announce; "" to use system hostname
   ReadTimeout  time.Duration  // optional read timeout
   WriteTimeout time.Duration  // optional write timeout
 
   PlainAuth bool // advertise plain auth (assumes you're on SSL)
+
+  ServerConfig config.Config
 
   // OnNewConnection, if non-nil, is called on new connections.
   // If it returns non-nil, the connection is closed.
@@ -63,7 +66,9 @@ type Envelope interface {
 }
 
 type BasicEnvelope struct {
-  rcpts []MailAddress
+  from      MailAddress
+  rcpts     []MailAddress
+  mailBody  []byte
 }
 
 func (e *BasicEnvelope) AddRecipient(rcpt MailAddress) error {
@@ -79,11 +84,14 @@ func (e *BasicEnvelope) BeginData() error {
 }
 
 func (e *BasicEnvelope) Write(line []byte) error {
+  e.mailBody = append(e.mailBody, line...)
   log.Printf("Line: %q", string(line))
   return nil
 }
 
 func (e *BasicEnvelope) Close() error {
+  log.Printf("Message finished")
+  log.Printf("Mail: %q", string(e.mailBody))
   return nil
 }
 
@@ -191,7 +199,7 @@ func (s *session) serve() {
       return
     }
   }
-  s.sendf("220 %s ESMTP gosmtpd\r\n", s.srv.hostname())
+  s.sendf("220 %s %s\r\n", s.srv.ServerConfig.Adapter.Welcome_Msg, s.srv.hostname())
   for {
     if s.srv.ReadTimeout != 0 {
       s.rwc.SetReadDeadline(time.Now().Add(s.srv.ReadTimeout))
@@ -231,6 +239,12 @@ func (s *session) serve() {
       s.handleRcpt(line)
     case "DATA":
       s.handleData()
+    case "XCLIENT":
+      // Nginx sends this
+      // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
+      s.sendlinef("250 2.0.0 OK")
+    case "AUTH":
+      s.sendlinef("235 2.0.0 ok, go ahead")
     default:
       log.Printf("Client: %q, verhb: %q", line, line.Verb())
       s.sendlinef("502 5.5.2 Error: command not recognized")

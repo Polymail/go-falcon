@@ -38,6 +38,7 @@ func StartMailServer(config *config.Config) {
   s := &smtpd.Server{
     Addr:      buffer.String(),
     OnNewMail: onNewMail,
+    ServerConfig: *config,
   }
   error := s.ListenAndServe()
   if error != nil {

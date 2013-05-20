@@ -20,6 +20,7 @@ type Config struct {
     Protocol        protocolType
     Host            string
     Port            int
+    Welcome_Msg     string
     Allow_Hosts     string
   }
   Storage struct {
