@@ -14,8 +14,6 @@ var (
   gConfig config.Config
 )
 
-
-
 func main() {
   log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   log.StartupInfo()
