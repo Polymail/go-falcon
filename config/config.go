@@ -20,7 +20,6 @@ type Config struct {
     Protocol        protocolType
     Host            string
     Port            int
-    Workers_Number  int
     Allow_Hosts     string
   }
   Storage struct {
@@ -29,6 +28,7 @@ type Config struct {
     Username      string
     Password      string
     Database      string
+    Pool          int
   }
   Proxy struct {
     Enabled       bool
@@ -75,15 +75,15 @@ func (config *Config) setDefaultValues() {
   if config.Adapter.Port <= 0 {
     config.Adapter.Port = 25
   }
-  if config.Adapter.Workers_Number <= 0 {
-    config.Adapter.Workers_Number = 50
-  }
   // default for Storage
   if config.Storage.Host == "" {
     config.Storage.Host = "localhost"
   }
   if config.Storage.Port <= 0 {
     config.Storage.Port = 5432
+  }
+  if config.Storage.Pool <= 0 {
+    config.Storage.Pool = 5
   }
   // default for Proxy
   if config.Proxy.Host == "" {

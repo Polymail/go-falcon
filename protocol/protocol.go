@@ -1,6 +1,8 @@
 package protocol
 
 import (
+  "bytes"
+  "strconv"
   "errors"
   "strings"
   "github.com/le0pard/go-falcon/log"
@@ -25,13 +27,20 @@ func onNewMail(c smtpd.Connection, from smtpd.MailAddress) (smtpd.Envelope, erro
 }
 
 
-func StartSmtpdServer(config *config.Config) {
+func StartMailServer(config *config.Config) {
+  var buffer bytes.Buffer
+  buffer.WriteString(config.Adapter.Host)
+  buffer.WriteString(":")
+  buffer.WriteString(strconv.Itoa(config.Adapter.Port))
+  //
+  log.Debugf("Mail working on %s", buffer.String())
+  //
   s := &smtpd.Server{
-    Addr:      "localhost:2526",
+    Addr:      buffer.String(),
     OnNewMail: onNewMail,
   }
   error := s.ListenAndServe()
   if error != nil {
-    log.Infof("ListenAndServe: %v", error)
+    log.Errorf("Mail server: %v", error)
   }
 }

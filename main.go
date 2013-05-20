@@ -23,10 +23,8 @@ func main() {
   if err != nil {
     return
   }
-  // begin work
-  log.Noticef("\n%v\n\n", gConfig)
   // start nginx proxy
   utils.StartNginxHTTPProxy(gConfig)
   // start protocol listeners
-  protocol.StartSmtpdServer(gConfig)
+  protocol.StartMailServer(gConfig)
 }

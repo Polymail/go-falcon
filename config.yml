@@ -1,8 +1,7 @@
 adapter:
   protocol: smtp # smtp or lmtp
   host: 127.0.0.1
-  port: 25
-  workers_number: 3
+  port: 2525
   allow_hosts: 127.0.0.1
 
 storage:
@@ -12,8 +11,9 @@ storage:
   username: postgres
   password: password
   database: go-falcon
+  pool: 3
 
 proxy:
-  enabled: false
+  enabled: true
   host: localhost
-  port: 2525
+  port: 2526
