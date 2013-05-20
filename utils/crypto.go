@@ -14,7 +14,7 @@ import (
 )
 
 
-func FromBase64(data string) string {
+func Base64ToString(data string) string {
   buf := bytes.NewBufferString(data)
   decoder := base64.NewDecoder(base64.StdEncoding, buf)
   res, _ := ioutil.ReadAll(decoder)

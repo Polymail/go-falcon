@@ -3,6 +3,7 @@ adapter:
   host: 127.0.0.1
   port: 2525
   welcome_msg: Falcon Mail Server
+  max_mail_size: 10240000
   allow_hosts: 127.0.0.1
 
 storage:

@@ -21,6 +21,7 @@ type Config struct {
     Host            string
     Port            int
     Welcome_Msg     string
+    Max_Mail_Size   int
     Allow_Hosts     string
   }
   Storage struct {
@@ -78,6 +79,9 @@ func (config *Config) setDefaultValues() {
   }
   if config.Adapter.Welcome_Msg == "" {
     config.Adapter.Welcome_Msg = "Falcon Mail Server"
+  }
+  if config.Adapter.Max_Mail_Size <= 0 || config.Adapter.Max_Mail_Size > 99999999 {
+    config.Adapter.Max_Mail_Size = 10240000
   }
   // default for Storage
   if config.Storage.Host == "" {

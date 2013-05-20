@@ -6,6 +6,8 @@ storage of mail messages in a relational database
 // https://github.com/bradfitz/go-smtpd/blob/master/smtpd/smtpd.go
 // https://github.com/jda/go-lmtpd/blob/master/lmtpd/lmtpd.go
 
+http://www.samlogic.net/articles/smtp-commands-reference-auth.htm
+
 
 ```bash
 telnet: > telnet localhost 2525

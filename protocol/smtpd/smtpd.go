@@ -15,6 +15,7 @@ import (
   "log"
   "net"
   "os/exec"
+  "strconv"
   "strings"
   "time"
   "unicode"
@@ -270,15 +271,20 @@ func (s *session) handleHello(greeting, host string) {
   fmt.Fprintf(s.bw, "250-%s\r\n", s.srv.hostname())
   extensions := []string{}
   if s.srv.PlainAuth {
-    extensions = append(extensions, "250-AUTH PLAIN")
+    extensions = append(extensions, "250-AUTH LOGIN PLAIN")
   }
   if s.srv.TslAuth {
     extensions = append(extensions, "250-STARTTLS")
   }
+  // size begin
+  var bufferForSize bytes.Buffer
+  bufferForSize.WriteString("250-SIZE ")
+  bufferForSize.WriteString(strconv.Itoa(s.srv.ServerConfig.Adapter.Max_Mail_Size))
+  // size end
   extensions = append(extensions,
     "250 DSN",
     "250-PIPELINING",
-    "250-SIZE 10240000",
+    bufferForSize.String(),
     "250-ENHANCEDSTATUSCODES",
     "250-8BITMIME",
     )
