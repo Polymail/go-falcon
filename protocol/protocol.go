@@ -3,8 +3,6 @@ package protocol
 import (
   "bytes"
   "strconv"
-  "errors"
-  "strings"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/protocol/smtpd"
@@ -15,10 +13,19 @@ type env struct {
 }
 
 func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
+  // filter for recipient
+  /*
   if strings.HasPrefix(rcpt.Email(), "bad@") {
     return errors.New("we don't send email to bad@")
   }
+  */
   return e.BasicEnvelope.AddRecipient(rcpt)
+}
+
+func (e *env) Close() error {
+  log.Infof("Message finished")
+  log.Infof("Mail: %v", e.BasicEnvelope)
+  return nil
 }
 
 func onNewMail(c smtpd.Connection, from smtpd.MailAddress) (smtpd.Envelope, error) {

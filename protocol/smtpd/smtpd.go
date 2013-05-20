@@ -100,8 +100,6 @@ func (e *BasicEnvelope) Write(line []byte) error {
 }
 
 func (e *BasicEnvelope) Close() error {
-  log.Printf("Message finished")
-  log.Printf("Mail: %v", e)
   return nil
 }
 
