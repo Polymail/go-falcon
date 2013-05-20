@@ -34,6 +34,7 @@ type Server struct {
   WriteTimeout time.Duration  // optional write timeout
 
   PlainAuth bool // advertise plain auth (assumes you're on SSL)
+  TslAuth   bool // tsl
 
   ServerConfig config.Config
 
@@ -268,13 +269,18 @@ func (s *session) handleHello(greeting, host string) {
   fmt.Fprintf(s.bw, "250-%s\r\n", s.srv.hostname())
   extensions := []string{}
   if s.srv.PlainAuth {
-    extensions = append(extensions, "250-AUTH PLAIN")
+    extensions = append(extensions, "250-AUTH LOGIN PLAIN CRAM-MD5 DIGEST-MD5 GSSAPI MSN NTLM")
   }
-  extensions = append(extensions, "250-PIPELINING",
+  if s.srv.TslAuth {
+    extensions = append(extensions, "250-STARTTLS")
+  }
+  extensions = append(extensions,
+    "250 DSN",
+    "250-PIPELINING",
     "250-SIZE 10240000",
     "250-ENHANCEDSTATUSCODES",
     "250-8BITMIME",
-    "250 DSN")
+    )
   for _, ext := range extensions {
     fmt.Fprintf(s.bw, "%s\r\n", ext)
   }
