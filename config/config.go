@@ -76,6 +76,9 @@ func (config *Config) setDefaultValues() {
   if config.Adapter.Port <= 0 {
     config.Adapter.Port = 25
   }
+  if config.Adapter.Welcome_Msg == "" {
+    config.Adapter.Welcome_Msg = "Falcon Mail Server"
+  }
   // default for Storage
   if config.Storage.Host == "" {
     config.Storage.Host = "localhost"

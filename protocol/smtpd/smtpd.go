@@ -58,6 +58,8 @@ type Connection interface {
   Addr() net.Addr
 }
 
+// EMAIL
+
 type Envelope interface {
   AddRecipient(rcpt MailAddress) error
   BeginData() error
@@ -94,6 +96,8 @@ func (e *BasicEnvelope) Close() error {
   log.Printf("Mail: %q", string(e.mailBody))
   return nil
 }
+
+// SERVER
 
 func (srv *Server) hostname() string {
   if srv.Hostname != "" {
@@ -140,6 +144,8 @@ func (srv *Server) Serve(ln net.Listener) error {
   }
   panic("not reached")
 }
+
+// SESSION
 
 type session struct {
   srv *Server
@@ -190,6 +196,8 @@ func (s *session) sendSMTPErrorOrLinef(err error, format string, args ...interfa
 func (s *session) Addr() net.Addr {
   return s.rwc.RemoteAddr()
 }
+
+// parse commands to server
 
 func (s *session) serve() {
   defer s.rwc.Close()
@@ -252,6 +260,8 @@ func (s *session) serve() {
   }
 }
 
+// Handle HELO, EHLO msg
+
 func (s *session) handleHello(greeting, host string) {
   s.helloType = greeting
   s.helloHost = host
@@ -270,6 +280,8 @@ func (s *session) handleHello(greeting, host string) {
   }
   s.bw.Flush()
 }
+
+// Handle mail from
 
 func (s *session) handleMailFrom(email string) {
   // TODO: 4.1.1.11.  If the server SMTP does not recognize or
@@ -299,6 +311,8 @@ func (s *session) handleMailFrom(email string) {
   s.sendlinef("250 2.1.0 Ok")
 }
 
+// Handle to
+
 func (s *session) handleRcpt(line cmdLine) {
   // TODO: 4.1.1.11.  If the server SMTP does not recognize or
   // cannot implement one or more of the parameters associated
@@ -323,6 +337,8 @@ func (s *session) handleRcpt(line cmdLine) {
   }
   s.sendlinef("250 2.1.0 Ok")
 }
+
+// Handle data
 
 func (s *session) handleData() {
   if s.env == nil {
@@ -357,6 +373,8 @@ func (s *session) handleData() {
   s.env = nil
 }
 
+// Handle error
+
 func (s *session) handleError(err error) {
   if se, ok := err.(SMTPError); ok {
     s.sendlinef("%s", se)
@@ -365,6 +383,8 @@ func (s *session) handleError(err error) {
   log.Printf("Error: %s", err)
   s.env = nil
 }
+
+// ADDRESS
 
 type addrString string
 
@@ -379,6 +399,8 @@ func (a addrString) Hostname() string {
   }
   return ""
 }
+
+// COMMAND LINE
 
 type cmdLine string
 
@@ -416,6 +438,8 @@ func (cl cmdLine) Arg() string {
 func (cl cmdLine) String() string {
   return string(cl)
 }
+
+// ERRORS
 
 type SMTPError string
 
