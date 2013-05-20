@@ -104,7 +104,7 @@ func (srv *Server) hostname() string {
 func (srv *Server) ListenAndServe() error {
   addr := srv.Addr
   if addr == "" {
-    addr = ":25"
+    addr = ":2525"
   }
   ln, e := net.Listen("tcp", addr)
   if e != nil {
