@@ -2,6 +2,10 @@
 
 storage of mail messages in a relational database
 
+## Libs
+
+    go get launchpad.net/goyaml
+
 ## TODO
 
 

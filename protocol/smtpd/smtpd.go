@@ -278,7 +278,7 @@ func (s *session) handleHello(greeting, host string) {
   fmt.Fprintf(s.bw, "250-%s\r\n", s.srv.hostname())
   extensions := []string{}
   if s.srv.ServerConfig.Adapter.Plain_Auth {
-    extensions = append(extensions, "250-AUTH PLAIN")
+    extensions = append(extensions, "250-AUTH LOGIN PLAIN")
   }
   if s.srv.ServerConfig.Adapter.Tls {
     extensions = append(extensions, "250-STARTTLS")
@@ -289,7 +289,7 @@ func (s *session) handleHello(greeting, host string) {
   bufferForSize.WriteString(strconv.Itoa(s.srv.ServerConfig.Adapter.Max_Mail_Size))
   // size end
   extensions = append(extensions,
-    "250 DSN",
+    "250-DSN",
     "250-PIPELINING",
     bufferForSize.String(),
     "250-ENHANCEDSTATUSCODES",
@@ -406,12 +406,13 @@ func (s *session) handleAuth(auth string) {
       if len(parts) > 2 {
         log.Debugf("AUTH PLAIN by %s / %s", string(parts[1]), string(parts[2]))
         // TODO: we should login
+        // 530 5.7.0 Authentication required
         s.sendlinef("235 2.0.0 OK, go ahead")
       } else {
         s.sendlinef("535 5.7.1 authentication failed")
       }
     default:
-      s.sendlinef("535 5.7.1 authentication failed")
+      s.sendlinef("504 5.5.2 Unrecognized authentication type")
   }
 }
 
