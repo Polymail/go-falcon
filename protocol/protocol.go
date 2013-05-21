@@ -23,13 +23,11 @@ func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
 }
 
 func (e *env) Close() error {
-  log.Infof("Message finished")
-  log.Infof("Mail: %v", e.BasicEnvelope)
+  log.Debugf("Mail received: %v", e.BasicEnvelope)
   return nil
 }
 
 func onNewMail(c smtpd.Connection, from smtpd.MailAddress) (smtpd.Envelope, error) {
-  log.Infof("new mail from %q", from)
   return &env{new(smtpd.BasicEnvelope)}, nil
 }
 

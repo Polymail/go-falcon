@@ -12,14 +12,15 @@ import (
   "errors"
   "regexp"
   "fmt"
-  "log"
   "net"
   "os/exec"
   "strconv"
   "strings"
   "time"
   "unicode"
+  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/utils"
 )
 
 var (
@@ -95,7 +96,6 @@ func (e *BasicEnvelope) BeginData() error {
 
 func (e *BasicEnvelope) Write(line []byte) error {
   e.mailBody = append(e.mailBody, line...)
-  log.Printf("Line: %q", string(line))
   return nil
 }
 
@@ -137,7 +137,7 @@ func (srv *Server) Serve(ln net.Listener) error {
     rw, e := ln.Accept()
     if e != nil {
       if ne, ok := e.(net.Error); ok && ne.Temporary() {
-        log.Printf("smtpd: Accept error: %v", e)
+        log.Errorf("smtpd: Accept error: %v", e)
         continue
       }
       return e
@@ -176,7 +176,7 @@ func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
 }
 
 func (s *session) errorf(format string, args ...interface{}) {
-  log.Printf("Client error: "+format, args...)
+  log.Errorf("Client error: "+format, args...)
 }
 
 func (s *session) sendf(format string, args ...interface{}) {
@@ -244,7 +244,7 @@ func (s *session) serve() {
       arg := line.Arg() // "From:<foo@bar.com>"
       m := mailFromRE.FindStringSubmatch(arg)
       if m == nil {
-        log.Printf("invalid MAIL arg: %q", arg)
+        log.Errorf("invalid MAIL arg: %q", arg)
         s.sendlinef("501 5.1.7 Bad sender address syntax")
         continue
       }
@@ -258,10 +258,9 @@ func (s *session) serve() {
       // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
       s.sendlinef("250 2.0.0 OK")
     case "AUTH":
-      log.Printf("TODO: %s", string(line.Arg()))
-      s.sendlinef("235 2.0.0 OK, go ahead")
+      s.handleAuth(line.Arg())
     default:
-      log.Printf("Client: %q, verhb: %q", line, line.Verb())
+      log.Errorf("Client: %q, verhb: %q", line, line.Verb())
       s.sendlinef("502 5.5.2 Error: command not recognized")
     }
   }
@@ -275,7 +274,7 @@ func (s *session) handleHello(greeting, host string) {
   fmt.Fprintf(s.bw, "250-%s\r\n", s.srv.hostname())
   extensions := []string{}
   if s.srv.PlainAuth {
-    extensions = append(extensions, "250-AUTH LOGIN PLAIN")
+    extensions = append(extensions, "250-AUTH PLAIN")
   }
   if s.srv.TslAuth {
     extensions = append(extensions, "250-STARTTLS")
@@ -310,10 +309,10 @@ func (s *session) handleMailFrom(email string) {
     s.sendlinef("503 5.5.1 Error: nested MAIL command")
     return
   }
-  log.Printf("mail from: %q", email)
+  log.Debugf("mail from: %q", email)
   cb := s.srv.OnNewMail
   if cb == nil {
-    log.Printf("smtp: Server.OnNewMail is nil; rejecting MAIL FROM")
+    log.Errorf("smtp: Server.OnNewMail is nil; rejecting MAIL FROM")
     s.sendf("451 Server.OnNewMail not configured\r\n")
     return
   }
@@ -321,7 +320,7 @@ func (s *session) handleMailFrom(email string) {
   fromEmail := addrString(email)
   env, err := cb(s, fromEmail)
   if err != nil {
-    log.Printf("rejecting MAIL FROM %q: %v", email, err)
+    log.Errorf("rejecting MAIL FROM %q: %v", email, err)
     // TODO: send it back to client if warranted, like above
     return
   }
@@ -345,7 +344,7 @@ func (s *session) handleRcpt(line cmdLine) {
   arg := line.Arg() // "To:<foo@bar.com>"
   m := rcptToRE.FindStringSubmatch(arg)
   if m == nil {
-    log.Printf("bad RCPT address: %q", arg)
+    log.Errorf("bad RCPT address: %q", arg)
     s.sendlinef("501 5.1.7 Bad sender address syntax")
     return
   }
@@ -392,6 +391,22 @@ func (s *session) handleData() {
   s.env = nil
 }
 
+// handle AUTH
+
+func (s *session) handleAuth(auth string) {
+  line := cmdLine(string(auth))
+  switch line.Verb() {
+    case "PLAIN":
+      token := utils.Base64ToString(line.Arg())
+      parts := bytes.Split([]byte(token), []byte{ 0 })
+      log.Debugf("AUTH PLAIN by %s / %s", string(parts[1]), string(parts[2]))
+      // TODO: we should login
+      s.sendlinef("235 2.0.0 OK, go ahead")
+    default:
+      s.sendlinef("535 5.7.1 authentication failed")
+  }
+}
+
 // Handle error
 
 func (s *session) handleError(err error) {
@@ -399,7 +414,7 @@ func (s *session) handleError(err error) {
     s.sendlinef("%s", se)
     return
   }
-  log.Printf("Error: %s", err)
+  log.Errorf("Error: %s", err)
   s.env = nil
 }
 
