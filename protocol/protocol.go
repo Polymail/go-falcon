@@ -7,6 +7,8 @@ import (
   "crypto/rand"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/channels"
+  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
@@ -25,7 +27,8 @@ func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
 }
 
 func (e *env) Close() error {
-  log.Debugf("Mail received: %v", e.BasicEnvelope)
+  // send mail to storage workers
+  channels.SaveMailChan <- e.BasicEnvelope
   return nil
 }
 
@@ -46,19 +49,24 @@ func loadTSLCerts(config *config.Config) (*tls.Config, error) {
 
 
 func StartMailServer(config *config.Config) {
-  var buffer bytes.Buffer
-  buffer.WriteString(config.Adapter.Host)
-  buffer.WriteString(":")
-  buffer.WriteString(strconv.Itoa(config.Adapter.Port))
+  // craete mailchan
+  channels.SaveMailChan = make(chan *smtpd.BasicEnvelope, 10)
+  // start parser and storage workers
+  storage.StartStorageWorkers(config)
+  // buffer
+  var bufferServer bytes.Buffer
+  bufferServer.WriteString(config.Adapter.Host)
+  bufferServer.WriteString(":")
+  bufferServer.WriteString(strconv.Itoa(config.Adapter.Port))
   //
-  log.Debugf("Mail working on %s", buffer.String())
+  log.Debugf("Mail working on %s", bufferServer.String())
   // config server
   s := &smtpd.Server{
-    Addr:      buffer.String(),
+    Addr:      bufferServer.String(),
     OnNewMail: onNewMail,
     ServerConfig: config,
   }
-  // certs
+  // tls certs
   if config.Adapter.Tsl {
     cert, err := loadTSLCerts(config)
     if err != nil {

@@ -229,6 +229,8 @@ func (s *session) serve() {
       continue
     }
 
+    log.Debugf("Command from client %s", line)
+
     switch line.Verb() {
     case "HELO", "EHLO":
       s.handleHello(line.Verb(), line.Arg())
