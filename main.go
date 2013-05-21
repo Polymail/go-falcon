@@ -22,6 +22,8 @@ func main() {
   if err != nil {
     return
   }
+  // conf
+  log.Debugf("Loaded config: %v", gConfig)
   // start nginx proxy
   proxy.StartNginxHTTPProxy(gConfig)
   // start protocol listeners
