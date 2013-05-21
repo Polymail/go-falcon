@@ -21,7 +21,7 @@ type Config struct {
     Host            string
     Port            int
     Plain_Auth      bool
-    Tsl             bool
+    Tls             bool
     Ssl_Hostname    string
     Ssl_Pub_Key     string
     Ssl_Prv_Key     string

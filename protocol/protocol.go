@@ -36,7 +36,7 @@ func onNewMail(c smtpd.Connection, from smtpd.MailAddress) (smtpd.Envelope, erro
   return &env{new(smtpd.BasicEnvelope)}, nil
 }
 
-func loadTSLCerts(config *config.Config) (*tls.Config, error) {
+func loadTLSCerts(config *config.Config) (*tls.Config, error) {
   cert, err := tls.LoadX509KeyPair(config.Adapter.Ssl_Pub_Key, config.Adapter.Ssl_Prv_Key)
   if err != nil {
     log.Errorf("There was a problem with loading the certificate: %s", err)
@@ -67,10 +67,10 @@ func StartMailServer(config *config.Config) {
     ServerConfig: config,
   }
   // tls certs
-  if config.Adapter.Tsl {
-    cert, err := loadTSLCerts(config)
+  if config.Adapter.Tls {
+    cert, err := loadTLSCerts(config)
     if err != nil {
-      config.Adapter.Tsl = false
+      config.Adapter.Tls = false
     } else {
       s.TLSconfig = cert
     }

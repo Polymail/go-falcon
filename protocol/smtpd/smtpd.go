@@ -36,7 +36,7 @@ type Server struct {
   ReadTimeout  time.Duration  // optional read timeout
   WriteTimeout time.Duration  // optional write timeout
 
-  TLSconfig *tls.Config // tsl config
+  TLSconfig *tls.Config // tls config
 
   ServerConfig *config.Config
 
@@ -280,7 +280,7 @@ func (s *session) handleHello(greeting, host string) {
   if s.srv.ServerConfig.Adapter.Plain_Auth {
     extensions = append(extensions, "250-AUTH PLAIN")
   }
-  if s.srv.ServerConfig.Adapter.Tsl {
+  if s.srv.ServerConfig.Adapter.Tls {
     extensions = append(extensions, "250-STARTTLS")
   }
   // size begin
@@ -418,7 +418,7 @@ func (s *session) handleAuth(auth string) {
 // handle StartTLS
 
 func (s *session) handleStartTLS() {
-  if s.srv.ServerConfig.Adapter.Tsl {
+  if s.srv.ServerConfig.Adapter.Tls {
     s.sendlinef("220 2.0.0 Ready to start TLS")
     var tlsConn *tls.Conn
     tlsConn = tls.Server(s.rwc, s.srv.TLSconfig)
