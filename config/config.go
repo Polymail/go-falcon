@@ -20,6 +20,11 @@ type Config struct {
     Protocol        protocolType
     Host            string
     Port            int
+    Plain_Auth      bool
+    Tsl             bool
+    Ssl_Hostname    string
+    Ssl_Pub_Key     string
+    Ssl_Prv_Key     string
     Welcome_Msg     string
     Max_Mail_Size   int
     Allow_Hosts     string
@@ -90,7 +95,7 @@ func (config *Config) setDefaultValues() {
   if config.Storage.Port <= 0 {
     config.Storage.Port = 5432
   }
-  if config.Storage.Pool <= 0 {
+  if config.Storage.Pool <= 5 {
     config.Storage.Pool = 5
   }
   // default for Proxy

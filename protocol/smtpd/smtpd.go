@@ -14,6 +14,7 @@ import (
   "fmt"
   "net"
   "os/exec"
+  "crypto/tls"
   "strconv"
   "strings"
   "time"
@@ -35,10 +36,9 @@ type Server struct {
   ReadTimeout  time.Duration  // optional read timeout
   WriteTimeout time.Duration  // optional write timeout
 
-  PlainAuth bool // advertise plain auth (assumes you're on SSL)
-  TslAuth   bool // tsl
+  TLSconfig *tls.Config // tsl config
 
-  ServerConfig config.Config
+  ServerConfig *config.Config
 
   // OnNewConnection, if non-nil, is called on new connections.
   // If it returns non-nil, the connection is closed.
@@ -259,6 +259,8 @@ func (s *session) serve() {
       s.sendlinef("250 2.0.0 OK")
     case "AUTH":
       s.handleAuth(line.Arg())
+    case "STARTTLS":
+      s.handleStartTLS()
     default:
       log.Errorf("Client: %q, verhb: %q", line, line.Verb())
       s.sendlinef("502 5.5.2 Error: command not recognized")
@@ -273,10 +275,10 @@ func (s *session) handleHello(greeting, host string) {
   s.helloHost = host
   fmt.Fprintf(s.bw, "250-%s\r\n", s.srv.hostname())
   extensions := []string{}
-  if s.srv.PlainAuth {
+  if s.srv.ServerConfig.Adapter.Plain_Auth {
     extensions = append(extensions, "250-AUTH PLAIN")
   }
-  if s.srv.TslAuth {
+  if s.srv.ServerConfig.Adapter.Tsl {
     extensions = append(extensions, "250-STARTTLS")
   }
   // size begin
@@ -399,12 +401,33 @@ func (s *session) handleAuth(auth string) {
     case "PLAIN":
       token := utils.Base64ToString(line.Arg())
       parts := bytes.Split([]byte(token), []byte{ 0 })
-      log.Debugf("AUTH PLAIN by %s / %s", string(parts[1]), string(parts[2]))
-      // TODO: we should login
-      s.sendlinef("235 2.0.0 OK, go ahead")
+      if len(parts) > 2 {
+        log.Debugf("AUTH PLAIN by %s / %s", string(parts[1]), string(parts[2]))
+        // TODO: we should login
+        s.sendlinef("235 2.0.0 OK, go ahead")
+      } else {
+        s.sendlinef("535 5.7.1 authentication failed")
+      }
     default:
       s.sendlinef("535 5.7.1 authentication failed")
   }
+}
+
+// handle StartTLS
+
+func (s *session) handleStartTLS() {
+  s.sendlinef("220 2.0.0 Ready to start TLS")
+  var tlsConn *tls.Conn
+  tlsConn = tls.Server(s.rwc, s.srv.TLSconfig)
+  err := tlsConn.Handshake()
+  if err != nil {
+    log.Errorf("Could not TLS handshake:%v", err)
+  } else {
+    s.rwc = net.Conn(tlsConn)
+    s.br = bufio.NewReader(s.rwc)
+    s.bw = bufio.NewWriter(s.rwc)
+  }
+  s.sendlinef("")
 }
 
 // Handle error

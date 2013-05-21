@@ -2,6 +2,11 @@ adapter:
   protocol: smtp # smtp or lmtp
   host: 127.0.0.1
   port: 2525
+  plain_auth: true
+  tsl: true
+  ssl_hostname: localhost
+  ssl_pub_key: examples/test.pem
+  ssl_prv_key: examples/test.key
   welcome_msg: Falcon Mail Server
   max_mail_size: 10240000
   allow_hosts: 127.0.0.1

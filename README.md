@@ -8,6 +8,8 @@ storage of mail messages in a relational database
 
 http://www.samlogic.net/articles/smtp-commands-reference-auth.htm
 
+openssl s_client -starttls smtp -connect localhost:2525 -tls1 -crlf
+
 
 ```bash
 telnet: > telnet localhost 2525
