@@ -50,7 +50,7 @@ func loadTLSCerts(config *config.Config) (*tls.Config, error) {
 
 func StartMailServer(config *config.Config) {
   // craete mailchan
-  channels.SaveMailChan = make(chan *smtpd.BasicEnvelope, 10)
+  channels.SaveMailChan = make(chan *smtpd.BasicEnvelope, 100)
   // start parser and storage workers
   storage.StartStorageWorkers(config)
   // buffer
