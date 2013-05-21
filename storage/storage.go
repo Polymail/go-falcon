@@ -4,6 +4,7 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/channels"
+  "github.com/le0pard/go-falcon/parser"
   //"github.com/le0pard/go-falcon/storage/postgresql"
 )
 
@@ -11,8 +12,8 @@ import (
 func startParserAndStorageWorker(config *config.Config) {
   log.Debugf("Starting storage worker")
   for {
-    client := <-channels.SaveMailChan
-    log.Debugf("Mail received to storage: %v", client)
+    envelop := <-channels.SaveMailChan
+    parser.ParseMail(envelop)
   }
 }
 
