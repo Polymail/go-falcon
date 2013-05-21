@@ -14,6 +14,7 @@ func startParserAndStorageWorker(config *config.Config) {
   for {
     envelop := <-channels.SaveMailChan
     parser.ParseMail(envelop)
+    //postgresql.StoreMail()
   }
 }
 
