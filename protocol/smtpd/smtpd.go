@@ -416,18 +416,22 @@ func (s *session) handleAuth(auth string) {
 // handle StartTLS
 
 func (s *session) handleStartTLS() {
-  s.sendlinef("220 2.0.0 Ready to start TLS")
-  var tlsConn *tls.Conn
-  tlsConn = tls.Server(s.rwc, s.srv.TLSconfig)
-  err := tlsConn.Handshake()
-  if err != nil {
-    log.Errorf("Could not TLS handshake:%v", err)
+  if s.srv.ServerConfig.Adapter.Tsl {
+    s.sendlinef("220 2.0.0 Ready to start TLS")
+    var tlsConn *tls.Conn
+    tlsConn = tls.Server(s.rwc, s.srv.TLSconfig)
+    err := tlsConn.Handshake()
+    if err != nil {
+      log.Errorf("Could not TLS handshake:%v", err)
+    } else {
+      s.rwc = net.Conn(tlsConn)
+      s.br = bufio.NewReader(s.rwc)
+      s.bw = bufio.NewWriter(s.rwc)
+    }
+    s.sendlinef("")
   } else {
-    s.rwc = net.Conn(tlsConn)
-    s.br = bufio.NewReader(s.rwc)
-    s.bw = bufio.NewWriter(s.rwc)
+    s.sendlinef("503 5.5.1 Error: Tsl not supported")
   }
-  s.sendlinef("")
 }
 
 // Handle error
