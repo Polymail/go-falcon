@@ -2,14 +2,14 @@
 
 storage of mail messages in a relational database
 
+## TODO
 
-// https://github.com/bradfitz/go-smtpd/blob/master/smtpd/smtpd.go
-// https://github.com/jda/go-lmtpd/blob/master/lmtpd/lmtpd.go
 
 http://www.samlogic.net/articles/smtp-commands-reference-auth.htm
 
-openssl s_client -starttls smtp -connect localhost:2525 -tls1 -crlf
+## Test
 
+Test telnet:
 
 ```bash
 telnet: > telnet localhost 2525
@@ -34,4 +34,10 @@ client: .
 server: 250 Message received: 20040120203404.CCCC18555.mx1.example.com@client.example.com
 client: QUIT
 server: 221 mx1.example.com ESMTP server closing connection
+```
+
+Test Tls:
+
+```bash
+openssl s_client -starttls smtp -connect localhost:2525 -tls1 -crlf
 ```
