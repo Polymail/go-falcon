@@ -27,5 +27,15 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
 
 func (db *DBConn) CheckUser(username string, password string) {
   log.Debugf("AUTH by %s / %s", username, password)
-  log.Debugf("SQL: %v", db.DB.QueryRow("SELECT 1"))
+  rows, err := db.DB.Query("SELECT 1 as name")
+  if err != nil {
+    log.Errorf("%v", err)
+  }
+  for rows.Next() {
+      var name string
+      if err := rows.Scan(&name); err != nil {
+          log.Errorf("%v", err)
+      }
+      log.Debugf("SQL: %s\n", name)
+  }
 }

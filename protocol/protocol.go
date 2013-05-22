@@ -62,7 +62,7 @@ func StartMailServer(config *config.Config) {
   bufferServer.WriteString(config.Adapter.Host)
   bufferServer.WriteString(":")
   bufferServer.WriteString(strconv.Itoa(config.Adapter.Port))
-  //
+  // debug info
   log.Debugf("Mail working on %s", bufferServer.String())
   // config database
   db, err := storage.InitDatabase(config)
