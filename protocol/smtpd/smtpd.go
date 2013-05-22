@@ -76,7 +76,7 @@ type Envelope interface {
 type BasicEnvelope struct {
   from      MailAddress
   rcpts     []MailAddress
-  mailBody  []byte
+  MailBody  []byte
 }
 
 func (e *BasicEnvelope) AddSender(from MailAddress) error {
@@ -97,7 +97,7 @@ func (e *BasicEnvelope) BeginData() error {
 }
 
 func (e *BasicEnvelope) Write(line []byte) error {
-  e.mailBody = append(e.mailBody, line...)
+  e.MailBody = append(e.MailBody, line...)
   return nil
 }
 
