@@ -21,6 +21,7 @@ import (
   "unicode"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/utils"
 )
 
@@ -39,6 +40,7 @@ type Server struct {
   TLSconfig *tls.Config // tls config
 
   ServerConfig *config.Config
+  DBConn       *storage.DBConn
 
   // OnNewConnection, if non-nil, is called on new connections.
   // If it returns non-nil, the connection is closed.
@@ -401,7 +403,7 @@ func (s *session) plainAuth(authToken string) {
   token := utils.Base64ToString(authToken)
   parts := bytes.Split([]byte(token), []byte{ 0 })
   if len(parts) > 2 {
-    log.Debugf("AUTH PLAIN by %s / %s", string(parts[1]), string(parts[2]))
+    s.srv.DBConn.CheckUser(string(parts[1]), string(parts[2]))
     // TODO: we should login
     // 530 5.7.0 Authentication required
     s.sendlinef("235 2.0.0 OK, go ahead")

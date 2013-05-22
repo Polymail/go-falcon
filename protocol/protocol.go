@@ -8,6 +8,7 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/worker"
+  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
@@ -52,7 +53,7 @@ func loadTLSCerts(config *config.Config) (*tls.Config, error) {
 
 
 func StartMailServer(config *config.Config) {
-  // craete mailchan
+  // create queue for emails (100 max)
   SaveMailChan = make(chan *smtpd.BasicEnvelope, 100)
   // start parser and storage workers
   worker.StartWorkers(config, SaveMailChan)
@@ -63,11 +64,18 @@ func StartMailServer(config *config.Config) {
   bufferServer.WriteString(strconv.Itoa(config.Adapter.Port))
   //
   log.Debugf("Mail working on %s", bufferServer.String())
+  // config database
+  db, err := storage.InitDatabase(config)
+  if err != nil {
+    log.Errorf("Problem with connection to storage: %s", err)
+    return
+  }
   // config server
   s := &smtpd.Server{
     Addr:      bufferServer.String(),
     OnNewMail: onNewMail,
     ServerConfig: config,
+    DBConn: db,
   }
   // tls certs
   if config.Adapter.Tls {
