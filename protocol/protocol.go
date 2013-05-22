@@ -46,7 +46,7 @@ func loadTLSCerts(config *config.Config) (*tls.Config, error) {
     log.Errorf("There was a problem with loading the certificate: %s", err)
     return nil, err
   }
-  TLSconfig := &tls.Config{Certificates: []tls.Certificate{cert}, ClientAuth: tls.VerifyClientCertIfGiven, ServerName: config.Adapter.Ssl_Hostname}
+  TLSconfig := &tls.Config{Certificates: []tls.Certificate{cert}, ClientAuth: tls.VerifyClientCertIfGiven, ServerName: config.Adapter.Ssl_Hostname, InsecureSkipVerify: true}
   TLSconfig.Rand = rand.Reader
   return TLSconfig, nil
 }
