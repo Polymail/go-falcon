@@ -30,6 +30,7 @@ type Config struct {
     Allow_Hosts     string
   }
   Storage struct {
+    Adapter       string
     Host          string
     Port          int
     Username      string

@@ -7,14 +7,17 @@ import (
   "crypto/rand"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/channels"
-  "github.com/le0pard/go-falcon/storage"
+  "github.com/le0pard/go-falcon/worker"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
 type env struct {
   *smtpd.BasicEnvelope
 }
+
+var (
+  SaveMailChan chan *smtpd.BasicEnvelope
+)
 
 func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
   // filter for recipient
@@ -28,7 +31,7 @@ func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
 
 func (e *env) Close() error {
   // send mail to storage workers
-  channels.SaveMailChan <- e.BasicEnvelope
+  SaveMailChan <- e.BasicEnvelope
   return nil
 }
 
@@ -50,9 +53,9 @@ func loadTLSCerts(config *config.Config) (*tls.Config, error) {
 
 func StartMailServer(config *config.Config) {
   // craete mailchan
-  channels.SaveMailChan = make(chan *smtpd.BasicEnvelope, 100)
+  SaveMailChan = make(chan *smtpd.BasicEnvelope, 100)
   // start parser and storage workers
-  storage.StartStorageWorkers(config)
+  worker.StartWorkers(config, SaveMailChan)
   // buffer
   var bufferServer bytes.Buffer
   bufferServer.WriteString(config.Adapter.Host)
