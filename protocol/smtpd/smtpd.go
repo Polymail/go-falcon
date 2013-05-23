@@ -317,11 +317,12 @@ func (s *session) handleHello(greeting, host string) {
   bufferForSize.WriteString(strconv.Itoa(s.srv.ServerConfig.Adapter.Max_Mail_Size))
   // size end
   extensions = append(extensions,
-    "250 DSN",
+    "250-DSN",
     "250-PIPELINING",
     bufferForSize.String(),
     "250-ENHANCEDSTATUSCODES",
     "250-8BITMIME",
+    "250 HELP",
     )
   for _, ext := range extensions {
     fmt.Fprintf(s.bw, "%s\r\n", ext)

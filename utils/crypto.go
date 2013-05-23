@@ -8,11 +8,7 @@ import (
 
 func DecodeSMTPAuthPlain(b64 string) (string, string, string) {
   dest := DecodeBase64String(b64)
-  // zero byte
-  var zero []byte
-  zero = make([]byte, 1)
-  zero[0] = 0
-  f := bytes.Split([]byte(dest), zero)
+  f := bytes.Split([]byte(dest), []byte{ 0 })
 
   if((len(f) == 4) || (len(f) == 3)) {
     return string(f[0]), string(f[1]), string(f[2])
