@@ -12,7 +12,7 @@ END
 Net::SMTP.start('localhost',
                 2525,
                 'localhost',
-                'username', 'password', :plain) do |smtp|
+                'username', 'password', :login) do |smtp|
   2.times do
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com']

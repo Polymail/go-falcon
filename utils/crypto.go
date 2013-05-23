@@ -2,21 +2,30 @@ package utils
 
 import (
   "bytes"
-//  "compress/zlib"
-//  "crypto/md5"
-//  "crypto/rand"
-//  "crypto/tls"
-  "encoding/base64"
-//  "encoding/hex"
-//  "encoding/json"
-//  "io"
   "io/ioutil"
+  "encoding/base64"
 )
 
+func DecodeSMTPAuthPlain(b64 string) (string, string, string) {
+  dest := DecodeBase64String(b64)
+  // zero byte
+  var zero []byte
+  zero = make([]byte, 1)
+  zero[0] = 0
+  f := bytes.Split([]byte(dest), zero)
 
-func Base64ToString(data string) string {
-  buf := bytes.NewBufferString(data)
-  decoder := base64.NewDecoder(base64.StdEncoding, buf)
-  res, _ := ioutil.ReadAll(decoder)
-  return string(res)
+  if((len(f) == 4) || (len(f) == 3)) {
+    return string(f[0]), string(f[1]), string(f[2])
+  } else {
+    return "","",""
+  }
+
+  return "","",""
+}
+
+func DecodeBase64String(b64 string) string {
+  buf := bytes.NewBufferString(b64)
+  encoded := base64.NewDecoder(base64.StdEncoding, buf)
+  dest, _ := ioutil.ReadAll(encoded)
+  return string(dest)
 }

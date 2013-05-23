@@ -74,23 +74,23 @@ type Envelope interface {
 }
 
 type BasicEnvelope struct {
-  from      MailAddress
-  rcpts     []MailAddress
+  From      MailAddress
+  Rcpts     []MailAddress
   MailBody  []byte
 }
 
 func (e *BasicEnvelope) AddSender(from MailAddress) error {
-  e.from = from
+  e.From = from
   return nil
 }
 
 func (e *BasicEnvelope) AddRecipient(rcpt MailAddress) error {
-  e.rcpts = append(e.rcpts, rcpt)
+  e.Rcpts = append(e.Rcpts, rcpt)
   return nil
 }
 
 func (e *BasicEnvelope) BeginData() error {
-  if len(e.rcpts) == 0 {
+  if len(e.Rcpts) == 0 {
     return SMTPError("554 5.5.1 Error: no valid recipients")
   }
   return nil
@@ -165,6 +165,12 @@ type session struct {
 
   helloType string
   helloHost string
+
+  authPlain bool // bool for 2 step plain auth
+  authLogin bool // bool for 2 step login auth
+
+  authUsername string // auth login
+  authPassword string // auth password
 }
 
 func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
@@ -173,6 +179,8 @@ func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
     rwc: rwc,
     br:  bufio.NewReader(rwc),
     bw:  bufio.NewWriter(rwc),
+    authPlain: false,
+    authLogin: false,
   }
   return
 }
@@ -233,43 +241,61 @@ func (s *session) serve() {
 
     log.Debugf("Command from client %s", line)
 
-    switch line.Verb() {
-    case "HELO", "EHLO", "LHLO":
-      s.handleHello(line.Verb(), line.Arg())
-    case "QUIT":
-      s.sendlinef("221 2.0.0 Bye")
-      return
-    case "RSET":
-      s.env = nil
-      s.sendlinef("250 2.0.0 OK")
-    case "NOOP":
-      s.sendlinef("250 2.0.0 OK")
-    case "MAIL":
-      arg := line.Arg() // "From:<foo@bar.com>"
-      m := mailFromRE.FindStringSubmatch(arg)
-      if m == nil {
-        log.Errorf("invalid MAIL arg: %q", arg)
-        s.sendlinef("501 5.1.7 Bad sender address syntax")
-        continue
+    if s.checkSeveralSteps(string(line)) {
+
+      switch line.Verb() {
+      case "HELO", "EHLO", "LHLO":
+        s.handleHello(line.Verb(), line.Arg())
+      case "QUIT":
+        s.sendlinef("221 2.0.0 Bye")
+        return
+      case "RSET":
+        s.env = nil
+        s.sendlinef("250 2.0.0 OK")
+      case "NOOP":
+        s.sendlinef("250 2.0.0 OK")
+      case "MAIL":
+        arg := line.Arg() // "From:<foo@bar.com>"
+        m := mailFromRE.FindStringSubmatch(arg)
+        if m == nil {
+          log.Errorf("invalid MAIL arg: %q", arg)
+          s.sendlinef("501 5.1.7 Bad sender address syntax")
+          continue
+        }
+        s.handleMailFrom(m[1])
+      case "RCPT":
+        s.handleRcpt(line)
+      case "DATA":
+        s.handleData()
+      case "XCLIENT":
+        // Nginx sends this
+        // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
+        s.sendlinef("250 2.0.0 OK")
+      case "AUTH":
+        s.handleAuth(line.Arg())
+      case "STARTTLS":
+        s.handleStartTLS()
+      default:
+        log.Errorf("Client: %q, verhb: %q", line, line.Verb())
+        s.sendlinef("502 5.5.2 Error: command not recognized")
       }
-      s.handleMailFrom(m[1])
-    case "RCPT":
-      s.handleRcpt(line)
-    case "DATA":
-      s.handleData()
-    case "XCLIENT":
-      // Nginx sends this
-      // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
-      s.sendlinef("250 2.0.0 OK")
-    case "AUTH":
-      s.handleAuth(line.Arg())
-    case "STARTTLS":
-      s.handleStartTLS()
-    default:
-      log.Errorf("Client: %q, verhb: %q", line, line.Verb())
-      s.sendlinef("502 5.5.2 Error: command not recognized")
+
     }
   }
+}
+
+// check several step command
+
+func (s *session) checkSeveralSteps (line string) bool {
+  if s.authPlain {
+    s.plainAuth(line)
+    return false
+  }
+  if s.authLogin {
+    s.loginAuth(line)
+    return false
+  }
+  return true
 }
 
 // Handle HELO, EHLO msg
@@ -397,28 +423,97 @@ func (s *session) handleData() {
   s.env = nil
 }
 
+// auth by DB
+
+func (s *session) authByDB() {
+  log.Debugf("AUTH %s = %s", s.authUsername, s.authPassword)
+  s.sendlinef("235 2.0.0 OK, go ahead")
+  // s.srv.DBConn.CheckUser(string(parts[1]), string(parts[2]))
+  // TODO: we should login
+  // 530 5.7.0 Authentication required
+}
+
 // plain auth
 
-func (s *session) plainAuth(authToken string) {
-  token := utils.Base64ToString(authToken)
-  parts := bytes.Split([]byte(token), []byte{ 0 })
-  if len(parts) > 2 {
-    s.srv.DBConn.CheckUser(string(parts[1]), string(parts[2]))
-    // TODO: we should login
-    // 530 5.7.0 Authentication required
-    s.sendlinef("235 2.0.0 OK, go ahead")
+func (s *session) plainAuth(line string) {
+  _, s.authUsername, s.authPassword = utils.DecodeSMTPAuthPlain(line)
+  if s.authUsername != "" && s.authPassword != "" {
+    s.authByDB()
   } else {
     s.sendlinef("535 5.7.1 authentication failed")
   }
+  s.clearAuthData()
+}
+
+// check if plain auth 2 step or one
+
+func (s *session) tryPlainAuth(authToken string) {
+  if strings.Trim(authToken, " ") != "" {
+    s.plainAuth(authToken)
+  } else {
+    s.clearAuthData()
+    s.authPlain = true
+    s.sendlinef("334 2.0.0 OK")
+  }
+}
+
+// login auth
+
+func (s *session) loginAuth(line string) {
+  if s.authUsername == "" {
+    s.authUsername = utils.DecodeBase64String(line)
+    if s.authUsername != "" {
+      s.sendlinef("334 UGFzc3dvcmQ6")
+    } else {
+      s.clearAuthData()
+      s.sendlinef("535 5.7.1 authentication failed")
+    }
+    return
+  }
+  if s.authPassword == "" {
+    s.authPassword = utils.DecodeBase64String(line)
+    if s.authPassword != "" {
+      s.authByDB()
+    } else {
+      s.sendlinef("535 5.7.1 authentication failed")
+    }
+    s.clearAuthData()
+  }
+}
+
+// check if login auth 2 step
+
+func (s *session) tryLoginAuth() {
+  s.clearAuthData()
+  s.authLogin = true
+  s.sendlinef("334 VXNlcm5hbWU6")
+}
+
+// clear auth
+
+func (s *session) clearAuthData() {
+  s.authPlain = false
+  s.authLogin = false
+  s.authUsername = ""
+  s.authPassword = ""
 }
 
 // handle AUTH
 
 func (s *session) handleAuth(auth string) {
-  line := cmdLine(string(auth))
-  switch line.Verb() {
+  var command, authToken string
+  if idx := strings.Index(auth, " "); idx != -1 {
+    command = strings.ToUpper(auth[:idx])
+    authToken = strings.TrimRightFunc(auth[idx+1:len(auth)], unicode.IsSpace)
+  } else {
+    command = strings.ToUpper(auth)
+    authToken = ""
+  }
+  switch command {
     case "PLAIN":
-      s.plainAuth(line.Arg())
+      s.tryPlainAuth(authToken)
+    case "LOGIN":
+      s.tryLoginAuth()
     default:
       s.sendlinef("504 5.5.2 Unrecognized authentication type")
   }

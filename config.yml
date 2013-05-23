@@ -3,7 +3,7 @@ adapter:
   host: 127.0.0.1
   port: 2525
   plain_auth: true
-  tls: true
+  tls: false
   ssl_hostname: localhost
   ssl_pub_key: examples/test.pem
   ssl_prv_key: examples/test.key
