@@ -16,8 +16,6 @@ func DecodeSMTPAuthPlain(b64 string) (string, string, string) {
 
   if((len(f) == 4) || (len(f) == 3)) {
     return string(f[0]), string(f[1]), string(f[2])
-  } else {
-    return "","",""
   }
 
   return "","",""
