@@ -57,7 +57,8 @@ func CheckCramMd5Pass(rawPassword, cramPassword, cramSecret string) bool {
     d.Write([]byte(cramSecret))
     s := make([]byte, 0, d.Size())
     expectedMAC := d.Sum(s)
-    log.Debugf("%v == %v", cramPassword, string(expectedMAC))
+    log.Debugf("%s", cramSecret)
+    log.Debugf("%x == %x", []byte(cramPassword), expectedMAC)
     return hmac.Equal([]byte(cramPassword), expectedMAC)
   } else {
     return (cramPassword == rawPassword)
