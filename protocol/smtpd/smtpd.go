@@ -383,7 +383,7 @@ func (s *session) handleRcpt(line cmdLine) {
     s.sendlinef("503 5.5.1 Error: need MAIL command")
     return
   }
-  if !s.checkNeedAuth() {
+  if s.checkNeedAuth() {
     return
   }
   // store mailbox id in envelop
@@ -413,7 +413,7 @@ func (s *session) handleData() {
     s.sendlinef("503 5.5.1 Error: need RCPT command")
     return
   }
-  if !s.checkNeedAuth() {
+  if s.checkNeedAuth() {
     return
   }
   if err := s.env.BeginData(); err != nil {
@@ -449,9 +449,9 @@ func (s *session) handleData() {
 func (s *session) checkNeedAuth() bool {
   if s.srv.ServerConfig.Adapter.Auth && s.mailboxId == 0 {
     s.sendlinef("530 5.7.0 Authentication required")
-    return false
+    return true
   }
-  return true
+  return false
 }
 
 // auth by DB
