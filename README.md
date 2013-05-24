@@ -6,6 +6,10 @@ storage of mail messages in a relational database
 
     go get launchpad.net/goyaml
 
+## AUTH CRAM-MD5
+
+http://www.samlogic.net/articles/smtp-commands-reference-auth.htm
+
 ## SQL
 
 ```sql
