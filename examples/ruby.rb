@@ -24,3 +24,11 @@ Net::SMTP.start('localhost',
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com']
 end
+
+Net::SMTP.start('localhost',
+                2525,
+                'localhost',
+                'leo@leo.com', 'secret', :cram_md5) do |smtp|
+    smtp.send_message message, 'me@fromdomain.com',
+                              ['test@todomain.com', 'test2@todomain.com']
+end

@@ -175,6 +175,7 @@ type session struct {
 
   authPlain bool // bool for 2 step plain auth
   authLogin bool // bool for 2 step login auth
+  authCramMd5Login string // string for cram-md5 login
 
   mailboxId     int    // id of mailbox
   authUsername  string // auth login
@@ -189,6 +190,7 @@ func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
     bw:  bufio.NewWriter(rwc),
     authPlain: false,
     authLogin: false,
+    authCramMd5Login: "",
     mailboxId: 0,
   }
   return
@@ -250,58 +252,61 @@ func (s *session) serve() {
 
     log.Debugf("Command from client %s", line)
 
-    if s.checkSeveralSteps(string(line)) {
-
-      switch line.Verb() {
-      case "HELO", "EHLO", "LHLO":
-        s.handleHello(line.Verb(), line.Arg())
-      case "QUIT":
-        s.sendlinef("221 2.0.0 Bye")
-        return
-      case "RSET":
-        s.env = nil
-        s.sendlinef("250 2.0.0 OK")
-      case "NOOP":
-        s.sendlinef("250 2.0.0 OK")
-      case "MAIL":
-        arg := line.Arg() // "From:<foo@bar.com>"
-        m := mailFromRE.FindStringSubmatch(arg)
-        if m == nil {
-          log.Errorf("invalid MAIL arg: %q", arg)
-          s.sendlinef("501 5.1.7 Bad sender address syntax")
-          continue
-        }
-        s.handleMailFrom(m[1])
-      case "RCPT":
-        s.handleRcpt(line)
-      case "DATA":
-        s.handleData()
-      case "XCLIENT":
-        // Nginx sends this
-        // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
-        s.sendlinef("250 2.0.0 OK")
-      case "AUTH":
-        s.handleAuth(line.Arg())
-      case "STARTTLS":
-        s.handleStartTLS()
-      default:
+    switch line.Verb() {
+    case "HELO", "EHLO", "LHLO":
+      s.handleHello(line.Verb(), line.Arg())
+    case "QUIT":
+      s.sendlinef("221 2.0.0 Bye")
+      return
+    case "RSET":
+      s.env = nil
+      s.sendlinef("250 2.0.0 OK")
+    case "NOOP":
+      s.sendlinef("250 2.0.0 OK")
+    case "MAIL":
+      arg := line.Arg() // "From:<foo@bar.com>"
+      m := mailFromRE.FindStringSubmatch(arg)
+      if m == nil {
+        log.Errorf("invalid MAIL arg: %q", arg)
+        s.sendlinef("501 5.1.7 Bad sender address syntax")
+        continue
+      }
+      s.handleMailFrom(m[1])
+    case "RCPT":
+      s.handleRcpt(line)
+    case "DATA":
+      s.handleData()
+    case "XCLIENT":
+      // Nginx sends this
+      // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
+      s.sendlinef("250 2.0.0 OK")
+    case "AUTH":
+      s.handleAuth(line.Arg())
+    case "STARTTLS":
+      s.handleStartTLS()
+    default:
+      if s.checkSeveralSteps(line) {
         log.Errorf("Client: %q, verhb: %q", line, line.Verb())
         s.sendlinef("502 5.5.2 Error: command not recognized")
       }
-
     }
+
   }
 }
 
 // check several step command
 
-func (s *session) checkSeveralSteps (line string) bool {
+func (s *session) checkSeveralSteps (line cmdLine) bool {
   if s.authPlain {
-    s.plainAuth(line)
+    s.plainAuth(string(line))
     return false
   }
   if s.authLogin {
-    s.loginAuth(line)
+    s.loginAuth(string(line))
+    return false
+  }
+  if s.authCramMd5Login != "" {
+    s.cramMd5Auth(string(line))
     return false
   }
   return true
@@ -315,7 +320,7 @@ func (s *session) handleHello(greeting, host string) {
   fmt.Fprintf(s.bw, "250-%s\r\n", s.srv.hostname())
   extensions := []string{}
   if s.srv.ServerConfig.Adapter.Auth {
-    extensions = append(extensions, "250-AUTH LOGIN PLAIN")
+    extensions = append(extensions, "250-AUTH LOGIN PLAIN CRAM-MD5")
   }
   if s.srv.ServerConfig.Adapter.Tls {
     extensions = append(extensions, "250-STARTTLS")
@@ -458,7 +463,7 @@ func (s *session) checkNeedAuth() bool {
 
 func (s *session) authByDB() {
   var err error
-  s.mailboxId, err = s.srv.DBConn.CheckUser(s.authUsername, s.authPassword)
+  s.mailboxId, err = s.srv.DBConn.CheckUser(s.authUsername, s.authPassword, s.authCramMd5Login)
   if err != nil {
     s.sendlinef("535 5.7.1 authentication failed")
     return
@@ -522,11 +527,32 @@ func (s *session) tryLoginAuth() {
   s.sendlinef("334 VXNlcm5hbWU6")
 }
 
+// check cram md5 login
+
+func (s *session) cramMd5Auth(line string) {
+  s.authUsername, s.authPassword = utils.DecodeSMTPCramMd5(line)
+  if s.authUsername != "" && s.authPassword != "" {
+    s.authByDB()
+  } else {
+    s.sendlinef("535 5.7.1 authentication failed")
+  }
+  s.clearAuthData()
+}
+
+// check try cram-md5 login
+
+func (s *session) tryCramMd5Auth() {
+  s.clearAuthData()
+  s.authCramMd5Login = utils.GenerateSMTPCramMd5(s.srv.hostname())
+  s.sendlinef("334 " + utils.EncodeBase64String(s.authCramMd5Login))
+}
+
 // clear auth
 
 func (s *session) clearAuthData() {
   s.authPlain = false
   s.authLogin = false
+  s.authCramMd5Login = ""
   s.authUsername = ""
   s.authPassword = ""
 }
@@ -547,6 +573,8 @@ func (s *session) handleAuth(auth string) {
       s.tryPlainAuth(authToken)
     case "LOGIN":
       s.tryLoginAuth()
+    case "CRAM-MD5":
+      s.tryCramMd5Auth()
     default:
       s.sendlinef("504 5.5.2 Unrecognized authentication type")
   }
