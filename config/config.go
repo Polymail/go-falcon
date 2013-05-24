@@ -20,7 +20,7 @@ type Config struct {
     Protocol        protocolType
     Host            string
     Port            int
-    Plain_Auth      bool
+    Auth            bool
     Tls             bool
     Ssl_Hostname    string
     Ssl_Pub_Key     string
@@ -37,6 +37,7 @@ type Config struct {
     Password      string
     Database      string
     Pool          int
+    Mailbox_Sql   string
   }
   Proxy struct {
     Enabled       bool

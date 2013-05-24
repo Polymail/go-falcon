@@ -25,17 +25,22 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
   }
 }
 
-func (db *DBConn) CheckUser(username string, password string) {
+func (db *DBConn) CheckUser(username string, password string) (int, error) {
   log.Debugf("AUTH by %s / %s", username, password)
-  rows, err := db.DB.Query("SELECT 1 as name")
+  rows, err := db.DB.Query(db.config.Storage.Mailbox_Sql, username, password)
   if err != nil {
-    log.Errorf("%v", err)
+    log.Errorf("Mailbox SQL error: %v", err)
+    return 0, err
   }
+  defer rows.Close()
   for rows.Next() {
-      var name string
-      if err := rows.Scan(&name); err != nil {
-          log.Errorf("%v", err)
+      var id int
+      if err := rows.Scan(&id); err != nil {
+          log.Errorf("Your mailbox SQL must return ID field: %v", err)
+          return 0, err
       }
-      log.Debugf("SQL: %s\n", name)
+      return id, nil
   }
+  log.Errorf("Coudn't found such user %s with password", username)
+  return 0, errors.New("Coudn't found such user")
 }

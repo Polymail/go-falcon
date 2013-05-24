@@ -6,10 +6,38 @@ storage of mail messages in a relational database
 
     go get launchpad.net/goyaml
 
-## TODO
+## SQL
+
+```sql
+
+CREATE TABLE mailboxes
+(
+  id serial NOT NULL,
+  email character varying(255) NOT NULL DEFAULT ''::character varying,
+  raw_password character varying(255) NOT NULL DEFAULT ''::character varying,
+  CONSTRAINT users_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE mailboxes
+  OWNER TO leo;
+
+CREATE UNIQUE INDEX index_mailboxes_on_email
+  ON mailboxes
+  USING btree
+  (email COLLATE pg_catalog."default");
+
+CREATE INDEX index_mailboxes_on_raw_password
+  ON mailboxes
+  USING btree
+  (raw_password COLLATE pg_catalog."default");
+
+INSERT INTO mailboxes(email, raw_password) VALUES ('leo@leo.com', 'secret');
 
 
-http://www.samlogic.net/articles/smtp-commands-reference-auth.htm
+
+```
 
 ## Test
 

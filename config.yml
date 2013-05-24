@@ -2,7 +2,7 @@ adapter:
   protocol: smtp # smtp or lmtp
   host: 127.0.0.1
   port: 2525
-  plain_auth: true
+  auth: true
   tls: false
   ssl_hostname: localhost
   ssl_pub_key: examples/test.pem
@@ -19,6 +19,7 @@ storage:
   password:
   database: go-falcon
   pool: 3
+  mailbox_sql: SELECT id FROM mailboxes WHERE email = $1 AND raw_password = $2 # $1 - email, $2 - password, should return ID
 
 proxy:
   enabled: true

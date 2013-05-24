@@ -12,7 +12,7 @@ END
 Net::SMTP.start('localhost',
                 2525,
                 'localhost',
-                'username', 'password', :plain) do |smtp|
+                'leo@leo.com', 'secret', :plain) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com']
 end
@@ -20,7 +20,7 @@ end
 Net::SMTP.start('localhost',
                 2525,
                 'localhost',
-                'usern1ame', '123password', :login) do |smtp|
+                'leo@leo.com', 'secret', :login) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com']
 end

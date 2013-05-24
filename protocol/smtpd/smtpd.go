@@ -66,6 +66,7 @@ type Connection interface {
 // EMAIL
 
 type Envelope interface {
+  AddMailboxId(mailboxId int) error
   AddSender(from MailAddress) error
   AddRecipient(rcpt MailAddress) error
   BeginData() error
@@ -74,9 +75,15 @@ type Envelope interface {
 }
 
 type BasicEnvelope struct {
-  From      MailAddress
-  Rcpts     []MailAddress
-  MailBody  []byte
+  MailboxID     int
+  From          MailAddress
+  Rcpts         []MailAddress
+  MailBody      []byte
+}
+
+func (e *BasicEnvelope) AddMailboxId(mailboxId int) error {
+  e.MailboxID = mailboxId
+  return nil
 }
 
 func (e *BasicEnvelope) AddSender(from MailAddress) error {
@@ -169,8 +176,9 @@ type session struct {
   authPlain bool // bool for 2 step plain auth
   authLogin bool // bool for 2 step login auth
 
-  authUsername string // auth login
-  authPassword string // auth password
+  mailboxId     int    // id of mailbox
+  authUsername  string // auth login
+  authPassword  string // auth password
 }
 
 func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
@@ -181,6 +189,7 @@ func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
     bw:  bufio.NewWriter(rwc),
     authPlain: false,
     authLogin: false,
+    mailboxId: 0,
   }
   return
 }
@@ -305,7 +314,7 @@ func (s *session) handleHello(greeting, host string) {
   s.helloHost = host
   fmt.Fprintf(s.bw, "250-%s\r\n", s.srv.hostname())
   extensions := []string{}
-  if s.srv.ServerConfig.Adapter.Plain_Auth {
+  if s.srv.ServerConfig.Adapter.Auth {
     extensions = append(extensions, "250-AUTH LOGIN PLAIN")
   }
   if s.srv.ServerConfig.Adapter.Tls {
@@ -362,7 +371,7 @@ func (s *session) handleMailFrom(email string) {
   s.sendlinef("250 2.1.0 Ok")
 }
 
-// Handle to
+// Handle to in mail
 
 func (s *session) handleRcpt(line cmdLine) {
   // TODO: 4.1.1.11.  If the server SMTP does not recognize or
@@ -374,6 +383,14 @@ func (s *session) handleRcpt(line cmdLine) {
     s.sendlinef("503 5.5.1 Error: need MAIL command")
     return
   }
+  if !s.checkNeedAuth() {
+    return
+  }
+  // store mailbox id in envelop
+  if s.mailboxId > 0 {
+    s.env.AddMailboxId(s.mailboxId)
+  }
+
   arg := line.Arg() // "To:<foo@bar.com>"
   m := rcptToRE.FindStringSubmatch(arg)
   if m == nil {
@@ -394,6 +411,9 @@ func (s *session) handleRcpt(line cmdLine) {
 func (s *session) handleData() {
   if s.env == nil {
     s.sendlinef("503 5.5.1 Error: need RCPT command")
+    return
+  }
+  if !s.checkNeedAuth() {
     return
   }
   if err := s.env.BeginData(); err != nil {
@@ -424,14 +444,26 @@ func (s *session) handleData() {
   s.env = nil
 }
 
+// check auth if need
+
+func (s *session) checkNeedAuth() bool {
+  if s.srv.ServerConfig.Adapter.Auth && s.mailboxId == 0 {
+    s.sendlinef("530 5.7.0 Authentication required")
+    return false
+  }
+  return true
+}
+
 // auth by DB
 
 func (s *session) authByDB() {
-  log.Debugf("AUTH %s = %s", s.authUsername, s.authPassword)
+  var err error
+  s.mailboxId, err = s.srv.DBConn.CheckUser(s.authUsername, s.authPassword)
+  if err != nil {
+    s.sendlinef("535 5.7.1 authentication failed")
+    return
+  }
   s.sendlinef("235 2.0.0 OK, go ahead")
-  // s.srv.DBConn.CheckUser(string(parts[1]), string(parts[2]))
-  // TODO: we should login
-  // 530 5.7.0 Authentication required
 }
 
 // plain auth
