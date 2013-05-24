@@ -175,7 +175,7 @@ type session struct {
 
   authPlain bool // bool for 2 step plain auth
   authLogin bool // bool for 2 step login auth
-  authCramMd5Login string // string for cram-md5 login
+  authCramMd5Login []byte // bytes for cram-md5 login
 
   mailboxId     int    // id of mailbox
   authUsername  string // auth login
@@ -190,7 +190,7 @@ func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
     bw:  bufio.NewWriter(rwc),
     authPlain: false,
     authLogin: false,
-    authCramMd5Login: "",
+    authCramMd5Login: nil,
     mailboxId: 0,
   }
   return
@@ -305,7 +305,7 @@ func (s *session) checkSeveralSteps (line cmdLine) bool {
     s.loginAuth(string(line))
     return false
   }
-  if s.authCramMd5Login != "" {
+  if s.authCramMd5Login != nil {
     s.cramMd5Auth(string(line))
     return false
   }
@@ -499,7 +499,7 @@ func (s *session) tryPlainAuth(authToken string) {
 
 func (s *session) loginAuth(line string) {
   if s.authUsername == "" {
-    s.authUsername = utils.DecodeBase64String(line)
+    s.authUsername = string(utils.DecodeBase64(line))
     if s.authUsername != "" {
       s.sendlinef("334 UGFzc3dvcmQ6")
     } else {
@@ -509,7 +509,7 @@ func (s *session) loginAuth(line string) {
     return
   }
   if s.authPassword == "" {
-    s.authPassword = utils.DecodeBase64String(line)
+    s.authPassword = string(utils.DecodeBase64(line))
     if s.authPassword != "" {
       s.authByDB()
     } else {
@@ -544,7 +544,7 @@ func (s *session) cramMd5Auth(line string) {
 func (s *session) tryCramMd5Auth() {
   s.clearAuthData()
   s.authCramMd5Login = utils.GenerateSMTPCramMd5(s.srv.hostname())
-  s.sendlinef("334 " + s.authCramMd5Login)
+  s.sendlinef("334 " + string(s.authCramMd5Login))
 }
 
 // clear auth
@@ -552,7 +552,7 @@ func (s *session) tryCramMd5Auth() {
 func (s *session) clearAuthData() {
   s.authPlain = false
   s.authLogin = false
-  s.authCramMd5Login = ""
+  s.authCramMd5Login = nil
   s.authUsername = ""
   s.authPassword = ""
 }

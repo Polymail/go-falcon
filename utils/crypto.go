@@ -33,16 +33,16 @@ func generateRandString(l int) string {
 
 // generate challenge for cram-md5
 
-func GenerateSMTPCramMd5(hostname string) string {
+func GenerateSMTPCramMd5(hostname string) []byte {
   randStr := strconv.Itoa(os.Getppid()) + "." + strconv.Itoa(int(time.Now().UTC().UnixNano()))
-  return EncodeBase64String("<" + randStr + "@" + hostname + ">")
+  return EncodeBase64("<" + randStr + "@" + hostname + ">")
 }
 
 // decode cram-md5
 
 func DecodeSMTPCramMd5(b64 string) (string, string) {
-  str := DecodeBase64String(b64)
-  f := strings.Split(str, " ")
+  str := DecodeBase64(b64)
+  f := strings.Split(string(str), " ")
   if len(f) == 2 {
     return f[0], f[1]
   }
@@ -51,10 +51,10 @@ func DecodeSMTPCramMd5(b64 string) (string, string) {
 
 // check cram-md5
 
-func CheckCramMd5Pass(rawPassword, cramPassword, cramSecret string) bool {
-  if cramSecret != "" {
+func CheckCramMd5Pass(rawPassword string, cramPassword string, cramSecret []byte) bool {
+  if cramSecret != nil {
     d := hmac.New(md5.New, []byte(rawPassword))
-    d.Write([]byte(cramSecret))
+    d.Write(cramSecret)
     s := make([]byte, 0, d.Size())
     expectedMAC := d.Sum(s)
     log.Debugf("%s", cramSecret)
@@ -68,8 +68,8 @@ func CheckCramMd5Pass(rawPassword, cramPassword, cramSecret string) bool {
 // Decode smtp plain auth
 
 func DecodeSMTPAuthPlain(b64 string) (string, string, string) {
-  dest := DecodeBase64String(b64)
-  f := bytes.Split([]byte(dest), []byte{ 0 })
+  dest := DecodeBase64(b64)
+  f := bytes.Split(dest, []byte{ 0 })
 
   if ((len(f) == 4) || (len(f) == 3)) {
     return string(f[0]), string(f[1]), string(f[2])
@@ -80,19 +80,19 @@ func DecodeSMTPAuthPlain(b64 string) (string, string, string) {
 
 // encode base64
 
-func EncodeBase64String(b64 string) string {
+func EncodeBase64(b64 string) []byte {
   var b bytes.Buffer
   w := base64.NewEncoder(base64.StdEncoding, &b)
   w.Write([]byte(b64))
   w.Close()
-  return string(b.Bytes())
+  return b.Bytes()
 }
 
 // decode base64
 
-func DecodeBase64String(b64 string) string {
+func DecodeBase64(b64 string) []byte {
   buf := bytes.NewBufferString(b64)
   encoded := base64.NewDecoder(base64.StdEncoding, buf)
   dest, _ := ioutil.ReadAll(encoded)
-  return string(dest)
+  return dest
 }

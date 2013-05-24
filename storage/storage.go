@@ -26,7 +26,7 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
   }
 }
 
-func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, error) {
+func (db *DBConn) CheckUser(username string, cramPassword string, cramSecret []byte) (int, error) {
   log.Debugf("AUTH by %s / %s", username, cramPassword)
   rows, err := db.DB.Query(db.config.Storage.Mailbox_Sql, username)
   if err != nil {
