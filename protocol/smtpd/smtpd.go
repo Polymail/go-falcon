@@ -544,7 +544,7 @@ func (s *session) cramMd5Auth(line string) {
 func (s *session) tryCramMd5Auth() {
   s.clearAuthData()
   s.authCramMd5Login = utils.GenerateSMTPCramMd5(s.srv.hostname())
-  s.sendlinef("334 " + utils.EncodeBase64String(s.authCramMd5Login))
+  s.sendlinef("334 " + s.authCramMd5Login)
 }
 
 // clear auth

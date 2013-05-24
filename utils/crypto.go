@@ -35,7 +35,7 @@ func generateRandString(l int) string {
 
 func GenerateSMTPCramMd5(hostname string) string {
   randStr := strconv.Itoa(os.Getppid()) + "." + strconv.Itoa(int(time.Now().UTC().UnixNano()))
-  return "<" + randStr + "@" + hostname + ">"
+  return EncodeBase64String("<" + randStr + "@" + hostname + ">")
 }
 
 // decode cram-md5
@@ -51,17 +51,16 @@ func DecodeSMTPCramMd5(b64 string) (string, string) {
 
 // check cram-md5
 
-func CheckCramMd5Pass(password, decodedPassword, cramSecret string) bool {
+func CheckCramMd5Pass(rawPassword, cramPassword, cramSecret string) bool {
   if cramSecret != "" {
-    mac := hmac.New(md5.New, []byte(password))
-    mac.Write([]byte(EncodeBase64String(cramSecret)))
-    s := make([]byte, 0, mac.Size())
-    expectedMAC := mac.Sum(s)
-    log.Debugf("%v == %v == %v", password, decodedPassword, cramSecret)
-    log.Debugf("%v == %v", decodedPassword, string(expectedMAC))
-    return hmac.Equal([]byte(decodedPassword), expectedMAC)
+    d := hmac.New(md5.New, []byte(rawPassword))
+    d.Write([]byte(cramSecret))
+    s := make([]byte, 0, d.Size())
+    expectedMAC := d.Sum(s)
+    log.Debugf("%v == %v", cramPassword, string(expectedMAC))
+    return hmac.Equal([]byte(cramPassword), expectedMAC)
   } else {
-    return (decodedPassword == password)
+    return (cramPassword == rawPassword)
   }
 }
 

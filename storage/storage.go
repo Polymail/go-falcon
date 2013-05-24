@@ -26,8 +26,8 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
   }
 }
 
-func (db *DBConn) CheckUser(username, rawPassword, cramSecret string) (int, error) {
-  log.Debugf("AUTH by %s / %s", username, rawPassword)
+func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, error) {
+  log.Debugf("AUTH by %s / %s", username, cramPassword)
   rows, err := db.DB.Query(db.config.Storage.Mailbox_Sql, username)
   if err != nil {
     log.Errorf("Mailbox SQL error: %v", err)
@@ -38,11 +38,11 @@ func (db *DBConn) CheckUser(username, rawPassword, cramSecret string) (int, erro
       var id int
       var password string
       if err := rows.Scan(&id, &password); err != nil {
-          log.Errorf("Your mailbox SQL must return ID and password fields: %v", err)
+          log.Errorf("Your mailbox SQL must return 'id' and 'password' fields: %v", err)
           return 0, err
       }
-      if !utils.CheckCramMd5Pass(password, rawPassword, cramSecret) {
-        log.Errorf("User %s have invalid password", username)
+      if !utils.CheckCramMd5Pass(password, cramPassword, cramSecret) {
+        log.Errorf("User %s send invalid password", username)
         return 0, errors.New("The user have invalid password")
       }
       return id, nil
