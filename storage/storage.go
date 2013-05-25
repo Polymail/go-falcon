@@ -35,7 +35,7 @@ func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, err
     log.Errorf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
     return 0, err
   }
-  if !utils.CheckCramMd5Pass(password, cramPassword, cramSecret) {
+  if !utils.CheckSMTPAuthPass(password, cramPassword, cramSecret) {
     log.Errorf("User %s send invalid password", username)
     return 0, errors.New("The user have invalid password")
   }

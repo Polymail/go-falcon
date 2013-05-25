@@ -49,9 +49,9 @@ func DecodeSMTPCramMd5(b64 string) (string, string) {
   return "", ""
 }
 
-// check cram-md5
+// check passwords
 
-func CheckCramMd5Pass(rawPassword, cramPassword, cramSecret string) bool {
+func CheckSMTPAuthPass(rawPassword, cramPassword, cramSecret string) bool {
   if cramSecret != "" {
     d := hmac.New(md5.New, []byte(rawPassword))
     d.Write([]byte(cramSecret))
