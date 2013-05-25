@@ -33,7 +33,7 @@ func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, err
     log.Errorf("Mailbox SQL error: %v", err)
     return 0, err
   }
-  defer rows.Close()
+  defer rows.Close() //close
   for rows.Next() {
       var id int
       var password string

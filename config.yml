@@ -18,8 +18,8 @@ storage:
   username: leo
   password:
   database: go-falcon
-  pool: 3
-  mailbox_sql: "SELECT id, raw_password as password FROM mailboxes WHERE email = $1" # $1 - email, should return ID and raw password as password
+  pool: 5
+  mailbox_sql: "SELECT id, raw_password FROM mailboxes WHERE email = $1" # $1 - email, should return ID and raw password
 
 proxy:
   enabled: true
