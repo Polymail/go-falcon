@@ -11,7 +11,7 @@ import (
   "math/rand"
   "time"
   "os"
-  "github.com/le0pard/go-falcon/log"
+  "fmt"
 )
 
 func randomString (l int ) string {
@@ -33,9 +33,9 @@ func generateRandString(l int) string {
 
 // generate challenge for cram-md5
 
-func GenerateSMTPCramMd5(hostname string) []byte {
+func GenerateSMTPCramMd5(hostname string) string {
   randStr := strconv.Itoa(os.Getppid()) + "." + strconv.Itoa(int(time.Now().UTC().UnixNano()))
-  return EncodeBase64("<" + randStr + "@" + hostname + ">")
+  return "<" + randStr + "@" + hostname + ">"
 }
 
 // decode cram-md5
@@ -51,15 +51,14 @@ func DecodeSMTPCramMd5(b64 string) (string, string) {
 
 // check cram-md5
 
-func CheckCramMd5Pass(rawPassword string, cramPassword string, cramSecret []byte) bool {
-  if cramSecret != nil {
+func CheckCramMd5Pass(rawPassword, cramPassword, cramSecret string) bool {
+  if cramSecret != "" {
     d := hmac.New(md5.New, []byte(rawPassword))
-    d.Write(cramSecret)
+    d.Write([]byte(cramSecret))
     s := make([]byte, 0, d.Size())
     expectedMAC := d.Sum(s)
-    log.Debugf("%s", cramSecret)
-    log.Debugf("%x == %x", []byte(cramPassword), expectedMAC)
-    return hmac.Equal([]byte(cramPassword), expectedMAC)
+    macIn16bit := []byte(fmt.Sprintf("%x", expectedMAC))
+    return hmac.Equal([]byte(cramPassword), macIn16bit)
   } else {
     return (cramPassword == rawPassword)
   }
