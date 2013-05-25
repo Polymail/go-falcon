@@ -390,10 +390,11 @@ func (s *session) handleRcpt(line cmdLine) {
   }
   if s.checkNeedAuth() {
     return
-  }
-  // store mailbox id in envelop
-  if s.mailboxId > 0 {
-    s.env.AddMailboxId(s.mailboxId)
+  } else {
+    // store mailbox id in envelop
+    if s.mailboxId > 0 {
+      s.env.AddMailboxId(s.mailboxId)
+    }
   }
 
   arg := line.Arg() // "To:<foo@bar.com>"
@@ -420,7 +421,13 @@ func (s *session) handleData() {
   }
   if s.checkNeedAuth() {
     return
+  } else {
+    // store mailbox id in envelop
+    if s.mailboxId > 0 {
+      s.env.AddMailboxId(s.mailboxId)
+    }
   }
+
   if err := s.env.BeginData(); err != nil {
     s.handleError(err)
     return
