@@ -26,6 +26,8 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
   }
 }
 
+// check username login
+
 func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, error) {
   log.Debugf("AUTH by %s / %s", username, cramPassword)
   var id int

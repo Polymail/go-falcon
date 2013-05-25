@@ -8,9 +8,13 @@ import (
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
-func ParseMail(envelope *smtpd.BasicEnvelope) {
-  log.Debugf("Mail received to parser: %v", envelope)
-  msg, err := mail.ReadMessage(bytes.NewBuffer(envelope.MailBody))
+type EmailParser struct {
+  env *smtpd.BasicEnvelope
+}
+
+func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) {
+  parser.env = env
+  msg, err := mail.ReadMessage(bytes.NewBuffer(parser.env.MailBody))
   if err != nil {
     log.Errorf("Failed parsing message: %v", err)
     return

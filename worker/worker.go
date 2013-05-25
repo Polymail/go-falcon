@@ -10,9 +10,10 @@ import (
 // start worker
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   log.Debugf("Starting storage worker")
+  emailParser := parser.EmailParser{}
   for {
     envelop := <- channel
-    parser.ParseMail(envelop)
+    emailParser.ParseMail(envelop)
     //postgresql.StoreMail()
   }
 }
