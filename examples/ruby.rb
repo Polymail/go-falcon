@@ -4,6 +4,7 @@ message = <<-END.split("\n").map!(&:strip).join("\n")
 From: Private Person <me@fromdomain.com>
 To: A Test User <test@todomain.com>
 CC: <test2@todomain.com>
+CC: <test3@todomain.com>
 Subject: SMTP e-mail test
 
 This is a test e-mail message.
@@ -14,7 +15,7 @@ Net::SMTP.start('localhost',
                 'localhost',
                 'leo@leo.com', 'pass', :plain) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
-                              ['test@todomain.com', 'test2@todomain.com']
+                              ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
 
 Net::SMTP.start('localhost',
@@ -22,7 +23,7 @@ Net::SMTP.start('localhost',
                 'localhost',
                 'leo@leo.com', 'pass', :login) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
-                              ['test@todomain.com', 'test2@todomain.com']
+                              ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
 
 Net::SMTP.start('localhost',
@@ -30,5 +31,5 @@ Net::SMTP.start('localhost',
                 'localhost',
                 'leo@leo.com', 'pass', :cram_md5) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
-                              ['test@todomain.com', 'test2@todomain.com']
+                              ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
