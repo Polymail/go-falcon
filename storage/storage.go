@@ -28,25 +28,16 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
 
 func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, error) {
   log.Debugf("AUTH by %s / %s", username, cramPassword)
-  rows, err := db.DB.Query(db.config.Storage.Mailbox_Sql, username)
+  var id int
+  var password string
+  err := db.DB.QueryRow(db.config.Storage.Mailbox_Sql, username).Scan(&id, &password)
   if err != nil {
-    log.Errorf("Mailbox SQL error: %v", err)
+    log.Errorf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
     return 0, err
   }
-  defer rows.Close() //close
-  for rows.Next() {
-      var id int
-      var password string
-      if err := rows.Scan(&id, &password); err != nil {
-          log.Errorf("Your mailbox SQL must return 'id' and 'password' fields: %v", err)
-          return 0, err
-      }
-      if !utils.CheckCramMd5Pass(password, cramPassword, cramSecret) {
-        log.Errorf("User %s send invalid password", username)
-        return 0, errors.New("The user have invalid password")
-      }
-      return id, nil
+  if !utils.CheckCramMd5Pass(password, cramPassword, cramSecret) {
+    log.Errorf("User %s send invalid password", username)
+    return 0, errors.New("The user have invalid password")
   }
-  log.Errorf("Coudn't found such user %s with password", username)
-  return 0, errors.New("Coudn't found such user")
+  return id, nil
 }
