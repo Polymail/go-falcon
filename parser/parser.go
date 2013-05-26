@@ -12,11 +12,14 @@ import (
 type ParsedEmail struct {
   env *smtpd.BasicEnvelope
 
+  RawMail       []byte
+
   Subject       string
   Date          time.Time
   From          mail.Address
   To            mail.Address
   Headers       mail.Header
+
   EmailBody     []byte
 }
 
@@ -74,6 +77,7 @@ func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) {
     log.Errorf("Failed parsing message: %v", err)
     return
   }
+  email.RawMail = email.env.MailBody
   email.parseEmailHeaders(msg)
   email.EmailBody = body
   log.Debugf("parsed: %v", email)
