@@ -5,6 +5,7 @@ storage of mail messages in a relational database
 ## Libs
 
     go get launchpad.net/goyaml
+    go get github.com/bmizerany/pq
 
 ## AUTH CRAM-MD5
 

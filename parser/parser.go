@@ -84,7 +84,6 @@ func (email *ParsedEmail) parseMimeEmail() {
     log.Errorf("No boundary: %v", contentTypeParams)
     return
   }
-  buf := new(bytes.Buffer)
   bodyReader := bytes.NewReader(email.EmailBody)
   reader := multipart.NewReader(bodyReader, contentTypeParams["boundary"])
 
@@ -97,18 +96,11 @@ func (email *ParsedEmail) parseMimeEmail() {
       log.Errorf("NextPart: %v", err)
     }
     pbody, err := ioutil.ReadAll(p)
-
+    if err != nil {
+      log.Errorf("Read part: %v", err)
+    }
+    log.Debugf("Part: %v", string(pbody))
   }
-
-  part, err := reader.NextPart()
-  if part == nil || err != nil {
-    log.Errorf("No boundary: %v", contentTypeParams)
-    return
-  }
-  if _, err := io.Copy(buf, part); err != nil {
-    log.Errorf("Error: %v", err)
-  }
-  log.Debugf("Part: %v", buf.String())
 }
 
 // parse body

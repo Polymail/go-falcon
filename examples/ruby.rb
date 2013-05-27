@@ -11,7 +11,7 @@ This is a test e-mail message.
 END
 
 Net::SMTP.start('localhost',
-                2525,
+                1025,
                 'localhost',
                 'leo@leo.com', 'pass', :plain) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
@@ -19,7 +19,7 @@ Net::SMTP.start('localhost',
 end
 
 Net::SMTP.start('localhost',
-                2525,
+                1025,
                 'localhost',
                 'leo@leo.com', 'pass', :login) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
@@ -27,7 +27,7 @@ Net::SMTP.start('localhost',
 end
 
 Net::SMTP.start('localhost',
-                2525,
+                1025,
                 'localhost',
                 'leo@leo.com', 'pass', :cram_md5) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
