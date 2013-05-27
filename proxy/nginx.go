@@ -14,7 +14,7 @@ import (
 // This could perform auth and load balancing too
 // See http://wiki.nginx.org/MailCoreModule
 func StartNginxHTTPProxy(config *config.Config) {
-  if config.Proxy.Enabled == true {
+  if config.Proxy.Enabled {
     go nginxHTTPAuth(config)
   }
 }
