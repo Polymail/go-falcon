@@ -58,6 +58,12 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
   }
 }
 
+// parse body
+
+func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
+  email.EmailBody = body
+}
+
 // obj
 
 type EmailParser struct {
@@ -72,13 +78,13 @@ func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) {
     log.Errorf("Failed parsing message: %v", err)
     return
   }
-  body, err := ioutil.ReadAll(msg.Body)
+  mailBody, err := ioutil.ReadAll(msg.Body)
   if err != nil {
     log.Errorf("Failed parsing message: %v", err)
     return
   }
   email.RawMail = email.env.MailBody
   email.parseEmailHeaders(msg)
-  email.EmailBody = body
+  email.parseEmailBody(msg, mailBody)
   log.Debugf("parsed: %v", email)
 }

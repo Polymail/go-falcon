@@ -1,8 +1,8 @@
 adapter:
   protocol: smtp # smtp or lmtp
   host: 127.0.0.1
-  port: 2525
-  auth: true
+  port: 1025
+  auth: false
   tls: false
   ssl_hostname: localhost
   ssl_pub_key: examples/test.pem
