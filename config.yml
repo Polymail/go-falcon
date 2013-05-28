@@ -2,7 +2,7 @@ adapter:
   protocol: smtp # smtp or lmtp
   host: 127.0.0.1
   port: 1025
-  auth: false
+  auth: true
   tls: false
   ssl_hostname: localhost
   ssl_pub_key: examples/test.pem
@@ -20,6 +20,7 @@ storage:
   database: go-falcon
   pool: 5
   mailbox_sql: "SELECT id, raw_password FROM mailboxes WHERE email = $1" # $1 - email, should return ID and raw password
+  messages_sql: "INSERT INTO messages(mailbox_id, subject, sent_at, from_email, to_email, html_body, text_body, raw_email) VALUES($1, $2, $3, $4, $5, $6, $7, $8)"
 
 proxy:
   enabled: true

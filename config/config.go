@@ -38,6 +38,7 @@ type Config struct {
     Database      string
     Pool          int
     Mailbox_Sql   string
+    Messages_Sql  string
   }
   Proxy struct {
     Enabled       bool

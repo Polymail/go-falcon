@@ -4,6 +4,7 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/parser"
+  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
@@ -11,18 +12,16 @@ import (
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   log.Debugf("Starting storage worker")
   emailParser := parser.EmailParser{}
-/*
   db, err := storage.InitDatabase(config)
   if err != nil {
     log.Errorf("Couldn't connect to database: %v", err)
     return
   }
-*/
   for {
     envelop := <- channel
-    _, err := emailParser.ParseMail(envelop)
+    email, err := emailParser.ParseMail(envelop)
     if err == nil {
-
+      db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.To.Address, email.HtmlPart, email.TextPart, email.RawMail)
     }
   }
 }

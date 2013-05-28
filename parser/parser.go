@@ -22,7 +22,7 @@ type ParsedAttachment struct {
 
 type ParsedEmail struct {
   env *smtpd.BasicEnvelope
-
+  MailboxID     int
   RawMail       []byte
 
   Subject       string
@@ -196,7 +196,7 @@ type EmailParser struct {
 // parse email
 
 func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
-  email := ParsedEmail{ env: env }
+  email := ParsedEmail{ env: env, MailboxID: env.MailboxID  }
   msg, err := mail.ReadMessage(bytes.NewBuffer(email.env.MailBody))
   if err != nil {
     log.Errorf("Failed parsing message: %v", err)

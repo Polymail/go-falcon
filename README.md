@@ -42,6 +42,32 @@ INSERT INTO mailboxes(email, raw_password) VALUES ('leo@leo.com', 'secret');
 
 
 
+CREATE TABLE messages
+(
+  id serial NOT NULL,
+  mailbox_id integer NOT NULL,
+  subject character varying(255),
+  sent_at timestamp without time zone NOT NULL,
+  from_email character varying(255),
+  to_email character varying(255),
+  html_body text,
+  text_body text,
+  raw_email text,
+  CONSTRAINT messages_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE messages
+  OWNER TO leo;
+
+CREATE INDEX index_messages_on_mailbox_id
+  ON messages
+  USING btree
+  (mailbox_id);
+
+
+
 ```
 
 ## Test
