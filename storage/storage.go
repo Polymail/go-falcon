@@ -49,7 +49,7 @@ func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, err
 
 // save email and attachments
 
-func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from, to, html, text string, rawEmail []byte) {
+func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from, from_name, to, to_name, html, text string, rawEmail []byte) {
   ins, err := db.DB.Prepare(db.config.Storage.Messages_Sql)
   if err != nil {
     log.Errorf("Messages SQL error: %v", err)
@@ -60,7 +60,9 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
     subject,
     date,
     from,
+    from_name,
     to,
+    to_name,
     html,
     text,
     string(rawEmail))

@@ -21,7 +21,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     envelop := <- channel
     email, err := emailParser.ParseMail(envelop)
     if err == nil {
-      db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.To.Address, email.HtmlPart, email.TextPart, email.RawMail)
+      db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
     }
   }
 }
