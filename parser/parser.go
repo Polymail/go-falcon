@@ -14,10 +14,10 @@ import (
 )
 
 type ParsedAttachment struct {
-  attachmentType        string
-  attachmentFileName    string
-  attachmentContentType string
-  attachmentBody        []byte
+  attachmentType            string
+  attachmentFileName        string
+  attachmentContentType     string
+  attachmentBody            []byte
 }
 
 type ParsedEmail struct {
