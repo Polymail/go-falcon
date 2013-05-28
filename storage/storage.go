@@ -49,13 +49,11 @@ func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, err
 
 // save email and attachments
 
-func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from, from_name, to, to_name, html, text string, rawEmail []byte) {
-  ins, err := db.DB.Prepare(db.config.Storage.Messages_Sql)
-  if err != nil {
-    log.Errorf("Messages SQL error: %v", err)
-    return
-  }
-  _, err = ins.Exec(
+func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from, from_name, to, to_name, html, text string, rawEmail []byte) (int, error) {
+  var (
+    id int
+  )
+  err := db.DB.QueryRow(db.config.Storage.Messages_Sql,
     mailboxId,
     subject,
     date,
@@ -65,10 +63,14 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
     to_name,
     html,
     text,
-    string(rawEmail))
+    string(rawEmail)).Scan(&id)
   if err != nil {
-    log.Errorf("Messages execute SQL error: %v", err)
-    return
+    log.Errorf("Messages SQL error: %v", err)
+    return 0, err
   }
-  return
+  if id == 0 {
+    log.Errorf("Messages Not return last ID: %v", id)
+    return 0, errors.New("Messages Not return last ID")
+  }
+  return id, nil
 }

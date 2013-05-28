@@ -3,6 +3,7 @@ package parser
 import (
   "bytes"
   "net/mail"
+  "net/textproto"
   "mime"
   "mime/multipart"
   "io"
@@ -14,10 +15,11 @@ import (
 )
 
 type ParsedAttachment struct {
-  attachmentType            string
-  attachmentFileName        string
-  attachmentContentType     string
-  attachmentBody            []byte
+  attachmentType                string
+  attachmentFileName            string
+  attachmentTransferEncoding    string
+  attachmentContentType         string
+  attachmentBody                []byte
 }
 
 type ParsedEmail struct {
@@ -49,7 +51,6 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
   email.Subject = email.Headers.Get("Subject")
   email.Date, err = msg.Header.Date()
   if err != nil {
-    log.Errorf("Failed parsing date: %v", err)
     email.Date = time.Now()
   }
   // from
@@ -67,7 +68,11 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
   if emailHeader != "" {
     toEmail, err := mail.ParseAddress(emailHeader)
     if err != nil {
-      email.To = mail.Address{}
+      if (len(email.env.Rcpts) > 0){
+        email.To = mail.Address{ Address: email.env.Rcpts[0].Email() }
+      } else {
+        email.To = mail.Address{}
+      }
     } else {
       email.To = *toEmail
     }
@@ -76,7 +81,8 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
 
 // select type of email
 
-func (email *ParsedEmail) parseEmailByType(contentType string, contentDisposition string, pbody []byte) {
+func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody []byte) {
+  contentType, contentDisposition, contentTransferEncoding := headers.Get("Content-Type"), headers.Get("Content-Disposition"), headers.Get("Content-Transfer-Encoding")
   if contentType == "" {
     contentType = "text/plain; charset=UTF-8"
   }
@@ -93,7 +99,7 @@ func (email *ParsedEmail) parseEmailByType(contentType string, contentDispositio
     }
     switch strings.ToLower(contentDispositionVal) {
     case "attachment", "inline":
-      attachment := ParsedAttachment{ attachmentType: contentDispositionVal, attachmentFileName: contentDispositionParams["filename"], attachmentBody: pbody, attachmentContentType: contentTypeVal }
+      attachment := ParsedAttachment{ attachmentType: contentDispositionVal, attachmentFileName: contentDispositionParams["filename"], attachmentBody: pbody, attachmentContentType: contentTypeVal, attachmentTransferEncoding: contentTransferEncoding }
       email.Attachments = append(email.Attachments, attachment)
     default:
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)
@@ -125,17 +131,13 @@ func (email *ParsedEmail) parseEmailPart(part *multipart.Part) {
     log.Errorf("Read part: %v", err)
     return
   }
-  contentType := part.Header.Get("Content-Type")
-  contentDisposition := part.Header.Get("Content-Disposition")
-  email.parseEmailByType(contentType, contentDisposition, pbody)
+  email.parseEmailByType(part.Header, pbody)
 }
 
 // parse plain email
 
 func (email *ParsedEmail) parsePlainEmail() {
-  contentType := email.Headers.Get("Content-Type")
-  contentDisposition := email.Headers.Get("Content-Disposition")
-  email.parseEmailByType(contentType, contentDisposition, email.EmailBody)
+  email.parseEmailByType(textproto.MIMEHeader(email.Headers), email.EmailBody)
 }
 
 // parse plain email
