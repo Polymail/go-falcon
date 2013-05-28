@@ -7,10 +7,18 @@ import (
   "mime/multipart"
   "io"
   "io/ioutil"
+  "strings"
   "time"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
+
+type ParsedAttachment struct {
+  attachmentType        string
+  attachmentFileName    string
+  attachmentContentType string
+  attachmentBody        []byte
+}
 
 type ParsedEmail struct {
   env *smtpd.BasicEnvelope
@@ -22,6 +30,11 @@ type ParsedEmail struct {
   From          mail.Address
   To            mail.Address
   Headers       mail.Header
+
+  HtmlPart      string
+  TextPart      string
+
+  Attachments   []ParsedAttachment
 
   EmailBody     []byte
 }
@@ -61,31 +74,81 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
   }
 }
 
-// parse plain email
+// select type of email
 
-func (email *ParsedEmail) parsePlainEmail() {
-  contentType := email.Headers.Get("Content-Type")
-  log.Debugf("ContentType: %v", contentType)
-}
-
-// parse plain email
-
-func (email *ParsedEmail) parseMimeEmail() {
-  contentType := email.Headers.Get("Content-Type")
-  log.Debugf("ContentType: %v", contentType)
+func (email *ParsedEmail) parseEmailByType(contentType string, contentDisposition string, pbody []byte) {
+  if contentType == "" {
+    contentType = "text/plain; charset=UTF-8"
+  }
   contentTypeVal, contentTypeParams, err := mime.ParseMediaType(contentType)
   if err != nil {
     log.Errorf("Invalid ContentType: %v", err)
     return
   }
-  log.Debugf("ContentType Value: %v", contentTypeVal)
-  log.Debugf("ContentType params: %v", contentTypeParams)
-  if contentTypeParams["boundary"] == "" {
-    log.Errorf("No boundary: %v", contentTypeParams)
+  if contentDisposition != "" {
+    contentDispositionVal, contentDispositionParams, err := mime.ParseMediaType(contentDisposition)
+    if err != nil {
+      log.Errorf("Invalid ContentDisposition: %v", err)
+      return
+    }
+    switch strings.ToLower(contentDispositionVal) {
+    case "attachment", "inline":
+      attachment := ParsedAttachment{ attachmentType: contentDispositionVal, attachmentFileName: contentDispositionParams["filename"], attachmentBody: pbody, attachmentContentType: contentTypeVal }
+      email.Attachments = append(email.Attachments, attachment)
+    default:
+      log.Errorf("Unknown content disposition: %s", contentDispositionVal)
+      log.Errorf("Unknown content params: %v", contentDispositionParams)
+    }
+  } else {
+    switch strings.ToLower(contentTypeVal) {
+    case "text/html":
+      email.HtmlPart = string(pbody)
+    case "text/plain":
+      email.TextPart = string(pbody)
+    default:
+      if strings.HasPrefix(strings.ToLower(contentTypeVal), "multipart/") {
+        email.parseMimeEmail(pbody, contentTypeParams["boundary"])
+      } else {
+        log.Errorf("Unknown content type: %s", contentTypeVal)
+        log.Errorf("Unknown content params: %v", contentTypeParams)
+        log.Errorf("Unknown content: %v", string(pbody))
+      }
+    }
+  }
+}
+
+// parse part of email
+
+func (email *ParsedEmail) parseEmailPart(part *multipart.Part) {
+  pbody, err := ioutil.ReadAll(part)
+  if err != nil {
+    log.Errorf("Read part: %v", err)
     return
   }
-  bodyReader := bytes.NewReader(email.EmailBody)
-  reader := multipart.NewReader(bodyReader, contentTypeParams["boundary"])
+  contentType := part.Header.Get("Content-Type")
+  contentDisposition := part.Header.Get("Content-Disposition")
+  email.parseEmailByType(contentType, contentDisposition, pbody)
+}
+
+// parse plain email
+
+func (email *ParsedEmail) parsePlainEmail() {
+  contentType := email.Headers.Get("Content-Type")
+  contentDisposition := email.Headers.Get("Content-Disposition")
+  email.parseEmailByType(contentType, contentDisposition, email.EmailBody)
+  email.storeEmail()
+}
+
+// parse plain email
+
+func (email *ParsedEmail) parseMimeEmail(pbody []byte, boundary string) {
+  if boundary == "" {
+    log.Errorf("Doesn't found boundary in MIME: %s", boundary)
+    return
+  }
+
+  bodyReader := bytes.NewReader(pbody)
+  reader := multipart.NewReader(bodyReader, boundary)
 
   for {
     p, err := reader.NextPart()
@@ -93,14 +156,12 @@ func (email *ParsedEmail) parseMimeEmail() {
       break
     }
     if err != nil {
-      log.Errorf("NextPart: %v", err)
+      log.Errorf("Mime Part error: %v", err)
+    } else {
+      email.parseEmailPart(p)
     }
-    pbody, err := ioutil.ReadAll(p)
-    if err != nil {
-      log.Errorf("Read part: %v", err)
-    }
-    log.Debugf("Part: %v", string(pbody))
   }
+  email.storeEmail()
 }
 
 // parse body
@@ -109,10 +170,23 @@ func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
   email.EmailBody = body
   mimeVersion := email.Headers.Get("Mime-Version")
   if mimeVersion != "" {
-    email.parseMimeEmail()
+    contentType := email.Headers.Get("Content-Type")
+    _, contentTypeParams, err := mime.ParseMediaType(contentType)
+    if err != nil {
+      log.Errorf("Invalid ContentType: %v", err)
+      return
+    }
+    email.parseMimeEmail(email.EmailBody, contentTypeParams["boundary"])
   } else {
     email.parsePlainEmail()
   }
+}
+
+// store email
+
+func (email *ParsedEmail) storeEmail() {
+  log.Debugf("HTML Email: %v", email.HtmlPart)
+  log.Debugf("Text Email: %v", email.TextPart)
 }
 
 // obj
@@ -137,5 +211,4 @@ func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) {
   email.RawMail = email.env.MailBody
   email.parseEmailHeaders(msg)
   email.parseEmailBody(msg, mailBody)
-  //log.Debugf("parsed: %v", email)
 }
