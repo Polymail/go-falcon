@@ -35,7 +35,7 @@ func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, err
     password string
   )
   log.Debugf("AUTH by %s / %s", username, cramPassword)
-  err := db.DB.QueryRow(db.config.Storage.Mailbox_Sql, username).Scan(&id, &password)
+  err := db.DB.QueryRow(db.config.Storage.Auth_Sql, username).Scan(&id, &password)
   if err != nil {
     log.Errorf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
     return 0, err
@@ -47,7 +47,7 @@ func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, err
   return id, nil
 }
 
-// save email and attachments
+// save email
 
 func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from, from_name, to, to_name, html, text string, rawEmail []byte) (int, error) {
   var (
@@ -71,6 +71,30 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
   if id == 0 {
     log.Errorf("Messages Not return last ID: %v", id)
     return 0, errors.New("Messages Not return last ID")
+  }
+  return id, nil
+}
+
+
+// save attachment
+
+func (db *DBConn) StoreAttachment(messageId int, filename, contentType, transferEncoding string, rawData []byte) (int, error) {
+  var (
+    id int
+  )
+  err := db.DB.QueryRow(db.config.Storage.Attachments_Sql,
+    messageId,
+    filename,
+    contentType,
+    transferEncoding,
+    rawData).Scan(&id)
+  if err != nil {
+    log.Errorf("Attachments SQL error: %v", err)
+    return 0, err
+  }
+  if id == 0 {
+    log.Errorf("Attachments Not return last ID: %v", id)
+    return 0, errors.New("Attachments Not return last ID")
   }
   return id, nil
 }

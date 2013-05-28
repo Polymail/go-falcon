@@ -70,6 +70,30 @@ CREATE INDEX index_messages_on_mailbox_id
 
 
 
+
+CREATE TABLE attachments
+(
+  id serial NOT NULL,
+  message_id integer NOT NULL,
+  filename character varying(255),
+  content_type character varying(255),
+  transfer_encoding character varying(255),
+  body bytea,
+  CONSTRAINT attachments_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE attachments
+  OWNER TO leo;
+
+CREATE INDEX index_attachments_on_message_id
+  ON attachments
+  USING btree
+  (message_id);
+
+
+
 ```
 
 ## Test

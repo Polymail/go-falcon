@@ -30,15 +30,16 @@ type Config struct {
     Allow_Hosts     string
   }
   Storage struct {
-    Adapter       string
-    Host          string
-    Port          int
-    Username      string
-    Password      string
-    Database      string
-    Pool          int
-    Mailbox_Sql   string
-    Messages_Sql  string
+    Adapter           string
+    Host              string
+    Port              int
+    Username          string
+    Password          string
+    Database          string
+    Pool              int
+    Auth_Sql          string
+    Messages_Sql      string
+    Attachments_Sql   string
   }
   Proxy struct {
     Enabled       bool

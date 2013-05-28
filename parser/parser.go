@@ -15,11 +15,11 @@ import (
 )
 
 type ParsedAttachment struct {
-  attachmentType                string
-  attachmentFileName            string
-  attachmentTransferEncoding    string
-  attachmentContentType         string
-  attachmentBody                []byte
+  AttachmentType                string
+  AttachmentFileName            string
+  AttachmentTransferEncoding    string
+  AttachmentContentType         string
+  AttachmentBody                []byte
 }
 
 type ParsedEmail struct {
@@ -99,7 +99,7 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
     }
     switch strings.ToLower(contentDispositionVal) {
     case "attachment", "inline":
-      attachment := ParsedAttachment{ attachmentType: contentDispositionVal, attachmentFileName: contentDispositionParams["filename"], attachmentBody: pbody, attachmentContentType: contentTypeVal, attachmentTransferEncoding: contentTransferEncoding }
+      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: contentDispositionParams["filename"], AttachmentBody: pbody, AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding }
       email.Attachments = append(email.Attachments, attachment)
     default:
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)
