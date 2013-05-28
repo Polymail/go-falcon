@@ -29,15 +29,6 @@ type badMailTypeTest struct {
   RawBody     string
 }
 
-
-type stubEnvelop struct {
-  env struct {
-    MailboxID    int
-    MailBody     []byte
-  }
-}
-
-
 func testMailParser(t *testing.T) {
   emailParser := EmailParser{}
   for _, mail := range goodMailTypeTests {
