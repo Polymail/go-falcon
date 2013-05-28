@@ -43,3 +43,10 @@ func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, err
   }
   return id, nil
 }
+
+// save email and attachments
+
+func (db *DBConn) StoreMail() {
+
+  return
+}

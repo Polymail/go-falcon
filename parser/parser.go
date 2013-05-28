@@ -136,7 +136,6 @@ func (email *ParsedEmail) parsePlainEmail() {
   contentType := email.Headers.Get("Content-Type")
   contentDisposition := email.Headers.Get("Content-Disposition")
   email.parseEmailByType(contentType, contentDisposition, email.EmailBody)
-  email.storeEmail()
 }
 
 // parse plain email
@@ -161,7 +160,6 @@ func (email *ParsedEmail) parseMimeEmail(pbody []byte, boundary string) {
       email.parseEmailPart(p)
     }
   }
-  email.storeEmail()
 }
 
 // parse body
@@ -187,6 +185,7 @@ func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
 func (email *ParsedEmail) storeEmail() {
   log.Debugf("HTML Email: %v", email.HtmlPart)
   log.Debugf("Text Email: %v", email.TextPart)
+
 }
 
 // obj
@@ -196,19 +195,20 @@ type EmailParser struct {
 
 // parse email
 
-func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) {
+func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
   email := ParsedEmail{ env: env }
   msg, err := mail.ReadMessage(bytes.NewBuffer(email.env.MailBody))
   if err != nil {
     log.Errorf("Failed parsing message: %v", err)
-    return
+    return nil, err
   }
   mailBody, err := ioutil.ReadAll(msg.Body)
   if err != nil {
     log.Errorf("Failed parsing message: %v", err)
-    return
+    return nil, err
   }
   email.RawMail = email.env.MailBody
   email.parseEmailHeaders(msg)
   email.parseEmailBody(msg, mailBody)
+  return &email, nil
 }

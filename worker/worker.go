@@ -11,10 +11,19 @@ import (
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   log.Debugf("Starting storage worker")
   emailParser := parser.EmailParser{}
+/*
+  db, err := storage.InitDatabase(config)
+  if err != nil {
+    log.Errorf("Couldn't connect to database: %v", err)
+    return
+  }
+*/
   for {
     envelop := <- channel
-    emailParser.ParseMail(envelop)
-    //postgresql.StoreMail()
+    _, err := emailParser.ParseMail(envelop)
+    if err == nil {
+
+    }
   }
 }
 
