@@ -8,7 +8,7 @@ adapter:
   ssl_pub_key: examples/test.pem
   ssl_prv_key: examples/test.key
   welcome_msg: Falcon Mail Server
-  max_mail_size: 10240000
+  max_mail_size: 5242880
   allow_hosts: 127.0.0.1
 
 storage:

@@ -70,7 +70,7 @@ type Envelope interface {
   AddSender(from MailAddress) error
   AddRecipient(rcpt MailAddress) error
   BeginData() error
-  Write(line []byte) error
+  Write(line []byte, maxSize int) error
   Close() error
 }
 
@@ -103,8 +103,11 @@ func (e *BasicEnvelope) BeginData() error {
   return nil
 }
 
-func (e *BasicEnvelope) Write(line []byte) error {
+func (e *BasicEnvelope) Write(line []byte, maxSize int) error {
   e.MailBody = append(e.MailBody, line...)
+  if maxSize > 0 && len(e.MailBody) > maxSize {
+    return SMTPError("552 5.3.4 Error: message file too big")
+  }
   return nil
 }
 
@@ -445,7 +448,7 @@ func (s *session) handleData() {
     if sl[0] == '.' {
       sl = sl[1:]
     }
-    err = s.env.Write(sl)
+    err = s.env.Write(sl, s.srv.ServerConfig.Adapter.Max_Mail_Size)
     if err != nil {
       s.sendSMTPErrorOrLinef(err, "550 ??? failed")
       return
