@@ -1,6 +1,9 @@
 package parser
 
 import (
+  stdlog "log"
+  "os"
+  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
   "encoding/json"
   "strings"
@@ -42,7 +45,7 @@ Content-Transfer-Encoding: quoted-printable
 
 
 =D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=`,
-  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "", "sosedi@sosedi.ua", "", ""},
+  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "", "sosedi@sosedi.ua", "\r\n=D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=", ""},
   {`MIME-Version: 1.0
 From: mainstay@sherwoodcompliance.co.uk
 To: stephen.callaghan@greenfinch.ie
@@ -80,7 +83,7 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
   illness 26 Dec - 26 Dec 2007`,
-  "illness", "", "", "sender@mail.com", "", ""},
+  "illness", "", "", "sender@mail.com", "  illness 26 Dec - 26 Dec 2007", ""},
   {`Date: Sun, 31 Jul 2011 14:57:10 +0300
 From: "Mr. Sender" <sender@mail.com>
 To: aaaa@bbbbbb.com
@@ -117,6 +120,11 @@ func expectEq(t *testing.T, expected, actual, what string) {
 
 
 func TestMailParser(t *testing.T) {
+  // logger
+  log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
+  // uncomment for debug
+  // log.Debug = true
+
   emailParser := EmailParser{}
   for _, mail := range goodMailTypeTests {
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)

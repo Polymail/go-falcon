@@ -173,13 +173,16 @@ func (email *ParsedEmail) parseMimeEmail(pbody []byte, boundary string) {
 func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
   email.EmailBody = body
   mimeVersion := email.Headers.Get("Mime-Version")
-  if mimeVersion != "" {
-    contentType := email.Headers.Get("Content-Type")
-    _, contentTypeParams, err := mime.ParseMediaType(contentType)
-    if err != nil {
-      log.Errorf("Invalid ContentType: %v", err)
-      return
-    }
+  contentType := email.Headers.Get("Content-Type")
+  if contentType == "" {
+    contentType = "text/plain; charset=UTF-8"
+  }
+  contentTypeVal, contentTypeParams, err := mime.ParseMediaType(contentType)
+  if err != nil {
+    log.Errorf("Invalid ContentType: %v", err)
+    return
+  }
+  if mimeVersion != "" && strings.HasPrefix(strings.ToLower(contentTypeVal), "multipart/") && contentTypeParams["boundary"] != "" {
     email.parseMimeEmail(email.EmailBody, contentTypeParams["boundary"])
   } else {
     email.parsePlainEmail()
