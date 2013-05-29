@@ -653,6 +653,12 @@ your browser address entry.
 
 
 `},
+  {`Subject: Hello World
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 22 Dec 2011 03:21:05 +0000
+
+ÿôÿý`,
+  "Hello World", "", "", "", "", "ÿôÿý", ""},
 
 }
 // bad mails

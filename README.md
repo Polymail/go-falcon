@@ -2,16 +2,13 @@
 
 storage of mail messages in a relational database
 
-## Libs
+## Used libs
 
     go get launchpad.net/goyaml
     go get github.com/bmizerany/pq
 
-## AUTH CRAM-MD5
 
-http://www.samlogic.net/articles/smtp-commands-reference-auth.htm
-
-## SQL
+## Database SQL
 
 ```sql
 
