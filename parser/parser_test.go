@@ -667,6 +667,11 @@ type badMailTypeTest struct {
   RawBody     string
 }
 
+var badMailTypeTests = []badMailTypeTest{
+  {""},
+  {"Invalid email body"},
+}
+
 
 func escapeString(v string) string {
   bytes, _ := json.Marshal(v)
@@ -682,11 +687,11 @@ func expectEq(t *testing.T, expected, actual, what string) {
 }
 
 
-func TestMailParser(t *testing.T) {
+func TestGoodMailParser(t *testing.T) {
   // logger
   log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   // uncomment for debug
-  log.Debug = true
+  //log.Debug = true
 
   emailParser := EmailParser{}
   for _, mail := range goodMailTypeTests {
@@ -703,6 +708,25 @@ func TestMailParser(t *testing.T) {
       expectEq(t, mail.From, email.From.Address, "Value of from email")
       expectEq(t, strings.Replace(mail.Text, "\n", "\r\n", -1), email.TextPart, "Value of text")
       expectEq(t, strings.Replace(mail.Html, "\n", "\r\n", -1), email.HtmlPart, "Value of html")
+    }
+  }
+}
+
+
+func TestBadMailParser(t *testing.T) {
+  // logger
+  log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
+  // uncomment for debug
+  //log.Debug = true
+
+  emailParser := EmailParser{}
+  for _, mail := range badMailTypeTests {
+    testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
+    // parse email
+    envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
+    email, err := emailParser.ParseMail(envelop)
+    if err == nil {
+      t.Error("No error in parsing email: %v", email)
     }
   }
 }
