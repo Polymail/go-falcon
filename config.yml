@@ -14,14 +14,14 @@ adapter:
 storage:
   adapter: postgresql
   host: localhost
-  port: 5433
+  port: 5432
   username: leo
   password:
   database: go-falcon
   pool: 5
   auth_sql: "SELECT id, raw_password FROM mailboxes WHERE email = $1" # $1 - email, should return ID and raw password
-  messages_sql: "INSERT INTO messages(mailbox_id, subject, sent_at, from_email, from_name, to_email, to_name, html_body, text_body, raw_email) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id" # returning id is MUST
-  attachments_sql: "INSERT INTO attachments(message_id, filename, content_type, transfer_encoding, body) VALUES($1, $2, $3, $4, $5) RETURNING id"
+  messages_sql: "INSERT INTO messages_[[mailbox_id]](mailbox_id, subject, sent_at, from_email, from_name, to_email, to_name, html_body, text_body, raw_email) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id" # returning id is MUST
+  attachments_sql: "INSERT INTO attachments_[[mailbox_id]](mailbox_id, message_id, filename, content_type, transfer_encoding, body) VALUES($1, $2, $3, $4, $5, $6) RETURNING id"
 
 proxy:
   enabled: true

@@ -38,7 +38,7 @@ CREATE INDEX index_mailboxes_on_raw_password
   USING btree
   (raw_password COLLATE pg_catalog."default");
 
-INSERT INTO mailboxes(email, raw_password) VALUES ('leo@leo.com', 'secret');
+INSERT INTO mailboxes(email, raw_password) VALUES ('leo@leo.com', 'pass');
 
 
 
@@ -69,11 +69,19 @@ CREATE INDEX index_messages_on_mailbox_id
   (mailbox_id);
 
 
+CREATE TABLE messages_1 (CHECK ( mailbox_id = 1 )) INHERITS (messages);
+
+CREATE INDEX index_messages_1_on_mailbox_id
+  ON messages_1
+  USING btree
+  (mailbox_id);
+
 
 
 CREATE TABLE attachments
 (
   id serial NOT NULL,
+  mailbox_id integer NOT NULL,
   message_id integer NOT NULL,
   filename character varying(255),
   content_type character varying(255),
@@ -92,6 +100,18 @@ CREATE INDEX index_attachments_on_message_id
   USING btree
   (message_id);
 
+CREATE INDEX index_attachments_on_mailbox_id
+  ON attachments
+  USING btree
+  (mailbox_id);
+
+
+CREATE TABLE attachments_1 (CHECK ( mailbox_id = 1 )) INHERITS (attachments);
+
+CREATE INDEX index_attachments_1_on_mailbox_id
+  ON attachments_1
+  USING btree
+  (mailbox_id);
 
 
 ```

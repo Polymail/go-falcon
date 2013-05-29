@@ -4,6 +4,7 @@ import (
   "strings"
   "errors"
   "database/sql"
+  "strconv"
   "time"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
@@ -53,7 +54,8 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
   var (
     id int
   )
-  err := db.DB.QueryRow(db.config.Storage.Messages_Sql,
+  sql := strings.Replace(db.config.Storage.Messages_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+  err := db.DB.QueryRow(sql,
     mailboxId,
     subject,
     date,
@@ -78,11 +80,13 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
 
 // save attachment
 
-func (db *DBConn) StoreAttachment(messageId int, filename, contentType, transferEncoding string, rawData []byte) (int, error) {
+func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, contentType, transferEncoding string, rawData []byte) (int, error) {
   var (
     id int
   )
-  err := db.DB.QueryRow(db.config.Storage.Attachments_Sql,
+  sql := strings.Replace(db.config.Storage.Attachments_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+  err := db.DB.QueryRow(sql,
+    mailboxId,
     messageId,
     filename,
     contentType,
