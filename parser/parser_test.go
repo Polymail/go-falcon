@@ -46,7 +46,7 @@ func escapeString(v string) string {
 
 func expectEq(t *testing.T, expected, actual, what string) {
   if expected == actual {
-          return
+    return
   }
   t.Errorf("Unexpected value for %s; got %s (len %d) but expected: %s (len %d)",
     what, escapeString(actual), len(actual), escapeString(expected), len(expected))
