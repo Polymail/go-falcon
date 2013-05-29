@@ -101,6 +101,9 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
     case "attachment", "inline":
       filename := contentDispositionParams["filename"]
       if filename == "" {
+        filename = contentDispositionParams["name"]
+      }
+      if filename == "" {
         filename = contentTypeParams["filename"]
       }
       attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: pbody, AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding }
