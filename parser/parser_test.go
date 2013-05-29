@@ -602,7 +602,57 @@ Content-Transfer-Encoding: 8bit
 
 
 --b1_3bf1b8cb4dca53e79a00931700a8afb0--`,
-  "Example subject line", "contactmichaelhart@gmail.com", "", "support@avocosecure.com", "support@avocosecure.com", "This is a test e-mail message.", ""},
+  "Example subject line", "contactmichaelhart@gmail.com", "", "support@avocosecure.com", "support@avocosecure.com", 
+`
+
+        Hello
+        You have been sent this email as part of your registration with Learner
+Passport
+        To confirm your email address for use with Learner Passport, please
+click on the link below:
+        http://example.com/confirm.php
+        If clicking on the link does not work, please copy it and paste it into
+your browser address entry.
+        Thanks,
+        Learner Passport, Skills Funding Agency
+
+
+
+`, 
+`<!DOCTYPE html>
+<html>
+<head>
+  <style type="text/css">
+  p, li {
+    font-family: arial;
+    line-height: 1.55em;
+    margin-bottom: 18px;
+  }
+  </style>
+</head>
+
+<body>
+  <table cellspacing='0' cellpadding='0' border='0'>
+    <tr>
+      <td>&nbsp;</td>
+      <td>
+        <p>Hello</p>
+        <p>You have been sent this email as part of your registration with Learner Passport</p>
+        <p>To confirm your email address for use with Learner Passport, please click on the link below:</p>
+        http://example.com/confirm.php
+        <p>If clicking on the link does not work, please copy it and paste it into your browser address entry.</p>
+        <p>Thanks,</p>
+        <p>Learner Passport, Skills Funding Agency</p>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+</body>
+</html>
+
+
+
+`},
 
 }
 // bad mails
