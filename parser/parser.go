@@ -186,14 +186,6 @@ func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
   }
 }
 
-// store email
-
-func (email *ParsedEmail) storeEmail() {
-  log.Debugf("HTML Email: %v", email.HtmlPart)
-  log.Debugf("Text Email: %v", email.TextPart)
-
-}
-
 // obj
 
 type EmailParser struct {
