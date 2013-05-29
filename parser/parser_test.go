@@ -27,9 +27,8 @@ CC: <test2@todomain.com>
 CC: <test3@todomain.com>
 Subject: SMTP e-mail test
 
-This is a test e-mail message.
-`,
-  "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "This is a test e-mail message.\r\n", ""},
+This is a test e-mail message.`,
+  "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "This is a test e-mail message.", ""},
 }
 
 // bad mails
