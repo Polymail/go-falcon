@@ -3,11 +3,12 @@ package parser
 import (
   stdlog "log"
   "os"
-  "github.com/le0pard/go-falcon/log"
-  "github.com/le0pard/go-falcon/protocol/smtpd"
   "encoding/json"
   "strings"
   "testing"
+  "github.com/qiniu/iconv"
+  "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
 // good mails
@@ -544,7 +545,7 @@ Content-Type: multipart/alternative;
 
 
 --b1_3bf1b8cb4dca53e79a00931700a8afb0
-Content-Type: text/plain; charset = "iso-8859-1"
+Content-Type: text/plain; charset = "utf-8"
 Content-Transfer-Encoding: 8bit
 
 
@@ -564,7 +565,7 @@ your browser address entry.
 
 
 --b1_3bf1b8cb4dca53e79a00931700a8afb0
-Content-Type: text/html; charset = "iso-8859-1"
+Content-Type: text/html; charset = "utf-8"
 Content-Transfer-Encoding: 8bit
 
 <!DOCTYPE html>
@@ -602,7 +603,7 @@ Content-Transfer-Encoding: 8bit
 
 
 --b1_3bf1b8cb4dca53e79a00931700a8afb0--`,
-  "Example subject line", "contactmichaelhart@gmail.com", "", "support@avocosecure.com", "support@avocosecure.com", 
+  "Example subject line", "contactmichaelhart@gmail.com", "", "support@avocosecure.com", "support@avocosecure.com",
 `
 
         Hello
@@ -618,7 +619,7 @@ your browser address entry.
 
 
 
-`, 
+`,
 `<!DOCTYPE html>
 <html>
 <head>
@@ -658,7 +659,65 @@ Content-Type: text/plain; charset=ISO-8859-1
 Date: Thu, 22 Dec 2011 03:21:05 +0000
 
 ÿôÿý`,
-  "Hello World", "", "", "", "", "ÿôÿý", ""},
+  "Hello World", "", "", "", "", encodeString("ÿôÿý", "ISO-8859-1"), ""},
+  {`Mime-Version: 1.0 (Apple Message framework v730)
+Message-Id: <9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>
+From: foo@example.com
+Subject: testing
+Date: Mon, 6 Jun 2005 22:21:22 +0200
+To: blah@example.com
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+
+A fax has arrived from remote ID ''.=0D=0A-----------------------=
+-------------------------------------=0D=0ATime: 3/9/2006 3:50:52=
+ PM=0D=0AReceived from remote ID: =0D=0AInbound user ID XXXXXXXXXX, r=
+outing code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=
+age record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A`,
+  "testing", "blah@example.com", "", "foo@example.com", "",
+  "A fax has arrived from remote ID ''.=0D=0A-----------------------=\n-------------------------------------=0D=0ATime: 3/9/2006 3:50:52=\n PM=0D=0AReceived from remote ID: =0D=0AInbound user ID XXXXXXXXXX, r=\nouting code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=\nage record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A", ""},
+  {`From jamis@37signals.com Mon May  2 16:07:05 2005
+Mime-Version: 1.0 (Apple Message framework v622)
+Content-Transfer-Encoding: base64
+Message-Id: <d3b8cf8e49f04480850c28713a1f473e@37signals.com>
+Content-Type: text/plain;
+  charset=EUC-KR;
+  format=flowed
+To: jamis@37signals.com
+From: Jamis Buck <jamis@37signals.com>
+Subject: Re: Test: =?UTF-8?B?Iua8ouWtlyI=?= mid =?UTF-8?B?Iua8ouWtlyI=?= tail
+Date: Mon, 2 May 2005 16:07:05 -0600
+
+tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin
+wLogSmFtaXPA1LTPtNku`,
+  "Re: Test: =?UTF-8?B?Iua8ouWtlyI=?= mid =?UTF-8?B?Iua8ouWtlyI=?= tail", "jamis@37signals.com", "", "jamis@37signals.com", "", "", ""},
+  {`Return-Path: <xxx@xxxx.xxx>
+Received: from xxx.xxxx.xxx by xxx.xxxx.xxx with ESMTP id C1B953B4CB6 for <xxxxx@Exxx.xxxx.xxx>; Tue, 10 May 2005 15:27:05 -0500
+Received: from SMS-GTYxxx.xxxx.xxx by xxx.xxxx.xxx with ESMTP id ca for <xxxxx@Exxx.xxxx.xxx>; Tue, 10 May 2005 15:27:04 -0500
+Received: from xxx.xxxx.xxx by SMS-GTYxxx.xxxx.xxx with ESMTP id j4AKR3r23323 for <xxxxx@Exxx.xxxx.xxx>; Tue, 10 May 2005 15:27:03 -0500
+Date: Tue, 10 May 2005 15:27:03 -0500
+From: xxx@xxxx.xxx
+Sender: xxx@xxxx.xxx
+To: xxxxxxxxxxx@xxxx.xxxx.xxx
+Message-Id: <xxx@xxxx.xxx>
+X-Original-To: xxxxxxxxxxx@xxxx.xxxx.xxx
+Delivered-To: xxx@xxxx.xxx
+Importance: normal
+Content-Type: text/plain; charset=utf-8
+
+Test test. Hi. Waving. m
+
+----------------------------------------------------------------
+Sent via Bell Mobility's Text Messaging service.
+Envoyé par le service de messagerie texte de Bell Mobilité.
+----------------------------------------------------------------`,
+  "", "xxxxxxxxxxx@xxxx.xxxx.xxx", "", "xxx@xxxx.xxx", "",
+  `Test test. Hi. Waving. m
+
+----------------------------------------------------------------
+Sent via Bell Mobility's Text Messaging service.
+Envoyé par le service de messagerie texte de Bell Mobilité.
+----------------------------------------------------------------`, ""},
 
 }
 // bad mails
@@ -686,12 +745,21 @@ func expectEq(t *testing.T, expected, actual, what string) {
     what, escapeString(actual), len(actual), escapeString(expected), len(expected))
 }
 
+func encodeString(pbody string, charset string) string {
+  cd, err := iconv.Open(charset, "UTF-8")
+  if err != nil {
+    return pbody
+  }
+  defer cd.Close()
+  return cd.ConvString(pbody)
+}
+
 
 func TestGoodMailParser(t *testing.T) {
   // logger
   log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   // uncomment for debug
-  //log.Debug = true
+  log.Debug = true
 
   emailParser := EmailParser{}
   for _, mail := range goodMailTypeTests {
