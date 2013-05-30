@@ -4,13 +4,35 @@ import (
   "bytes"
   "encoding/base64"
   "regexp"
-  "io"
   "io/ioutil"
   "strings"
-  "errors"
-  "strconv"
   "github.com/qiniu/iconv"
+  "github.com/sloonz/go-qprintable"
 )
+
+// Decode strings in Mime header format
+// eg. =?ISO-2022-JP?B?GyRCIVo9dztSOWJAOCVBJWMbKEI=?=
+func MimeHeaderDecode(str string) string {
+  reg, _ := regexp.Compile(`=\?(.+?)\?([QBqp])\?(.+?)\?=`)
+  matched := reg.FindAllStringSubmatch(str, -1)
+  var charset, encoding, payload string
+  if matched != nil {
+    for i := 0; i < len(matched); i++ {
+      if len(matched[i]) > 2 {
+        charset = matched[i][1]
+        encoding = strings.ToUpper(matched[i][2])
+        payload = matched[i][3]
+        switch encoding {
+        case "B":
+          str = strings.Replace(str, matched[i][0], mailTransportDecode(payload, "base64", charset), 1)
+        case "Q":
+          str = strings.Replace(str, matched[i][0], mailTransportDecode(payload, "quoted-printable", charset), 1)
+        }
+      }
+    }
+  }
+  return str
+}
 
 // decode from 7bit to 8bit UTF-8
 func mailTransportDecode(pbody string, encodingType string, charset string) string {
@@ -21,6 +43,8 @@ func mailTransportDecode(pbody string, encodingType string, charset string) stri
   }
   if strings.ToLower(encodingType) == "base64" {
     pbody = decodeFromBase64(pbody)
+  } else if encodingType == "quoted-printable" {
+    pbody = fromQuotedP(pbody)
   }
   if charset != "UTF-8" {
     charset = decodeFixCharset(charset)
@@ -32,6 +56,13 @@ func mailTransportDecode(pbody string, encodingType string, charset string) stri
     return cd.ConvString(pbody)
   }
   return pbody
+}
+
+func fromQuotedP(data string) string {
+  buf := bytes.NewBufferString(data)
+  decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
+  res, _ := ioutil.ReadAll(decoder)
+  return string(res)
 }
 
 func decodeFromBase64(data string) string {
@@ -62,75 +93,4 @@ func decodeFixCharset(charset string) string {
     return fixedCharset
   }
   return charset
-}
-
-
-func decodeRFC2047Word(s string) (string, error) {
-    fields := strings.Split(s, "?")
-    if len(fields) != 5 || fields[0] != "=" || fields[4] != "=" {
-      return "", errors.New("mail: address not RFC 2047 encoded")
-    }
-    charset, enc := strings.ToLower(fields[1]), strings.ToLower(fields[2])
-    if charset != "iso-8859-1" && charset != "utf-8" {
-      return "", errors.New("mail: charset not supported: " + charset)
-    }
-
-    in := bytes.NewBufferString(fields[3])
-    var r io.Reader
-    switch enc {
-    case "b":
-      r = base64.NewDecoder(base64.StdEncoding, in)
-    case "q":
-      r = qDecoder{r: in}
-    default:
-      return "", errors.New("mail: RFC 2047 encoding not supported: " + enc)
-    }
-
-    dec, err := ioutil.ReadAll(r)
-    if err != nil {
-      return "", err
-    }
-
-    switch charset {
-    case "iso-8859-1":
-      b := new(bytes.Buffer)
-      for _, c := range dec {
-        b.WriteRune(rune(c))
-      }
-      return b.String(), nil
-    case "utf-8":
-      return string(dec), nil
-    }
-    panic("unreachable")
-}
-
-type qDecoder struct {
-  r       io.Reader
-  scratch [2]byte
-}
-
-func (qd qDecoder) Read(p []byte) (n int, err error) {
-  // This method writes at most one byte into p.
-  if len(p) == 0 {
-    return 0, nil
-  }
-  if _, err := qd.r.Read(qd.scratch[:1]); err != nil {
-    return 0, err
-  }
-  switch c := qd.scratch[0]; {
-  case c == '=':
-    if _, err := io.ReadFull(qd.r, qd.scratch[:2]); err != nil {
-      return 0, err
-    }
-    x, err := strconv.ParseInt(string(qd.scratch[:2]), 16, 64)
-    if err != nil {
-      return 0, errors.New("mail: invalid RFC 2047 encoding: " + string(qd.scratch[:2]))
-    }
-    p[0] = byte(x)
-  case c == '_':
-    p[0] = ' '
-  default:
-    p[0] = c
-  }
-  return 1, nil
 }

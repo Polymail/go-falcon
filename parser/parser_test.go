@@ -96,7 +96,7 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 illness 26 Dec - 26 Dec 2007`,
-  "illness notification =?8bit?Q?ALPH=C3=89E?=", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", ""},
+  "illness notification ALPHÉE", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", ""},
 {`Received: from 192.168.1.169 (localhost [127.0.0.1])
   by Chris-Lempers-MacBook-Pro.local (Postfix) with ESMTP id 67338820062
   for <MichaelJWilliamstfb24d057-49fb-477d-8cf3-5357f2591641@test.com>; Tue, 27 Mar 2012 13:57:13 -0600 (MDT)
@@ -689,7 +689,7 @@ Date: Mon, 2 May 2005 16:07:05 -0600
 
 tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin
 wLogSmFtaXPA1LTPtNku`,
-  "Re: Test: =?UTF-8?B?Iua8ouWtlyI=?= mid =?UTF-8?B?Iua8ouWtlyI=?= tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", ""},
+  "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", ""},
 }
 // bad mails
 

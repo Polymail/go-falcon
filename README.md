@@ -7,6 +7,7 @@ storage of mail messages in a relational database
     go get launchpad.net/goyaml
     go get github.com/bmizerany/pq
     go get github.com/qiniu/iconv
+    go get github.com/sloonz/go-qprintable
 
 ## Database SQL
 
