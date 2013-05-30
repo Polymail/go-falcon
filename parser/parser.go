@@ -48,13 +48,18 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
   var err error
 
   email.Headers = msg.Header
-  email.Subject = MimeHeaderDecode(email.Headers.Get("Subject"))
+  subject, err := MimeHeaderDecode(email.Headers.Get("Subject"))
+  if err != nil {
+    email.Subject = email.Headers.Get("Subject")
+  } else {
+    email.Subject = subject
+  }
   email.Date, err = msg.Header.Date()
   if err != nil {
     email.Date = time.Now()
   }
   // from
-  emailHeader = MimeHeaderDecode(email.Headers.Get("From"))
+  emailHeader = email.Headers.Get("From")
   if emailHeader != "" {
     fromEmail, err := mail.ParseAddress(emailHeader)
     if err != nil {
@@ -64,7 +69,7 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
     }
   }
   // to
-  emailHeader = MimeHeaderDecode(email.Headers.Get("To"))
+  emailHeader = email.Headers.Get("To")
   if emailHeader != "" {
     toEmail, err := mail.ParseAddress(emailHeader)
     if err != nil {
