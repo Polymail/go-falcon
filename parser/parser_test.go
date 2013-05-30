@@ -690,6 +690,16 @@ Date: Mon, 2 May 2005 16:07:05 -0600
 tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin
 wLogSmFtaXPA1LTPtNku`,
   "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", ""},
+  {`MIME-Version: 1.0
+Subject: =?UTF-8?B?44G+44G/44KA44KB44KC?=
+From: Mikel Lindsaar <raasdnil@gmail.com>
+To: =?UTF-8?B?44G/44GR44KL?= <raasdnil@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu
+ZCBMaWZlIGJsb2cuLi4uCg==`,
+  "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "", "44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu\nZCBMaWZlIGJsb2cuLi4uCg==", ""},
 }
 // bad mails
 
