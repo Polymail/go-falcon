@@ -6,13 +6,10 @@ import (
   "net/textproto"
   "mime"
   "mime/multipart"
-  "encoding/base64"
-  "regexp"
   "io"
   "io/ioutil"
   "strings"
   "time"
-  "github.com/qiniu/iconv"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
@@ -112,8 +109,7 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       if filename == "" {
         filename = contentTypeParams["filename"]
       }
-      attachmentByte := []byte(mailTransportDecode(string(pbody), contentTransferEncoding, contentTypeParams["charset"]))
-      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: attachmentByte, AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding }
+      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: pbody, AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding }
       email.Attachments = append(email.Attachments, attachment)
     default:
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)
@@ -122,9 +118,9 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   } else {
     switch strings.ToLower(contentTypeVal) {
     case "text/html":
-      email.HtmlPart = mailTransportDecode(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+      email.HtmlPart = string(pbody)
     case "text/plain":
-      email.TextPart = mailTransportDecode(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+      email.TextPart = string(pbody)
     default:
       if strings.HasPrefix(strings.ToLower(contentTypeVal), "multipart/") {
         email.parseMimeEmail(pbody, contentTypeParams["boundary"])
@@ -197,58 +193,6 @@ func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
   } else {
     email.parsePlainEmail()
   }
-}
-
-// decode from 7bit to 8bit UTF-8
-func mailTransportDecode(pbody string, encodingType string, charset string) string {
-  if charset == "" {
-    charset = "UTF-8"
-  } else {
-    charset = strings.ToUpper(charset)
-  }
-  if strings.ToLower(encodingType) == "base64" {
-    pbody = decodeFromBase64(pbody)
-  }
-  if charset != "UTF-8" {
-    charset = decodeFixCharset(charset)
-    cd, err := iconv.Open(charset, "UTF-8")
-    if err != nil {
-      return pbody
-    }
-    defer cd.Close()
-    return cd.ConvString(pbody)
-  }
-  return pbody
-}
-
-func decodeFromBase64(data string) string {
-  buf := bytes.NewBufferString(data)
-  decoder := base64.NewDecoder(base64.StdEncoding, buf)
-  res, _ := ioutil.ReadAll(decoder)
-  return string(res)
-}
-
-func decodeFixCharset(charset string) string {
-  reg, _ := regexp.Compile(`[_:.\/\\]`)
-  fixedCharset := reg.ReplaceAllString(charset, "-")
-  // Fix charset
-  // borrowed from http://squirrelmail.svn.sourceforge.net/viewvc/squirrelmail/trunk/squirrelmail/include/languages.php?revision=13765&view=markup
-  // OE ks_c_5601_1987 > cp949
-  fixedCharset = strings.Replace(fixedCharset, "ks-c-5601-1987", "cp949", -1)
-  // Moz x-euc-tw > euc-tw
-  fixedCharset = strings.Replace(fixedCharset, "x-euc", "euc", -1)
-  // Moz x-windows-949 > cp949
-  fixedCharset = strings.Replace(fixedCharset, "x-windows_", "cp", -1)
-  // windows-125x and cp125x charsets
-  fixedCharset = strings.Replace(fixedCharset, "windows-", "cp", -1)
-  // ibm > cp
-  fixedCharset = strings.Replace(fixedCharset, "ibm", "cp", -1)
-  // iso-8859-8-i -> iso-8859-8
-  fixedCharset = strings.Replace(fixedCharset, "iso-8859-8-i", "iso-8859-8", -1)
-  if charset != fixedCharset {
-    return fixedCharset
-  }
-  return charset
 }
 
 // obj

@@ -6,7 +6,6 @@ import (
   "encoding/json"
   "strings"
   "testing"
-  "github.com/qiniu/iconv"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
@@ -659,7 +658,7 @@ Content-Type: text/plain; charset=ISO-8859-1
 Date: Thu, 22 Dec 2011 03:21:05 +0000
 
 ÿôÿý`,
-  "Hello World", "", "", "", "", encodeString("ÿôÿý", "ISO-8859-1"), ""},
+  "Hello World", "", "", "", "", "ÿôÿý", ""},
   {`Mime-Version: 1.0 (Apple Message framework v730)
 Message-Id: <9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>
 From: foo@example.com
@@ -690,35 +689,7 @@ Date: Mon, 2 May 2005 16:07:05 -0600
 
 tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin
 wLogSmFtaXPA1LTPtNku`,
-  "Re: Test: =?UTF-8?B?Iua8ouWtlyI=?= mid =?UTF-8?B?Iua8ouWtlyI=?= tail", "jamis@37signals.com", "", "jamis@37signals.com", "", "", ""},
-  {`Return-Path: <xxx@xxxx.xxx>
-Received: from xxx.xxxx.xxx by xxx.xxxx.xxx with ESMTP id C1B953B4CB6 for <xxxxx@Exxx.xxxx.xxx>; Tue, 10 May 2005 15:27:05 -0500
-Received: from SMS-GTYxxx.xxxx.xxx by xxx.xxxx.xxx with ESMTP id ca for <xxxxx@Exxx.xxxx.xxx>; Tue, 10 May 2005 15:27:04 -0500
-Received: from xxx.xxxx.xxx by SMS-GTYxxx.xxxx.xxx with ESMTP id j4AKR3r23323 for <xxxxx@Exxx.xxxx.xxx>; Tue, 10 May 2005 15:27:03 -0500
-Date: Tue, 10 May 2005 15:27:03 -0500
-From: xxx@xxxx.xxx
-Sender: xxx@xxxx.xxx
-To: xxxxxxxxxxx@xxxx.xxxx.xxx
-Message-Id: <xxx@xxxx.xxx>
-X-Original-To: xxxxxxxxxxx@xxxx.xxxx.xxx
-Delivered-To: xxx@xxxx.xxx
-Importance: normal
-Content-Type: text/plain; charset=utf-8
-
-Test test. Hi. Waving. m
-
-----------------------------------------------------------------
-Sent via Bell Mobility's Text Messaging service.
-Envoyé par le service de messagerie texte de Bell Mobilité.
-----------------------------------------------------------------`,
-  "", "xxxxxxxxxxx@xxxx.xxxx.xxx", "", "xxx@xxxx.xxx", "",
-  `Test test. Hi. Waving. m
-
-----------------------------------------------------------------
-Sent via Bell Mobility's Text Messaging service.
-Envoyé par le service de messagerie texte de Bell Mobilité.
-----------------------------------------------------------------`, ""},
-
+  "Re: Test: =?UTF-8?B?Iua8ouWtlyI=?= mid =?UTF-8?B?Iua8ouWtlyI=?= tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", ""},
 }
 // bad mails
 
@@ -743,15 +714,6 @@ func expectEq(t *testing.T, expected, actual, what string) {
   }
   t.Errorf("Unexpected value for %s; got %s (len %d) but expected: %s (len %d)",
     what, escapeString(actual), len(actual), escapeString(expected), len(expected))
-}
-
-func encodeString(pbody string, charset string) string {
-  cd, err := iconv.Open(charset, "UTF-8")
-  if err != nil {
-    return pbody
-  }
-  defer cd.Close()
-  return cd.ConvString(pbody)
 }
 
 
