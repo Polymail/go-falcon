@@ -12,6 +12,10 @@ import (
   "github.com/le0pard/go-falcon/storage/postgresql"
 )
 
+type AccountSettings struct {
+  MaxMessages int
+}
+
 type DBConn struct {
   DB *sql.DB
   config *config.Config
@@ -30,30 +34,22 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
 
 // check username login
 
-func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, int, error) {
+func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, error) {
   var (
     id int
     password string
-    maxMessages int
-    err error
   )
-  maxMessages = 0
   log.Debugf("AUTH by %s / %s", username, cramPassword)
-  row := db.DB.QueryRow(db.config.Storage.Auth_Sql, username)
-  if db.config.Storage.Max_Messages_Field {
-    err = row.Scan(&id, &password, &maxMessages)
-  } else {
-    err = row.Scan(&id, &password)
-  }
+  err := db.DB.QueryRow(db.config.Storage.Auth_Sql, username).Scan(&id, &password)
   if err != nil {
     log.Errorf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
-    return 0, 0, err
+    return 0, err
   }
   if !utils.CheckSMTPAuthPass(password, cramPassword, cramSecret) {
     log.Errorf("User %s send invalid password", username)
-    return 0, 0, errors.New("The user have invalid password")
+    return 0, errors.New("The user have invalid password")
   }
-  return id, maxMessages, nil
+  return id, nil
 }
 
 // save email
@@ -113,9 +109,21 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
   return id, nil
 }
 
+// get settings
+
+func (db *DBConn) GetSettings(mailboxId int) (*AccountSettings, error) {
+  settings := &AccountSettings{}
+  err := db.DB.QueryRow(db.config.Storage.Settings_Sql, mailboxId).Scan(&settings.MaxMessages)
+  if err != nil {
+    log.Errorf("Settings SQL error: %v", err)
+    return nil, err
+  }
+  return settings, err
+}
+
 // cleanup messages
 func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
-  if db.config.Storage.Max_Messages_Field && maxMessages > 0 {
+  if db.config.Storage.Max_Messages_Enabled && maxMessages > 0 {
     var (
       count int
       tmpId int

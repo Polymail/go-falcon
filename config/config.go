@@ -38,7 +38,9 @@ type Config struct {
     Database                  string
     Pool                      int
 
-    Max_Messages_Field        bool
+    Settings_Sql              string
+
+    Max_Messages_Enabled      bool
     Max_Messages_Sql          string
     Max_Messages_Cleanup_Sql  string
     Max_Attachments_Cleanup_Sql string
