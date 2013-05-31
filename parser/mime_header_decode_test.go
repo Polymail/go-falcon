@@ -17,6 +17,7 @@ var mimeHeaderTests = []mimeHeaderTest{
   {"=?ISO-8859-1?B?SvZyZw==?=", "Jörg"},
   {"=?UTF-8?B?SsO2cmc=?=", "Jörg"},
   {"illness notification =?8bit?Q?ALPH=C3=89E?=", "illness notification ALPHÉE"},
+  {"=?UTF-8?B?44G+44G/44KA44KB44KC?=", "まみむめも"},
 }
 
 func TestMimeHeaderDecode(t *testing.T) {
