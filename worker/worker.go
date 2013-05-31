@@ -27,6 +27,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
           db.StoreAttachment(email.MailboxID, messageId, attachment.AttachmentFileName, attachment.AttachmentType, attachment.AttachmentContentType, attachment.AttachmentContentID, attachment.AttachmentTransferEncoding, attachment.AttachmentBody)
         }
       }
+      db.CleanupMessages(email.MailboxID, envelop.MaxMessages)
     }
   }
 }

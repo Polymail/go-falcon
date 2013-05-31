@@ -30,22 +30,30 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
 
 // check username login
 
-func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, error) {
+func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, int, error) {
   var (
     id int
     password string
+    maxMessages int
+    err error
   )
+  maxMessages = 0
   log.Debugf("AUTH by %s / %s", username, cramPassword)
-  err := db.DB.QueryRow(db.config.Storage.Auth_Sql, username).Scan(&id, &password)
+  row := db.DB.QueryRow(db.config.Storage.Auth_Sql, username)
+  if db.config.Storage.Max_Messages_Field {
+    err = row.Scan(&id, &password, &maxMessages)
+  } else {
+    err = row.Scan(&id, &password)
+  }
   if err != nil {
     log.Errorf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
-    return 0, err
+    return 0, 0, err
   }
   if !utils.CheckSMTPAuthPass(password, cramPassword, cramSecret) {
     log.Errorf("User %s send invalid password", username)
-    return 0, errors.New("The user have invalid password")
+    return 0, 0, errors.New("The user have invalid password")
   }
-  return id, nil
+  return id, maxMessages, nil
 }
 
 // save email
@@ -103,4 +111,45 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
     return 0, errors.New("Attachments Not return last ID")
   }
   return id, nil
+}
+
+// cleanup messages
+func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
+  if db.config.Storage.Max_Messages_Field && maxMessages > 0 {
+    var (
+      count int
+      tmpId int
+      msgIds []string
+    )
+    err := db.DB.QueryRow(db.config.Storage.Max_Messages_Sql, mailboxId).Scan(&count)
+    if err != nil {
+      log.Errorf("CleanupMessages SQL error: %v", err)
+      return err
+    }
+    cleanupCount := count - maxMessages
+    if cleanupCount > 0 {
+      rows, err := db.DB.Query(db.config.Storage.Max_Messages_Cleanup_Sql, mailboxId, cleanupCount)
+      if err != nil {
+        log.Errorf("CleanupMessages SQL error: %v", err)
+        return err
+      }
+      defer rows.Close()
+      for rows.Next() {
+        err := rows.Scan(&tmpId)
+        if err != nil {
+          log.Errorf("CleanupMessages SQL error: %v", err)
+          return err
+        }
+        msgIds = append(msgIds, strconv.Itoa(tmpId))
+      }
+      if len(msgIds) > 0 {
+        _, err := db.DB.Query(db.config.Storage.Max_Attachments_Cleanup_Sql, mailboxId, strings.Join(msgIds, ","))
+        if err != nil {
+          log.Errorf("CleanupMessages SQL error: %v", err)
+          return err
+        }
+      }
+    }
+  }
+  return nil
 }

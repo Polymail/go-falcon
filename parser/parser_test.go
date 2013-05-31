@@ -786,6 +786,26 @@ GwB9/g/9S/t/s9g//9k=
   "Eelanalüüsi päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", []goodMailAttachments{
     {"Eelanalüüsi päring.jpg"},
   }},
+  {`Subject: this message JUST contains an attachment
+From: Ryan Finnie <rfinnie@domain.dom>
+To: bob@domain.dom
+Content-Disposition: attachment; filename=blah.gz
+Content-Transfer-Encoding: base64
+Content-Description: Attachment has identical content to above foo.gz
+Message-Id: <1066974048.4264.62.camel@localhost>
+Mime-Version: 1.0
+Date: 23 Oct 2003 22:40:49 -0700
+Content-Type: application/x-gzip; NAME=blah.gz
+
+SubjectthismessageJUSTcontainsanattachmentFromRyanFinnierfinniedomaindomTobo
+bdomaindomContentDispositionattachmentfilenameAblahgzContentTypeapplication/
+xgzipnameAblahgzContentTransferEncodingbase64ContentDescriptionAttachmenthas
+identicalcontenttoabovefoogzMessageId1066974048426462camellocalhostMimeVersi
+on10Date23Oct20032240490700H4sIAOHBmD8AA4vML1XPyVHISy1LLVJIy8xLUchNVeQCAHbe7
+64WA`,
+  "this message JUST contains an attachment", "bob@domain.dom", "", "rfinnie@domain.dom", "Ryan Finnie", "", "", []goodMailAttachments{
+    {"blah.gz"},
+  }},
 }
 // bad mails
 

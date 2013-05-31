@@ -30,16 +30,22 @@ type Config struct {
     Allow_Hosts     string
   }
   Storage struct {
-    Adapter           string
-    Host              string
-    Port              int
-    Username          string
-    Password          string
-    Database          string
-    Pool              int
-    Auth_Sql          string
-    Messages_Sql      string
-    Attachments_Sql   string
+    Adapter                   string
+    Host                      string
+    Port                      int
+    Username                  string
+    Password                  string
+    Database                  string
+    Pool                      int
+
+    Max_Messages_Field        bool
+    Max_Messages_Sql          string
+    Max_Messages_Cleanup_Sql  string
+    Max_Attachments_Cleanup_Sql string
+
+    Auth_Sql                  string
+    Messages_Sql              string
+    Attachments_Sql           string
   }
   Proxy struct {
     Enabled       bool

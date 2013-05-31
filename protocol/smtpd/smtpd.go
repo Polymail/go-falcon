@@ -66,7 +66,7 @@ type Connection interface {
 // EMAIL
 
 type Envelope interface {
-  AddMailboxId(mailboxId int) error
+  AddMailboxIdAndMaxMessages(mailboxId int, maxMessages int) error
   AddSender(from MailAddress) error
   AddRecipient(rcpt MailAddress) error
   BeginData() error
@@ -76,13 +76,15 @@ type Envelope interface {
 
 type BasicEnvelope struct {
   MailboxID     int
+  MaxMessages   int
   From          MailAddress
   Rcpts         []MailAddress
   MailBody      []byte
 }
 
-func (e *BasicEnvelope) AddMailboxId(mailboxId int) error {
+func (e *BasicEnvelope) AddMailboxIdAndMaxMessages(mailboxId int, maxMessages int) error {
   e.MailboxID = mailboxId
+  e.MaxMessages = maxMessages
   return nil
 }
 
@@ -181,6 +183,7 @@ type session struct {
   authCramMd5Login string // bytes for cram-md5 login
 
   mailboxId     int    // id of mailbox
+  maxMessages   int    // max messages
   authUsername  string // auth login
   authPassword  string // auth password
 }
@@ -396,7 +399,7 @@ func (s *session) handleRcpt(line cmdLine) {
   } else {
     // store mailbox id in envelop
     if s.mailboxId > 0 {
-      s.env.AddMailboxId(s.mailboxId)
+      s.env.AddMailboxIdAndMaxMessages(s.mailboxId, s.maxMessages)
     }
   }
 
@@ -427,7 +430,7 @@ func (s *session) handleData() {
   } else {
     // store mailbox id in envelop
     if s.mailboxId > 0 {
-      s.env.AddMailboxId(s.mailboxId)
+      s.env.AddMailboxIdAndMaxMessages(s.mailboxId, s.maxMessages)
     }
   }
 
@@ -473,7 +476,7 @@ func (s *session) checkNeedAuth() bool {
 
 func (s *session) authByDB() {
   var err error
-  s.mailboxId, err = s.srv.DBConn.CheckUser(s.authUsername, s.authPassword, s.authCramMd5Login)
+  s.mailboxId, s.maxMessages, err = s.srv.DBConn.CheckUser(s.authUsername, s.authPassword, s.authCramMd5Login)
   if err != nil {
     s.sendlinef("535 5.7.1 authentication failed")
     return

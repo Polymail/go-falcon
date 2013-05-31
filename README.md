@@ -18,6 +18,7 @@ CREATE TABLE mailboxes
   id serial NOT NULL,
   email character varying(255) NOT NULL DEFAULT ''::character varying,
   raw_password character varying(255) NOT NULL DEFAULT ''::character varying,
+  max_emails integer DEFAULT 0,
   CONSTRAINT users_pkey PRIMARY KEY (id)
 )
 WITH (
