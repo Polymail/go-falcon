@@ -35,9 +35,6 @@ func decodeRFC2047Word(s string) (string, error) {
     return "", errors.New("header not RFC 2047 encoded")
   }
   charset, enc := strings.ToLower(fields[1]), strings.ToLower(fields[2])
-  if charset != "iso-8859-1" && charset != "utf-8" && charset != "8bit" && charset != "7bit" {
-    return "", errors.New("charset not supported: " + charset)
-  }
 
   in := bytes.NewBufferString(fields[3])
   var r io.Reader
@@ -62,7 +59,7 @@ func decodeRFC2047Word(s string) (string, error) {
       b.WriteRune(rune(c))
     }
     return b.String(), nil
-  case "utf-8", "8bit", "7bit":
+  default:
     return string(dec), nil
   }
   panic("unreachable")
