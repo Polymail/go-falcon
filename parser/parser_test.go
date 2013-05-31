@@ -817,7 +817,7 @@ func TestGoodMailParser(t *testing.T) {
   // logger
   log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   // uncomment for debug
-  log.Debug = true
+  //log.Debug = true
 
   emailParser := EmailParser{}
   for _, mail := range goodMailTypeTests {

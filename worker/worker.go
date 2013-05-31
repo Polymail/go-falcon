@@ -24,7 +24,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       messageId, err := db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
       if err == nil {
         for _, attachment := range email.Attachments {
-          db.StoreAttachment(email.MailboxID, messageId, attachment.AttachmentFileName, attachment.AttachmentContentType, attachment.AttachmentContentID, attachment.AttachmentTransferEncoding, attachment.AttachmentBody)
+          db.StoreAttachment(email.MailboxID, messageId, attachment.AttachmentFileName, attachment.AttachmentType, attachment.AttachmentContentType, attachment.AttachmentContentID, attachment.AttachmentTransferEncoding, attachment.AttachmentBody)
         }
       }
     }

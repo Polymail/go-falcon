@@ -80,7 +80,7 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
 
 // save attachment
 
-func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, contentType, contentId, transferEncoding string, rawData []byte) (int, error) {
+func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attachmentType, contentType, contentId, transferEncoding string, rawData []byte) (int, error) {
   var (
     id int
   )
@@ -89,6 +89,7 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, conten
     mailboxId,
     messageId,
     filename,
+    attachmentType,
     contentType,
     contentId,
     transferEncoding,

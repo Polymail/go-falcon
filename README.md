@@ -82,6 +82,7 @@ CREATE TABLE attachments
   mailbox_id integer NOT NULL,
   message_id integer NOT NULL,
   filename character varying(255),
+  attachment_type character varying(255),
   content_type character varying(255),
   content_id character varying(255),
   transfer_encoding character varying(255),
@@ -104,6 +105,16 @@ CREATE INDEX index_attachments_on_mailbox_id
   USING btree
   (mailbox_id);
 
+CREATE INDEX index_attachments_on_content_id
+  ON attachments
+  USING btree
+  (content_id);
+
+CREATE INDEX index_attachments_on_attachment_type
+  ON attachments
+  USING btree
+  (attachment_type);
+
 
 CREATE TABLE attachments_1 (CHECK ( mailbox_id = 1 )) INHERITS (attachments);
 
@@ -111,6 +122,21 @@ CREATE INDEX index_attachments_1_on_mailbox_id
   ON attachments_1
   USING btree
   (mailbox_id);
+
+CREATE INDEX index_attachments_1_on_mailbox_id
+  ON attachments_1
+  USING btree
+  (mailbox_id);
+
+CREATE INDEX index_attachments_1_on_content_id
+  ON attachments_1
+  USING btree
+  (content_id);
+
+CREATE INDEX index_attachments_1_on_attachment_type
+  ON attachments_1
+  USING btree
+  (attachment_type);
 
 
 ```
