@@ -11,11 +11,11 @@ import (
 )
 
 func MimeHeaderDecode(str string) (string, error) {
-  arrayStr := strings.Split(str, " ")
   var (
     words []string
     err error
   )
+  arrayStr := strings.Split(str, " ")
   for _, word := range arrayStr {
     if strings.HasPrefix(word, "=?") && strings.HasSuffix(word, "?=") && strings.Count(word, "?") == 4 {
       word, err = decodeRFC2047Word(word)
