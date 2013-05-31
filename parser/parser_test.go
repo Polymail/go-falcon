@@ -27,8 +27,6 @@ type goodMailTypeTest struct {
   Text        string
   Html        string
 
-  AttachmentsCount    int
-
   Attachments  []goodMailAttachments
 }
 
@@ -40,7 +38,7 @@ CC: <test3@todomain.com>
 Subject: SMTP e-mail test
 
 This is a test e-mail message.`,
-  "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", "", 0, []goodMailAttachments{}},
+  "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", "", []goodMailAttachments{}},
 
   {`Date: Sun, 04 Dec 2011 16:02:50 +0200
 From: APP Error <sosedi@sosedi.ua>
@@ -55,7 +53,7 @@ Content-Transfer-Encoding: quoted-printable
 
 
 =D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=`,
-  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "", "sosedi@sosedi.ua", "APP Error", "\n=D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=", "", 0, []goodMailAttachments{}},
+  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "", "sosedi@sosedi.ua", "APP Error", "\n=D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=", "", []goodMailAttachments{}},
 
   {`MIME-Version: 1.0
 From: mainstay@sherwoodcompliance.co.uk
@@ -82,7 +80,9 @@ QXBwbGljYWJsZXxSTVNMRmVlDQpHTEFTU3xzdGVwaGVuL2dsYXNzY2FyZTAwMXwz
 Mi80MjY1fMKjMTY2LjgwfDk3MTc3NTF8VGV4dHx8MDEvMDEvMjAxMnx8R2xhc3Nj
 YXJlfDU1LjYwfDE2LjgxDQoNCg==
 ----boundary_3_1c98cbdb-e45c-48ab-b94f-4a31cda787f6--`,
-  "test", "stephen.callaghan@greenfinch.ie", "", "mainstay@sherwoodcompliance.co.uk", "", "", "", 1, []goodMailAttachments{}},
+  "test", "stephen.callaghan@greenfinch.ie", "", "mainstay@sherwoodcompliance.co.uk", "", "", "", []goodMailAttachments{
+    {"OICLCostsPaymentProposal.csv"},
+  }},
 
   {`Date: Sun, 31 Jul 2011 14:57:10 +0300
 From: "Mr. Sender" <sender@mail.com>
@@ -95,7 +95,7 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
   illness 26 Dec - 26 Dec 2007`,
-  "illness", "", "", "sender@mail.com", "", "  illness 26 Dec - 26 Dec 2007", "", 0, []goodMailAttachments{}},
+  "illness", "", "", "sender@mail.com", "", "  illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
 
   {`Date: Sun, 31 Jul 2011 14:57:10 +0300
 From: "Mr. Sender" <sender@mail.com>
@@ -108,7 +108,7 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 illness 26 Dec - 26 Dec 2007`,
-  "illness notification ALPHÉE", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", "", 0, []goodMailAttachments{}},
+  "illness notification ALPHÉE", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
 
 {`Received: from 192.168.1.169 (localhost [127.0.0.1])
   by Chris-Lempers-MacBook-Pro.local (Postfix) with ESMTP id 67338820062
@@ -542,7 +542,9 @@ This email may contain information that is legally PRIVILEGED and CONFIDENTIAL i
 </table>
 
 </body>
-</html>`, 1, []goodMailAttachments{}},
+</html>`, []goodMailAttachments{
+  {""},
+}},
 
   {`Date: Mon, 12 Mar 2012 13:13:19 +0000
 Return-Path: support@avocosecure.com
@@ -666,14 +668,14 @@ your browser address entry.
 
 
 
-`, 0, []goodMailAttachments{}},
+`, []goodMailAttachments{}},
 
   {`Subject: Hello World
 Content-Type: text/plain; charset=ISO-8859-1
 Date: Thu, 22 Dec 2011 03:21:05 +0000
 
 ÿôÿý`,
-  "Hello World", "", "", "", "", "ÿôÿý", "", 0, []goodMailAttachments{}},
+  "Hello World", "", "", "", "", "ÿôÿý", "", []goodMailAttachments{}},
 
   {`Mime-Version: 1.0 (Apple Message framework v730)
 Message-Id: <9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>
@@ -691,7 +693,7 @@ outing code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=
 age record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A`,
   "testing", "blah@example.com", "", "foo@example.com", "",
   "A fax has arrived from remote ID ''.=0D=0A-----------------------=\n-------------------------------------=0D=0ATime: 3/9/2006 3:50:52=\n PM=0D=0AReceived from remote ID: =0D=0AInbound user ID XXXXXXXXXX, r=\nouting code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=\nage record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A",
-  "", 0, []goodMailAttachments{}},
+  "", []goodMailAttachments{}},
 
   {`From jamis@37signals.com Mon May  2 16:07:05 2005
 Mime-Version: 1.0 (Apple Message framework v622)
@@ -707,7 +709,7 @@ Date: Mon, 2 May 2005 16:07:05 -0600
 
 tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin
 wLogSmFtaXPA1LTPtNku`,
-  "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", "", 0, []goodMailAttachments{}},
+  "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", "", []goodMailAttachments{}},
 
   {`MIME-Version: 1.0
 Subject: =?UTF-8?B?44G+44G/44KA44KB44KC?=
@@ -719,7 +721,7 @@ Content-Transfer-Encoding: base64
 44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu
 ZCBMaWZlIGJsb2cuLi4uCg==`,
   "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "", "44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu\nZCBMaWZlIGJsb2cuLi4uCg==",
-  "", 0, []goodMailAttachments{}},
+  "", []goodMailAttachments{}},
 
   {`Return-Path: <jeff@37signals.com>
 Received: from ?10.0.1.6? (d36-211-30.home1.cgocable.net [24.36.211.30])
@@ -781,7 +783,9 @@ R6tg7y9/D7Hdsd38F3i919j777WwNy5e/o7B/lPy9P058p7R/D/5nvNWwS0OxH3/ABcTd/VXs/b9
 GwB9/g/9S/t/s9g//9k=
 
 --Apple-Mail-6--218366681--`,
-  "Eelanalüüsi päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", 1, []goodMailAttachments{}},
+  "Eelanalüüsi päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", []goodMailAttachments{
+    {"Eelanalüüsi päring.jpg"},
+  }},
 }
 // bad mails
 
@@ -830,9 +834,12 @@ func TestGoodMailParser(t *testing.T) {
       expectEq(t, mail.From, email.From.Address, "Value of from email")
       expectEq(t, strings.Replace(mail.Text, "\n", "\r\n", -1), email.TextPart, "Value of text")
       expectEq(t, strings.Replace(mail.Html, "\n", "\r\n", -1), email.HtmlPart, "Value of html")
-      if mail.AttachmentsCount != len(email.Attachments) {
+      if len(mail.Attachments) != len(email.Attachments) {
         t.Errorf("Unexpected value for Count of attachments; got %d but expected: %d",
-          mail.AttachmentsCount, len(email.Attachments))
+          len(mail.Attachments), len(email.Attachments))
+      }
+      if len(mail.Attachments) > 0 {
+        expectEq(t, mail.Attachments[0].Filename, email.Attachments[0].AttachmentFileName, "Value of attachment name")
       }
     }
   }

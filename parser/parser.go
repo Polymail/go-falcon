@@ -19,6 +19,7 @@ type ParsedAttachment struct {
   AttachmentFileName            string
   AttachmentTransferEncoding    string
   AttachmentContentType         string
+  AttachmentContentID           string
   AttachmentBody                []byte
 }
 
@@ -109,12 +110,19 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
     case "attachment", "inline":
       filename := contentDispositionParams["filename"]
       if filename == "" {
+        filename = contentTypeParams["name"]
+      }
+      if filename == "" {
         filename = contentDispositionParams["name"]
       }
       if filename == "" {
         filename = contentTypeParams["filename"]
       }
-      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: pbody, AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding }
+      decodedFilename, err := MimeHeaderDecode(filename)
+      if err == nil {
+        filename = decodedFilename
+      }
+      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: pbody, AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: headers.Get("Content-ID") }
       email.Attachments = append(email.Attachments, attachment)
     default:
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)
