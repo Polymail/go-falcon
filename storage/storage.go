@@ -129,14 +129,16 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
       tmpId int
       msgIds []string
     )
-    err := db.DB.QueryRow(db.config.Storage.Max_Messages_Sql, mailboxId).Scan(&count)
+    sql := strings.Replace(db.config.Storage.Max_Messages_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+    err := db.DB.QueryRow(sql, mailboxId).Scan(&count)
     if err != nil {
       log.Errorf("CleanupMessages SQL error: %v", err)
       return err
     }
     cleanupCount := count - maxMessages
     if cleanupCount > 0 {
-      rows, err := db.DB.Query(db.config.Storage.Max_Messages_Cleanup_Sql, mailboxId, cleanupCount)
+      sql := strings.Replace(db.config.Storage.Max_Messages_Cleanup_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+      rows, err := db.DB.Query(sql, mailboxId, cleanupCount)
       if err != nil {
         log.Errorf("CleanupMessages SQL error: %v", err)
         return err
@@ -151,7 +153,8 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
         msgIds = append(msgIds, strconv.Itoa(tmpId))
       }
       if len(msgIds) > 0 {
-        _, err := db.DB.Query(db.config.Storage.Max_Attachments_Cleanup_Sql, mailboxId, strings.Join(msgIds, ","))
+        sql := strings.Replace(db.config.Storage.Max_Attachments_Cleanup_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+        _, err := db.DB.Query(sql, mailboxId, strings.Join(msgIds, ","))
         if err != nil {
           log.Errorf("CleanupMessages SQL error: %v", err)
           return err

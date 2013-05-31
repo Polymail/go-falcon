@@ -23,9 +23,9 @@ storage:
   settings_sql: "SELECT max_emails FROM mailboxes WHERE id = $1" # $1 - mailbox_id
 
   max_messages_enabled: true
-  max_messages_sql: "SELECT count(*) FROM messages WHERE mailbox_id = $1" # $1 - mailbox_id
-  max_messages_cleanup_sql: "DELETE FROM messages WHERE mailbox_id = $1 AND id IN (SELECT id FROM messages WHERE mailbox_id = $1 ORDER BY id LIMIT $2) RETURNING id" # $1 - mailbox_id, $2 - how much delete
-  max_attachments_cleanup_sql: "DELETE FROM attachments WHERE mailbox_id = $1 AND message_id IN ($2) RETURNING id" # $1 - mailbox_id, $2 - message ids
+  max_messages_sql: "SELECT count(*) FROM messages_[[mailbox_id]] WHERE mailbox_id = $1" # $1 - mailbox_id
+  max_messages_cleanup_sql: "DELETE FROM messages_[[mailbox_id]] WHERE mailbox_id = $1 AND id IN (SELECT id FROM messages WHERE mailbox_id = $1 ORDER BY id LIMIT $2) RETURNING id" # $1 - mailbox_id, $2 - how much delete
+  max_attachments_cleanup_sql: "DELETE FROM attachments_[[mailbox_id]] WHERE mailbox_id = $1 AND message_id IN ($2) RETURNING id" # $1 - mailbox_id, $2 - message ids
 
   auth_sql: "SELECT id, raw_password FROM mailboxes WHERE email = $1" # $1 - email, should return id and password
 
