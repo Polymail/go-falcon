@@ -122,7 +122,14 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       if err == nil {
         filename = decodedFilename
       }
-      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: pbody, AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: headers.Get("Content-ID") }
+      attachmentContentID := headers.Get("Content-ID")
+      if attachmentContentID != "" {
+        contentId, err := mail.ParseAddress(attachmentContentID)
+        if err == nil {
+          attachmentContentID = contentId.Address
+        }
+      }
+      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: pbody, AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
       email.Attachments = append(email.Attachments, attachment)
     default:
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)

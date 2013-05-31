@@ -83,6 +83,7 @@ CREATE TABLE attachments
   message_id integer NOT NULL,
   filename character varying(255),
   content_type character varying(255),
+  content_id character varying(255),
   transfer_encoding character varying(255),
   body bytea,
   CONSTRAINT attachments_pkey PRIMARY KEY (id)
