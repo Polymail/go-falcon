@@ -12,6 +12,10 @@ import (
 
 // good mails
 
+type goodMailAttachments struct {
+  Filename      string
+}
+
 type goodMailTypeTest struct {
   RawBody     string
 
@@ -22,6 +26,10 @@ type goodMailTypeTest struct {
   FromName    string
   Text        string
   Html        string
+
+  AttachmentsCount    int
+
+  Attachments  []goodMailAttachments
 }
 
 var goodMailTypeTests = []goodMailTypeTest{
@@ -32,7 +40,8 @@ CC: <test3@todomain.com>
 Subject: SMTP e-mail test
 
 This is a test e-mail message.`,
-  "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", ""},
+  "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", "", 0, []goodMailAttachments{}},
+
   {`Date: Sun, 04 Dec 2011 16:02:50 +0200
 From: APP Error <sosedi@sosedi.ua>
 To: app-support@sosedi.ua
@@ -46,7 +55,8 @@ Content-Transfer-Encoding: quoted-printable
 
 
 =D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=`,
-  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "", "sosedi@sosedi.ua", "APP Error", "\n=D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=", ""},
+  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "", "sosedi@sosedi.ua", "APP Error", "\n=D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=", "", 0, []goodMailAttachments{}},
+
   {`MIME-Version: 1.0
 From: mainstay@sherwoodcompliance.co.uk
 To: stephen.callaghan@greenfinch.ie
@@ -72,7 +82,8 @@ QXBwbGljYWJsZXxSTVNMRmVlDQpHTEFTU3xzdGVwaGVuL2dsYXNzY2FyZTAwMXwz
 Mi80MjY1fMKjMTY2LjgwfDk3MTc3NTF8VGV4dHx8MDEvMDEvMjAxMnx8R2xhc3Nj
 YXJlfDU1LjYwfDE2LjgxDQoNCg==
 ----boundary_3_1c98cbdb-e45c-48ab-b94f-4a31cda787f6--`,
-  "test", "stephen.callaghan@greenfinch.ie", "", "mainstay@sherwoodcompliance.co.uk", "", "", ""},
+  "test", "stephen.callaghan@greenfinch.ie", "", "mainstay@sherwoodcompliance.co.uk", "", "", "", 1, []goodMailAttachments{}},
+
   {`Date: Sun, 31 Jul 2011 14:57:10 +0300
 From: "Mr. Sender" <sender@mail.com>
 To: Mr. X "wrongquote@b.com"
@@ -84,7 +95,8 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
   illness 26 Dec - 26 Dec 2007`,
-  "illness", "", "", "sender@mail.com", "", "  illness 26 Dec - 26 Dec 2007", ""},
+  "illness", "", "", "sender@mail.com", "", "  illness 26 Dec - 26 Dec 2007", "", 0, []goodMailAttachments{}},
+
   {`Date: Sun, 31 Jul 2011 14:57:10 +0300
 From: "Mr. Sender" <sender@mail.com>
 To: aaaa@bbbbbb.com
@@ -96,7 +108,8 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 illness 26 Dec - 26 Dec 2007`,
-  "illness notification ALPHÉE", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", ""},
+  "illness notification ALPHÉE", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", "", 0, []goodMailAttachments{}},
+
 {`Received: from 192.168.1.169 (localhost [127.0.0.1])
   by Chris-Lempers-MacBook-Pro.local (Postfix) with ESMTP id 67338820062
   for <MichaelJWilliamstfb24d057-49fb-477d-8cf3-5357f2591641@test.com>; Tue, 27 Mar 2012 13:57:13 -0600 (MDT)
@@ -529,7 +542,8 @@ This email may contain information that is legally PRIVILEGED and CONFIDENTIAL i
 </table>
 
 </body>
-</html>`},
+</html>`, 1, []goodMailAttachments{}},
+
   {`Date: Mon, 12 Mar 2012 13:13:19 +0000
 Return-Path: support@avocosecure.com
 To: contactmichaelhart@gmail.com
@@ -652,13 +666,15 @@ your browser address entry.
 
 
 
-`},
+`, 0, []goodMailAttachments{}},
+
   {`Subject: Hello World
 Content-Type: text/plain; charset=ISO-8859-1
 Date: Thu, 22 Dec 2011 03:21:05 +0000
 
 ÿôÿý`,
-  "Hello World", "", "", "", "", "ÿôÿý", ""},
+  "Hello World", "", "", "", "", "ÿôÿý", "", 0, []goodMailAttachments{}},
+
   {`Mime-Version: 1.0 (Apple Message framework v730)
 Message-Id: <9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>
 From: foo@example.com
@@ -674,7 +690,9 @@ A fax has arrived from remote ID ''.=0D=0A-----------------------=
 outing code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=
 age record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A`,
   "testing", "blah@example.com", "", "foo@example.com", "",
-  "A fax has arrived from remote ID ''.=0D=0A-----------------------=\n-------------------------------------=0D=0ATime: 3/9/2006 3:50:52=\n PM=0D=0AReceived from remote ID: =0D=0AInbound user ID XXXXXXXXXX, r=\nouting code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=\nage record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A", ""},
+  "A fax has arrived from remote ID ''.=0D=0A-----------------------=\n-------------------------------------=0D=0ATime: 3/9/2006 3:50:52=\n PM=0D=0AReceived from remote ID: =0D=0AInbound user ID XXXXXXXXXX, r=\nouting code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=\nage record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A",
+  "", 0, []goodMailAttachments{}},
+
   {`From jamis@37signals.com Mon May  2 16:07:05 2005
 Mime-Version: 1.0 (Apple Message framework v622)
 Content-Transfer-Encoding: base64
@@ -689,7 +707,8 @@ Date: Mon, 2 May 2005 16:07:05 -0600
 
 tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin
 wLogSmFtaXPA1LTPtNku`,
-  "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", ""},
+  "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", "", 0, []goodMailAttachments{}},
+
   {`MIME-Version: 1.0
 Subject: =?UTF-8?B?44G+44G/44KA44KB44KC?=
 From: Mikel Lindsaar <raasdnil@gmail.com>
@@ -699,7 +718,70 @@ Content-Transfer-Encoding: base64
 
 44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu
 ZCBMaWZlIGJsb2cuLi4uCg==`,
-  "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "", "44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu\nZCBMaWZlIGJsb2cuLi4uCg==", ""},
+  "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "", "44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu\nZCBMaWZlIGJsb2cuLi4uCg==",
+  "", 0, []goodMailAttachments{}},
+
+  {`Return-Path: <jeff@37signals.com>
+Received: from ?10.0.1.6? (d36-211-30.home1.cgocable.net [24.36.211.30])
+        by mx.google.com with ESMTPS id g14sm267889rvb.22.2009.05.13.08.42.03
+        (version=TLSv1/SSLv3 cipher=RC4-MD5);
+        Wed, 13 May 2009 08:42:04 -0700 (PDT)
+Message-Id: <E0F9311D-F469-4E7B-81BC-F240BD473566@37signals.com>
+From: Jeffrey Hardy <jeff@37signals.com>
+To: Jeffrey Hardy <jeff@37signals.com>
+Content-Type: multipart/mixed; boundary=Apple-Mail-6--218366681
+Mime-Version: 1.0 (Apple Message framework v935.3)
+Subject: =?ISO-8859-1?Q?Eelanal=FC=FCsi_p=E4ring?=
+Date: Wed, 13 May 2009 11:42:01 -0400
+X-Mailer: Apple Mail (2.935.3)
+
+
+--Apple-Mail-6--218366681
+Content-Disposition: inline;
+  filename*=ISO-8859-1''Eelanal%FC%FCsi%20p%E4ring.jpg
+Content-Type: image/jpeg;
+  x-unix-mode=0700;
+  name="=?ISO-8859-1?Q?Eelanal=FC=FCsi_p=E4ring.jpg?="
+Content-Transfer-Encoding: base64
+
+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
+GwB9/g/9S/t/s9g//9k=
+
+--Apple-Mail-6--218366681--`,
+  "Eelanalüüsi päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", 1, []goodMailAttachments{}},
 }
 // bad mails
 
@@ -748,6 +830,10 @@ func TestGoodMailParser(t *testing.T) {
       expectEq(t, mail.From, email.From.Address, "Value of from email")
       expectEq(t, strings.Replace(mail.Text, "\n", "\r\n", -1), email.TextPart, "Value of text")
       expectEq(t, strings.Replace(mail.Html, "\n", "\r\n", -1), email.HtmlPart, "Value of html")
+      if mail.AttachmentsCount != len(email.Attachments) {
+        t.Errorf("Unexpected value for Count of attachments; got %d but expected: %d",
+          mail.AttachmentsCount, len(email.Attachments))
+      }
     }
   }
 }
