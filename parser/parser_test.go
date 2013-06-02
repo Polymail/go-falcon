@@ -806,6 +806,36 @@ on10Date23Oct20032240490700H4sIAOHBmD8AA4vML1XPyVHISy1LLVJIy8xLUchNVeQCAHbe7
   "this message JUST contains an attachment", "bob@domain.dom", "", "rfinnie@domain.dom", "Ryan Finnie", "", "", []goodMailAttachments{
     {"blah.gz"},
   }},
+  {`Mime-Version: 1.0 (Apple Message framework v730)
+Content-Type: multipart/mixed; boundary=Apple-Mail-13-196941151
+Message-Id: <9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>
+From: foo@example.com
+Subject: testing
+Date: Mon, 6 Jun 2005 22:21:22 +0200
+To: blah@example.com
+
+
+--Apple-Mail-13-196941151
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+  charset=ISO-8859-1;
+  delsp=yes;
+  format=flowed
+
+This is the first part.
+
+--Apple-Mail-13-196941151
+Content-Type: text/plain; name=This is a test.txt
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+  filename=This is a test.txt
+
+Hi there.
+
+--Apple-Mail-13-196941151--`,
+  "testing", "blah@example.com", "", "foo@example.com", "", "This is the first part.\n", "", []goodMailAttachments{
+    {"This is a test.txt"},
+  }},
 }
 // bad mails
 
