@@ -5,6 +5,9 @@ install:
   - go get launchpad.net/gocheck
   - go get launchpad.net/goyaml
   - go get github.com/bmizerany/pq
+script:
+  - go test -v github.com/bmizerany/pq
+  - go test -v github.com/le0pard/go-falcon/parser
 notifications:
   email: false
 branches:
