@@ -1,4 +1,6 @@
 language: go
+before_script:
+  - psql -c 'CREATE DATABASE pqgotest;' -U postgres
 install:
   - go get launchpad.net/goyaml
   - go get github.com/bmizerany/pq
