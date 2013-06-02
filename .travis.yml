@@ -2,8 +2,9 @@ language: go
 before_script:
   - psql -c 'CREATE DATABASE pqgotest;' -U postgres
 install:
-  - sudo gvm install go1.1
-  - sudo gvm use go1.1 --default
+  - gvm update
+  - gvm install go1.1
+  - gvm use go1.1 --default
   - go get -v './'
 notifications:
   email: false
