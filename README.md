@@ -1,4 +1,4 @@
-# Go-Falcon
+# Go-Falcon [![Build Status](https://travis-ci.org/le0pard/go-falcon.png?branch=master)](https://travis-ci.org/le0pard/go-falcon)
 
 storage of mail messages in a relational database
 
