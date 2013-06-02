@@ -144,6 +144,8 @@ CREATE INDEX index_attachments_1_on_attachment_type
 
 ## Test
 
+    go test -v ./...
+
 Test telnet:
 
 ```bash
