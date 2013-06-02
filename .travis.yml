@@ -5,6 +5,7 @@ install:
   - gvm update
   - gvm install go1.1
   - gvm use go1.1 --default
+  - export GOPATH=$HOME/gopath
   - go get launchpad.net/gocheck
   - go get launchpad.net/goyaml
   - go get github.com/bmizerany/pq
