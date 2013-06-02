@@ -5,9 +5,7 @@ install:
   - gvm alias list
   - gvm install go1.1
   - gvm use go1.1 --default
-  - go get launchpad.net/gocheck
-  - go get launchpad.net/goyaml
-  - go get github.com/bmizerany/pq
+  - go get -v './'
 notifications:
   email: false
 branches:
