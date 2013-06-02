@@ -1,8 +1,9 @@
 language: go
 before_script:
   - psql -c 'CREATE DATABASE pqgotest;' -U postgres
-  - gvm install go1.1
-  - gvm use go1.1
+  - gvm listall
+  - gvm install "go1.1"
+  - gvm use "go1.1" --default
 install:
   - go get launchpad.net/gocheck
   - go get launchpad.net/goyaml
