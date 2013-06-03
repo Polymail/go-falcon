@@ -31,6 +31,7 @@ func fixInvalidUnquotedAttachmentName(str string) string {
   return str
 }
 
+
 func fixInvalidEscapedAttachmentName(str string) string {
   reg := regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
   if reg.MatchString(str) {

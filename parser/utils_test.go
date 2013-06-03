@@ -4,21 +4,23 @@ import (
   "testing"
 )
 
-type mimeUnquotedNameHeaderTest struct {
+type  mimeInvalidNameHeaderTest struct {
   From      string
   To        string
 }
 
-var mimeUnquotedNameHeaderTests = []mimeUnquotedNameHeaderTest{
+var mimeInvalidNameHeaderTests = [] mimeInvalidNameHeaderTest{
   {"Content-Type: text/plain; name=test.txt", "Content-Type: text/plain; name=test.txt"},
   {"Content-Type: image/png; name=test-with-dash.png", "Content-Type: image/png; name=test-with-dash.png"},
   {"Content-Type: text/plain; name=This is a test.txt", "Content-Type: text/plain; name=\"This is a test.txt\""},
   {"Content-Disposition: attachment;\n   filename=This is a test.txt", "Content-Disposition: attachment;\n   filename=\"This is a test.txt\""},
+  {"Content-Type: application/octet-stream; name*=iso-2022-jp'ja'01%20Quien%20Te%20Dij%8aat.%20Pitbull.mp3", "Content-Type: application/octet-stream; name=\"01 Quien Te Dijat. Pitbull.mp3\""},
+  {"Content-Type: application/octet-stream; name*0=iso-2022-jp'ja'01%20Quien%20Te%20Dij%8aat.%20Pitbull.mp3 name*1=iso-2022-jp'ja'01%20Quien%20Te%20Dij%8aat.%20Pitbull.mp3", "Content-Type: application/octet-stream; name=\"01 Quien Te Dijat. Pitbull.mp3 name*1=iso-2022-jp'ja'01 Quien Te Dijat. Pitbull.mp3\""},
 }
 
-func TestMimeUnquotedNameHeader(t *testing.T) {
-  for _, header := range mimeUnquotedNameHeaderTests {
-    decodedValue := fixInvalidUnquotedAttachmentName(header.From)
+func TestMimeInvalidNameHeader(t *testing.T) {
+  for _, header := range mimeInvalidNameHeaderTests {
+    decodedValue := FixMailEncodedHeader(header.From)
     expectEq(t, header.To, decodedValue, "Value of decoded with name header")
   }
 }
