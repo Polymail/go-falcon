@@ -4,6 +4,11 @@ import (
   "regexp"
 )
 
+func fixMailEncodedHeader(str string) string {
+  str = fixInvalidUnquotedAttachmentName(str)
+  return str
+}
+
 
 func fixInvalidUnquotedAttachmentName(str string) string {
   reg := regexp.MustCompile(`(.)*\s(filename|name)=[^"](.+\s)+[^"]`)

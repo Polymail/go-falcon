@@ -19,6 +19,8 @@ CREATE TABLE mailboxes
   email character varying(255) NOT NULL DEFAULT ''::character varying,
   raw_password character varying(255) NOT NULL DEFAULT ''::character varying,
   max_emails integer DEFAULT 0,
+  created_at timestamp without time zone NOT NULL,
+  updated_at timestamp without time zone NOT NULL,
   CONSTRAINT users_pkey PRIMARY KEY (id)
 )
 WITH (
@@ -37,7 +39,7 @@ CREATE INDEX index_mailboxes_on_raw_password
   USING btree
   (raw_password COLLATE pg_catalog."default");
 
-INSERT INTO mailboxes(email, raw_password) VALUES ('leo@leo.com', 'pass');
+INSERT INTO mailboxes(email, raw_password, created_at, updated_at) VALUES ('leo@leo.com', 'pass', now(), now());
 
 
 
@@ -54,6 +56,8 @@ CREATE TABLE messages
   html_body text,
   text_body text,
   raw_email text,
+  created_at timestamp without time zone NOT NULL,
+  updated_at timestamp without time zone NOT NULL,
   CONSTRAINT messages_pkey PRIMARY KEY (id)
 )
 WITH (
@@ -88,6 +92,8 @@ CREATE TABLE attachments
   content_id character varying(255),
   transfer_encoding character varying(255),
   body bytea,
+  created_at timestamp without time zone NOT NULL,
+  updated_at timestamp without time zone NOT NULL,
   CONSTRAINT attachments_pkey PRIMARY KEY (id)
 )
 WITH (
@@ -118,11 +124,6 @@ CREATE INDEX index_attachments_on_attachment_type
 
 
 CREATE TABLE attachments_1 (CHECK ( mailbox_id = 1 )) INHERITS (attachments);
-
-CREATE INDEX index_attachments_1_on_mailbox_id
-  ON attachments_1
-  USING btree
-  (mailbox_id);
 
 CREATE INDEX index_attachments_1_on_mailbox_id
   ON attachments_1
