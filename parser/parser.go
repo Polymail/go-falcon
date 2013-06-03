@@ -95,14 +95,14 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   if contentTransferEncoding == "" {
     contentTransferEncoding = "8bit"
   }
-  contentType = fixMailEncodedHeader(contentType)
+  contentType = FixMailEncodedHeader(contentType)
   contentTypeVal, contentTypeParams, err := mime.ParseMediaType(contentType)
   if err != nil {
     log.Errorf("Invalid ContentType: %v", err)
     return
   }
   if contentDisposition != "" {
-    contentDisposition = fixMailEncodedHeader(contentDisposition)
+    contentDisposition = FixMailEncodedHeader(contentDisposition)
     contentDispositionVal, contentDispositionParams, err := mime.ParseMediaType(contentDisposition)
     if err != nil {
       log.Errorf("Invalid ContentDisposition: %v", err)
