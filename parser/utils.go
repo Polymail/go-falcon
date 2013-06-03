@@ -3,16 +3,21 @@ package parser
 import (
   "bytes"
   "encoding/base64"
+  "net/url"
   "io"
   "io/ioutil"
   "strings"
   "errors"
   "strconv"
   "regexp"
+  "code.google.com/p/mahonia"
 )
+
+// fix escaped and unquoted headers values
 
 func FixMailEncodedHeader(str string) string {
   str = fixInvalidUnquotedAttachmentName(str)
+  str = fixInvalidEscapedAttachmentName(str)
   return str
 }
 
@@ -22,6 +27,23 @@ func fixInvalidUnquotedAttachmentName(str string) string {
   if reg.MatchString(str) {
     reg := regexp.MustCompile(`[^=]+$`)
     str = reg.ReplaceAllString(str, "\"$0\"")
+  }
+  return str
+}
+
+func fixInvalidEscapedAttachmentName(str string) string {
+  reg := regexp.MustCompile(`name\*=iso-2022-jp(.*)`)
+  if reg.MatchString(str) {
+    unescapedStr, err := url.QueryUnescape(str)
+    if err != nil {
+      return str
+    }
+    str = unescapedStr
+    enc := mahonia.NewEncoder("iso2022jp")
+    str = enc.ConvertString(str)
+    reg := regexp.MustCompile(`name\*=iso-2022-jp'ja'(.*)`)
+    str = reg.ReplaceAllString(str, "name=\"$1\"")
+    return str
   }
   return str
 }
