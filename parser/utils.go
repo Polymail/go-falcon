@@ -32,7 +32,7 @@ func fixInvalidUnquotedAttachmentName(str string) string {
 }
 
 func fixInvalidEscapedAttachmentName(str string) string {
-  reg := regexp.MustCompile(`name\*=iso-2022-jp(.*)`)
+  reg := regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
   if reg.MatchString(str) {
     unescapedStr, err := url.QueryUnescape(str)
     if err != nil {
@@ -41,7 +41,6 @@ func fixInvalidEscapedAttachmentName(str string) string {
     str = unescapedStr
     enc := mahonia.NewEncoder("iso2022jp")
     str = enc.ConvertString(str)
-    reg := regexp.MustCompile(`name\*=iso-2022-jp'ja'(.*)`)
     str = reg.ReplaceAllString(str, "name=\"$1\"")
     return str
   }
