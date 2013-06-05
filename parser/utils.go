@@ -33,19 +33,22 @@ func fixInvalidUnquotedAttachmentName(str string) string {
 
 
 func fixInvalidEscapedAttachmentName(str string) string {
+  var words []string
   reg := regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
-  if reg.MatchString(str) {
-    unescapedStr, err := url.QueryUnescape(str)
-    if err != nil {
-      return str
+  arrayStr := strings.Split(str, " ")
+  for _, word := range arrayStr {
+    if reg.MatchString(word) {
+      unescapedStr, err := url.QueryUnescape(word)
+      if err == nil {
+        enc := mahonia.NewEncoder("iso2022jp")
+        unescapedStr = enc.ConvertString(unescapedStr)
+        unescapedStr = reg.ReplaceAllString(unescapedStr, "name=\"$1\"")
+        word = unescapedStr
+      }
     }
-    str = unescapedStr
-    enc := mahonia.NewEncoder("iso2022jp")
-    str = enc.ConvertString(str)
-    str = reg.ReplaceAllString(str, "name=\"$1\"")
-    return str
+    words = append(words, word)
   }
-  return str
+  return strings.Join(words, " ")
 }
 
 // encode Mime

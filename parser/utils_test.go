@@ -15,7 +15,7 @@ var mimeInvalidNameHeaderTests = [] mimeInvalidNameHeaderTest{
   {"Content-Type: text/plain; name=This is a test.txt", "Content-Type: text/plain; name=\"This is a test.txt\""},
   {"Content-Disposition: attachment;\n   filename=This is a test.txt", "Content-Disposition: attachment;\n   filename=\"This is a test.txt\""},
   {"Content-Type: application/octet-stream; name*=iso-2022-jp'ja'01%20Quien%20Te%20Dij%8aat.%20Pitbull.mp3", "Content-Type: application/octet-stream; name=\"01 Quien Te Dijat. Pitbull.mp3\""},
-  {"Content-Type: application/octet-stream; name*0=iso-2022-jp'ja'01%20Quien%20Te%20Dij%8aat.%20Pitbull.mp3 name*1=iso-2022-jp'ja'01%20Quien%20Te%20Dij%8aat.%20Pitbull.mp3", "Content-Type: application/octet-stream; name=\"01 Quien Te Dijat. Pitbull.mp3 name*1=iso-2022-jp'ja'01 Quien Te Dijat. Pitbull.mp3\""},
+  {"Content-Type: application/octet-stream; name*0=iso-2022-jp'ja'01%20Quien%20Te%20Dij%8aat.%20Pitbull.mp3 name*1=iso-2022-jp'ja'01%20Quien%20Te%20Dij%8aat.%20Pitbull.mp3", "Content-Type: application/octet-stream; name=\"01 Quien Te Dijat. Pitbull.mp3\" name=\"01 Quien Te Dijat. Pitbull.mp3\""},
 }
 
 func TestMimeInvalidNameHeader(t *testing.T) {
