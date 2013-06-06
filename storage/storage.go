@@ -58,7 +58,7 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
   var (
     id int
   )
-  sql := strings.Replace(db.config.Storage.Messages_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql := strings.Replace(db.config.Storage.Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
     subject,
@@ -89,7 +89,7 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
   var (
     id int
   )
-  sql := strings.Replace(db.config.Storage.Attachments_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql := strings.Replace(db.config.Storage.Attachments_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
     messageId,
@@ -131,7 +131,7 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
       tmpId int
       msgIds []string
     )
-    sql := strings.Replace(db.config.Storage.Max_Messages_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+    sql := strings.Replace(db.config.Storage.Max_Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
     err := db.DB.QueryRow(sql, mailboxId).Scan(&count)
     if err != nil {
       log.Errorf("CleanupMessages SQL error: %v", err)
@@ -139,7 +139,7 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
     }
     cleanupCount := count - maxMessages
     if cleanupCount > 0 {
-      sql := strings.Replace(db.config.Storage.Max_Messages_Cleanup_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+      sql := strings.Replace(db.config.Storage.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
       rows, err := db.DB.Query(sql, mailboxId, cleanupCount)
       if err != nil {
         log.Errorf("CleanupMessages SQL error: %v", err)
@@ -155,7 +155,7 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
         msgIds = append(msgIds, strconv.Itoa(tmpId))
       }
       if len(msgIds) > 0 {
-        sql := strings.Replace(db.config.Storage.Max_Attachments_Cleanup_Sql, "[[mailbox_id]]", strconv.Itoa(mailboxId), 1)
+        sql := strings.Replace(db.config.Storage.Max_Attachments_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
         _, err := db.DB.Query(sql, mailboxId, strings.Join(msgIds, ","))
         if err != nil {
           log.Errorf("CleanupMessages SQL error: %v", err)
