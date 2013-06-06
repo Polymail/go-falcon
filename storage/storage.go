@@ -69,7 +69,8 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
     to_name,
     html,
     text,
-    string(rawEmail)).Scan(&id)
+    string(rawEmail),
+    len(rawEmail)).Scan(&id)
   if err != nil {
     log.Errorf("Messages SQL error: %v", err)
     return 0, err
@@ -97,7 +98,8 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
     contentType,
     contentId,
     transferEncoding,
-    rawData).Scan(&id)
+    rawData,
+    len(rawData)).Scan(&id)
   if err != nil {
     log.Errorf("Attachments SQL error: %v", err)
     return 0, err

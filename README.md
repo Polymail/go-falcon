@@ -57,6 +57,7 @@ CREATE TABLE messages
   html_body text,
   text_body text,
   raw_email text,
+  mail_size integer,
   created_at timestamp without time zone NOT NULL,
   updated_at timestamp without time zone NOT NULL,
   CONSTRAINT messages_pkey PRIMARY KEY (id)
@@ -93,6 +94,7 @@ CREATE TABLE attachments
   content_id character varying(255),
   transfer_encoding character varying(255),
   body bytea,
+  attachment_size integer,
   created_at timestamp without time zone NOT NULL,
   updated_at timestamp without time zone NOT NULL,
   CONSTRAINT attachments_pkey PRIMARY KEY (id)
