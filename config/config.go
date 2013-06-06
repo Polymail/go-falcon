@@ -38,16 +38,17 @@ type Config struct {
     Database                  string
     Pool                      int
 
+    Auth_Sql                  string
+
     Settings_Sql              string
+
+    Messages_Sql              string
+    Attachments_Sql           string
 
     Max_Messages_Enabled      bool
     Max_Messages_Sql          string
     Max_Messages_Cleanup_Sql  string
     Max_Attachments_Cleanup_Sql string
-
-    Auth_Sql                  string
-    Messages_Sql              string
-    Attachments_Sql           string
   }
   Proxy struct {
     Enabled       bool
