@@ -31,7 +31,7 @@ func InitShellParser() (*config.Config, error) {
     f, err := os.OpenFile(*pidFile, os.O_RDWR | os.O_CREATE, 0666)
     if err == nil {
       defer f.Close()
-      _, err = f.Write([]byte(pid))
+      _, err = f.WriteString(pid)
       if err != nil {
         log.Errorf("Error write pid to file: %v", err)
       }
