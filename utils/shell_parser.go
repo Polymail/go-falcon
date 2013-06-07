@@ -4,6 +4,7 @@ import (
   "flag"
   "strconv"
   "os"
+  "syscall"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
 )
@@ -26,8 +27,9 @@ func InitShellParser() (*config.Config, error) {
   // verbose
   yamlConfig.Log.Debug = *verbose
   setLogger(yamlConfig)
+  // write pid
   if *pidFile != "" {
-    pid := strconv.Itoa(os.Getpid())
+    pid := strconv.Itoa(syscall.Getpid())
     f, err := os.OpenFile(*pidFile, os.O_RDWR | os.O_CREATE, 0666)
     if err == nil {
       defer f.Close()
@@ -39,7 +41,7 @@ func InitShellParser() (*config.Config, error) {
       log.Errorf("Open file for pid: %v", err)
     }
   }
-  //
+  // retrun config
   return yamlConfig, nil
 }
 
