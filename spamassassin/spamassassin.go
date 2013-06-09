@@ -7,6 +7,8 @@ import (
   "bufio"
   "strconv"
   "io"
+  "strings"
+  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/storage"
 )
@@ -21,7 +23,9 @@ func CheckSpamEmail(config *config.Config, email []byte, db *storage.DBConn, mes
     config: config,
     RawEmail: email,
   }
-  spamassassin.CheckEmail()
+  output, err := spamassassin.CheckEmail()
+  log.Debugf("Spam info: %v", output)
+  log.Debugf("Spam err: %v", err)
 }
 
 func (ss *Spamassassin) CheckEmail() ([]string, error) {
@@ -64,8 +68,10 @@ func (ss *Spamassassin) CheckEmail() ([]string, error) {
       break
     }
     if err != nil {
+      conn.Close()
       return dataArrays, err
     }
+    line = strings.TrimRight(line, " \t\r\n")
     dataArrays = append(dataArrays, line)
   }
 
@@ -102,7 +108,7 @@ Subject: SMTP e-mail test
 
 This is a test e-mail message.`
         str = strings.Replace(str, "\n", "\r\n", -1)
-        _, err = conn.Write([]byte("CHECK SPAMC/1.2\r\n"))
+        _, err = conn.Write([]byte("CHECK SPAMC/1.1\r\n"))
         _, err = conn.Write([]byte("Content-length: " + strconv.Itoa(len(str)) + "\r\n\r\n"))
         _, err = conn.Write([]byte(str))
         conn.CloseWrite()
