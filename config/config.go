@@ -50,6 +50,12 @@ type Config struct {
     Max_Messages_Cleanup_Sql  string
     Max_Attachments_Cleanup_Sql string
   }
+  Spamassassin struct {
+    Enabled       bool
+    Ip            string
+    Port          int
+    Timeout       int
+  }
   Proxy struct {
     Enabled       bool
     Host          string

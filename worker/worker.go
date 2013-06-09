@@ -5,6 +5,7 @@ import (
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/parser"
   "github.com/le0pard/go-falcon/storage"
+  "github.com/le0pard/go-falcon/spamassassin"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
@@ -29,12 +30,18 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     email, err := emailParser.ParseMail(envelop)
     if err == nil {
       messageId, err := db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
+      // store attachments
       if err == nil {
         for _, attachment := range email.Attachments {
           db.StoreAttachment(email.MailboxID, messageId, attachment.AttachmentFileName, attachment.AttachmentType, attachment.AttachmentContentType, attachment.AttachmentContentID, attachment.AttachmentTransferEncoding, attachment.AttachmentBody)
         }
       }
+      //cleanup messages
       db.CleanupMessages(email.MailboxID, settings.MaxMessages)
+      // spamassassin
+      if config.Spamassassin.Enabled {
+        go spamassassin.CheckSpamEmail(config, email.RawMail, db, messageId)
+      }
     }
   }
 }

@@ -33,6 +33,12 @@ storage:
   max_attachments_cleanup_sql: "DELETE FROM attachments_[[inbox_id]] WHERE inbox_id = $1 AND message_id IN ($2) RETURNING id" # $1 - inbox_id, $2 - message ids
 
 
+spamassassin:
+  enabled: true
+  ip: 127.0.0.1
+  port: 783
+  timeout: 30
+
 proxy:
   enabled: true
   host: localhost
