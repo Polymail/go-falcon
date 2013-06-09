@@ -14,52 +14,63 @@ storage of mail messages in a relational database
 
 ```sql
 
-CREATE TABLE mailboxes
+CREATE TABLE inboxes
 (
   id serial NOT NULL,
-  email character varying(255) NOT NULL DEFAULT ''::character varying,
-  raw_password character varying(255) NOT NULL DEFAULT ''::character varying,
-  max_emails integer DEFAULT 0,
-  created_at timestamp without time zone NOT NULL,
-  updated_at timestamp without time zone NOT NULL,
-  CONSTRAINT users_pkey PRIMARY KEY (id)
+  company_id integer,
+  name character varying(255),
+  domain character varying(255) NOT NULL,
+  username character varying(255) NOT NULL,
+  password character varying(255) NOT NULL,
+  max_size integer DEFAULT 0,
+  created_at timestamp without time zone,
+  updated_at timestamp without time zone,
+  CONSTRAINT inboxes_pkey PRIMARY KEY (id)
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE mailboxes
+ALTER TABLE inboxes
   OWNER TO leo;
 
-CREATE UNIQUE INDEX index_mailboxes_on_email
-  ON mailboxes
-  USING btree
-  (email COLLATE pg_catalog."default");
+-- Index: index_inboxes_on_company_id
 
-CREATE INDEX index_mailboxes_on_raw_password
-  ON mailboxes
-  USING btree
-  (raw_password COLLATE pg_catalog."default");
+-- DROP INDEX index_inboxes_on_company_id;
 
-INSERT INTO mailboxes(email, raw_password, created_at, updated_at) VALUES ('leo@leo.com', 'pass', now(), now());
+CREATE INDEX index_inboxes_on_company_id
+  ON inboxes
+  USING btree
+  (company_id);
+
+-- Index: index_inboxes_on_username
+
+-- DROP INDEX index_inboxes_on_username;
+
+CREATE UNIQUE INDEX index_inboxes_on_username
+  ON inboxes
+  USING btree
+  (username COLLATE pg_catalog."default");
+
+INSERT INTO mailboxes(domain, username, password, created_at, updated_at) VALUES ('leo.com', 'leo', 'pass', now(), now());
 
 
 
 CREATE TABLE messages
 (
   id serial NOT NULL,
-  mailbox_id integer NOT NULL,
-  subject character varying(255),
-  sent_at timestamp without time zone NOT NULL,
+  inbox_id integer,
+  subject character varying(1000),
+  sent_at timestamp without time zone,
   from_email character varying(255),
   from_name character varying(255),
   to_email character varying(255),
   to_name character varying(255),
-  html_body text,
   text_body text,
-  raw_email text,
-  mail_size integer,
-  created_at timestamp without time zone NOT NULL,
-  updated_at timestamp without time zone NOT NULL,
+  html_body text,
+  raw_body text,
+  email_size integer DEFAULT 0,
+  created_at timestamp without time zone,
+  updated_at timestamp without time zone,
   CONSTRAINT messages_pkey PRIMARY KEY (id)
 )
 WITH (
@@ -68,35 +79,39 @@ WITH (
 ALTER TABLE messages
   OWNER TO leo;
 
-CREATE INDEX index_messages_on_mailbox_id
+-- Index: index_messages_on_inbox_id
+
+-- DROP INDEX index_messages_on_inbox_id;
+
+CREATE INDEX index_messages_on_inbox_id
   ON messages
   USING btree
-  (mailbox_id);
+  (inbox_id);
 
 
-CREATE TABLE messages_1 (CHECK ( mailbox_id = 1 )) INHERITS (messages);
+CREATE TABLE messages_1 (CHECK ( inbox_id = 1 )) INHERITS (messages);
 
-CREATE INDEX index_messages_1_on_mailbox_id
+CREATE INDEX index_messages_1_on_inbox_id
   ON messages_1
   USING btree
-  (mailbox_id);
+  (inbox_id);
 
 
 
 CREATE TABLE attachments
 (
   id serial NOT NULL,
-  mailbox_id integer NOT NULL,
-  message_id integer NOT NULL,
-  filename character varying(255),
+  inbox_id integer,
+  message_id integer,
+  filename character varying(1000),
   attachment_type character varying(255),
   content_type character varying(255),
   content_id character varying(255),
   transfer_encoding character varying(255),
-  body bytea,
-  attachment_size integer,
-  created_at timestamp without time zone NOT NULL,
-  updated_at timestamp without time zone NOT NULL,
+  attachment_body bytea,
+  attachment_size integer DEFAULT 0,
+  created_at timestamp without time zone,
+  updated_at timestamp without time zone,
   CONSTRAINT attachments_pkey PRIMARY KEY (id)
 )
 WITH (
@@ -105,33 +120,24 @@ WITH (
 ALTER TABLE attachments
   OWNER TO leo;
 
+-- Index: index_attachments_on_message_id
+
+-- DROP INDEX index_attachments_on_message_id;
+
 CREATE INDEX index_attachments_on_message_id
   ON attachments
   USING btree
   (message_id);
 
-CREATE INDEX index_attachments_on_mailbox_id
-  ON attachments
-  USING btree
-  (mailbox_id);
-
-CREATE INDEX index_attachments_on_content_id
-  ON attachments
-  USING btree
-  (content_id);
-
-CREATE INDEX index_attachments_on_attachment_type
-  ON attachments
-  USING btree
-  (attachment_type);
 
 
-CREATE TABLE attachments_1 (CHECK ( mailbox_id = 1 )) INHERITS (attachments);
 
-CREATE INDEX index_attachments_1_on_mailbox_id
+CREATE TABLE attachments_1 (CHECK ( inbox_id = 1 )) INHERITS (attachments);
+
+CREATE INDEX index_attachments_1_on_inbox_id
   ON attachments_1
   USING btree
-  (mailbox_id);
+  (inbox_id);
 
 CREATE INDEX index_attachments_1_on_content_id
   ON attachments_1

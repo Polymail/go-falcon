@@ -17,20 +17,20 @@ storage:
   port: 5432
   username: leo
   password:
-  database: go-falcon
+  database: falcon_dev
   pool: 5
 
-  auth_sql: "SELECT id, raw_password FROM mailboxes WHERE email = $1" # $1 - email, should return id and password
+  auth_sql: "SELECT id, password FROM inboxes WHERE (username || '@' || domain) = $1" # $1 - email, should return id and password
 
-  settings_sql: "SELECT max_emails FROM mailboxes WHERE id = $1" # $1 - mailbox_id
+  settings_sql: "SELECT max_size FROM inboxes WHERE id = $1" # $1 - inbox_id
 
-  messages_sql: "INSERT INTO messages_[[inbox_id]](mailbox_id, subject, sent_at, from_email, from_name, to_email, to_name, html_body, text_body, raw_email, mail_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING id" # returning id is MUST
-  attachments_sql: "INSERT INTO attachments_[[inbox_id]](mailbox_id, message_id, filename, attachment_type, content_type, content_id, transfer_encoding, body, attachment_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) RETURNING id"
+  messages_sql: "INSERT INTO messages_[[inbox_id]](inbox_id, subject, sent_at, from_email, from_name, to_email, to_name, html_body, text_body, raw_body, email_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING id" # returning id is MUST
+  attachments_sql: "INSERT INTO attachments_[[inbox_id]](inbox_id, message_id, filename, attachment_type, content_type, content_id, transfer_encoding, attachment_body, attachment_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) RETURNING id"
 
   max_messages_enabled: true
-  max_messages_sql: "SELECT count(*) FROM messages_[[inbox_id]] WHERE mailbox_id = $1" # $1 - mailbox_id
-  max_messages_cleanup_sql: "DELETE FROM messages_[[inbox_id]] WHERE mailbox_id = $1 AND id IN (SELECT id FROM messages WHERE mailbox_id = $1 ORDER BY id LIMIT $2) RETURNING id" # $1 - mailbox_id, $2 - how much delete
-  max_attachments_cleanup_sql: "DELETE FROM attachments_[[inbox_id]] WHERE mailbox_id = $1 AND message_id IN ($2) RETURNING id" # $1 - mailbox_id, $2 - message ids
+  max_messages_sql: "SELECT count(*) FROM messages_[[inbox_id]] WHERE inbox_id = $1" # $1 - mailbox_id
+  max_messages_cleanup_sql: "DELETE FROM messages_[[inbox_id]] WHERE inbox_id = $1 AND id IN (SELECT id FROM messages WHERE inbox_id = $1 ORDER BY id LIMIT $2) RETURNING id" # $1 - mailbox_id, $2 - how much delete
+  max_attachments_cleanup_sql: "DELETE FROM attachments_[[inbox_id]] WHERE inbox_id = $1 AND message_id IN ($2) RETURNING id" # $1 - inbox_id, $2 - message ids
 
 
 proxy:

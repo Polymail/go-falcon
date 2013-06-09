@@ -1,5 +1,8 @@
 require 'net/smtp'
 
+raise "args shoud be email ans pass" if ARGV.length < 2
+username, password = ARGV[0], ARGV[1]
+
 message = <<-END.split("\n").map!(&:strip).join("\n")
 From: Private Person <me@fromdomain.com>
 To: A Test User <test@todomain.com>
@@ -13,7 +16,7 @@ END
 Net::SMTP.start('localhost',
                 1025,
                 'localhost',
-                'leo@leo.com', 'pass', :plain) do |smtp|
+                username, password, :plain) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
@@ -21,7 +24,7 @@ end
 Net::SMTP.start('localhost',
                 1025,
                 'localhost',
-                'leo@leo.com', 'pass', :login) do |smtp|
+                username, password, :login) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
@@ -29,7 +32,7 @@ end
 Net::SMTP.start('localhost',
                 1025,
                 'localhost',
-                'leo@leo.com', 'pass', :cram_md5) do |smtp|
+                username, password, :cram_md5) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
