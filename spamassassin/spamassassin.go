@@ -1,3 +1,4 @@
+// http://svn.apache.org/repos/asf/spamassassin/trunk/spamd/PROTOCOL
 package spamassassin
 
 import (
@@ -127,5 +128,11 @@ func checkError(err error) {
                 fmt.Println("Fatal error ", err.Error())
         }
 }
+
+<nil>
+SPAMD/1.1 0 EX_OK
+<nil>
+Spam: False ; 1.5 / 5.0
+<nil>
 
 */
