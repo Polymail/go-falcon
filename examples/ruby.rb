@@ -13,14 +13,13 @@ Subject: SMTP e-mail test
 This is a test e-mail message.
 END
 
-Net::SMTP.start('localhost',
-                1025,
-                'localhost',
-                username, password, :plain) do |smtp|
+Net::SMTP.start('falcon.rw.rw',
+                2525,
+                'falcon.rw.rw') do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
-
+=begin
 Net::SMTP.start('localhost',
                 1025,
                 'localhost',
@@ -36,3 +35,4 @@ Net::SMTP.start('localhost',
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
+=end

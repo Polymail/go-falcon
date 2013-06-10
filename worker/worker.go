@@ -24,7 +24,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     settings, err := db.GetSettings(envelop.MailboxID)
     if err != nil {
       // invalid settings
-      continue
+      //continue
     }
     // parse email
     email, err := emailParser.ParseMail(envelop)
