@@ -41,17 +41,19 @@ func (ss *Spamassassin) CheckEmail() ([]string, error) {
   if err != nil {
     return dataArrays, err
   }
+  // mail
+  mail := strings.Replace(string(ss.RawEmail), "\r\n", "\n", -1)
   // write headers
-  _, err = conn.Write([]byte("CHECK SPAMC/1.2\r\n"))
+  _, err = conn.Write([]byte("REPORT SPAMC/1.2\r\n"))
   if err != nil {
     return dataArrays, err
   }
-  _, err = conn.Write([]byte("Content-length: " + strconv.Itoa(len(ss.RawEmail)) + "\r\n\r\n"))
+  _, err = conn.Write([]byte("Content-length: " + strconv.Itoa(len(mail)) + "\r\n\r\n"))
   if err != nil {
     return dataArrays, err
   }
   // write email
-  _, err = conn.Write(ss.RawEmail)
+  _, err = conn.Write([]byte(mail))
   if err != nil {
     return dataArrays, err
   }
