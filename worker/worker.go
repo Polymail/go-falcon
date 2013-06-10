@@ -24,7 +24,12 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     settings, err := db.GetSettings(envelop.MailboxID)
     if err != nil {
       // invalid settings
-      //continue
+      email, err := emailParser.ParseMail(envelop)
+      // test
+      if config.Spamassassin.Enabled {
+        spamassassin.CheckSpamEmail(config, email.RawMail)
+      }
+      continue
     }
     // parse email
     email, err := emailParser.ParseMail(envelop)
@@ -42,10 +47,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       if config.Spamassassin.Enabled {
         spamassassin.CheckSpamEmail(config, email.RawMail)
       }
-    }
-    // test
-    if config.Spamassassin.Enabled {
-      spamassassin.CheckSpamEmail(config, email.RawMail)
     }
   }
 }
