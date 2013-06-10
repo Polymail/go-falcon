@@ -43,10 +43,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
         spamassassin.CheckSpamEmail(config, email.RawMail)
       }
     }
-    // for test
-    if config.Spamassassin.Enabled {
-      spamassassin.CheckSpamEmail(config, email.RawMail)
-    }
   }
 }
 
