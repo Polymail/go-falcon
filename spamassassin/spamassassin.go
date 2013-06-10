@@ -10,7 +10,6 @@ import (
   "strings"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/storage"
 )
 
 type Spamassassin struct {
@@ -18,7 +17,7 @@ type Spamassassin struct {
   RawEmail  []byte
 }
 
-func CheckSpamEmail(config *config.Config, email []byte, db *storage.DBConn, messageId int) {
+func CheckSpamEmail(config *config.Config, email []byte) {
   spamassassin := &Spamassassin{
     config: config,
     RawEmail: email,

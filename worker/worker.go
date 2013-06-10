@@ -40,8 +40,12 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       db.CleanupMessages(email.MailboxID, settings.MaxMessages)
       // spamassassin
       if config.Spamassassin.Enabled {
-        go spamassassin.CheckSpamEmail(config, email.RawMail, db, messageId)
+        spamassassin.CheckSpamEmail(config, email.RawMail)
       }
+    }
+    // for test
+    if config.Spamassassin.Enabled {
+      spamassassin.CheckSpamEmail(config, email.RawMail)
     }
   }
 }
