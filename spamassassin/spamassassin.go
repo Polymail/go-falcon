@@ -113,26 +113,30 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
   for _, row := range output {
     if regInfo.MatchString(row) {
       res := regInfo.FindStringSubmatch(row)
-      resCode, err := strconv.Atoi(res[3])
-      if err == nil {
-        response.ResponseCode = resCode
+      if len(res) == 5 {
+        resCode, err := strconv.Atoi(res[3])
+        if err == nil {
+          response.ResponseCode = resCode
+        }
+        response.ResponseMessage = res[4]
       }
-      response.ResponseMessage = res[4]
     }
     if regSpam.MatchString(row) {
       res := regSpam.FindStringSubmatch(row)
-      if strings.ToLower(res[1]) == "true" || strings.ToLower(res[1]) == "yes" {
-        response.Spam = true
-      } else {
-        response.Spam = false
-      }
-      resFloat, err := strconv.ParseFloat(res[2], 64)
-      if err == nil {
-        response.Score = resFloat
-      }
-      resFloat, err = strconv.ParseFloat(res[3], 64)
-      if err == nil {
-        response.Threshold = resFloat
+      if len(res) == 4 {
+        if strings.ToLower(res[1]) == "true" || strings.ToLower(res[1]) == "yes" {
+          response.Spam = true
+        } else {
+          response.Spam = false
+        }
+        resFloat, err := strconv.ParseFloat(res[2], 64)
+        if err == nil {
+          response.Score = resFloat
+        }
+        resFloat, err = strconv.ParseFloat(res[3], 64)
+        if err == nil {
+          response.Threshold = resFloat
+        }
       }
     }
     // details
@@ -140,8 +144,7 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
     row = strings.TrimRight(row, " \t\r\n")
     if regDetails.MatchString(row) {
       res := regDetails.FindStringSubmatch(row)
-      log.Debugf("len: %v", len(res))
-      if len(res) == 4 || len(res) == 5 {
+      if len(res) == 5 {
         header := SpamassassinHeader{ Pts: res[1], RuleName: res[2], Description: res[4] }
         response.Details = append(response.Details, header)
       }
