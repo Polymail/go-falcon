@@ -38,7 +38,7 @@ storage:
 spamassassin:
   enabled: true
   ip: 127.0.0.1
-  port: 7833
+  port: 783
   timeout: 30
 
 proxy:

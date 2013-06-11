@@ -1,6 +1,6 @@
 require 'net/smtp'
 
-#raise "args shoud be email ans pass" if ARGV.length < 2
+raise "args shoud be email ans pass" if ARGV.length < 2
 username, password = ARGV[0], ARGV[1]
 
 message = <<-END.split("\n").map!(&:strip).join("\n")
@@ -12,7 +12,7 @@ Subject: SMTP e-mail test
 
 This is a test e-mail message.
 END
-=begin
+
 Net::SMTP.start('localhost',
                 1025,
                 'localhost',
@@ -36,10 +36,4 @@ Net::SMTP.start('localhost',
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
-=end
-Net::SMTP.start('falcon.rw.rw',
-                2525,
-                'falcon.rw.rw') do |smtp|
-    smtp.send_message message, 'me@fromdomain.com',
-                              ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
-end
+
