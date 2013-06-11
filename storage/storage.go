@@ -82,6 +82,24 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
   return id, nil
 }
 
+// update spam report
+
+func(db *DBConn) UpdateSpamReport(mailboxId int, messageId int, spamReport string) (int, error) {
+  var (
+    id int
+  )
+  sql := strings.Replace(db.config.Storage.Spamassassin_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  err := db.DB.QueryRow(sql,
+    mailboxId,
+    messageId,
+    spamReport).Scan(&id)
+  if err != nil {
+    log.Errorf("Spamassassin SQL error: %v", err)
+    return 0, err
+  }
+  return id, nil
+}
+
 
 // save attachment
 

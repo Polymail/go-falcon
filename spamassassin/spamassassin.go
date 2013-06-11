@@ -10,7 +10,6 @@ import (
   "strings"
   "regexp"
   "encoding/json"
-  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
 )
 
@@ -48,7 +47,6 @@ func CheckSpamEmail(config *config.Config, email []byte) (string, error) {
   if err != nil {
     return "", err
   }
-  log.Debugf("Spam: %s", string(jsonResult))
   return string(jsonResult), nil
 }
 

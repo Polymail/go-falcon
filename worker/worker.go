@@ -37,14 +37,27 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       // store attachments
       if err == nil {
         for _, attachment := range email.Attachments {
-          db.StoreAttachment(email.MailboxID, messageId, attachment.AttachmentFileName, attachment.AttachmentType, attachment.AttachmentContentType, attachment.AttachmentContentID, attachment.AttachmentTransferEncoding, attachment.AttachmentBody)
+          _, err := db.StoreAttachment(email.MailboxID, messageId, attachment.AttachmentFileName, attachment.AttachmentType, attachment.AttachmentContentType, attachment.AttachmentContentID, attachment.AttachmentTransferEncoding, attachment.AttachmentBody)
+          if err != nil {
+            log.Errorf("StoreAttachment: %v", err)
+          }
         }
+      } else {
+        log.Errorf("StoreMail: %v", err)
       }
       //cleanup messages
       db.CleanupMessages(email.MailboxID, settings.MaxMessages)
       // spamassassin
       if config.Spamassassin.Enabled {
-        spamassassin.CheckSpamEmail(config, email.RawMail)
+        spamassassinJson, err := spamassassin.CheckSpamEmail(config, email.RawMail)
+        if err == nil {
+          _, err := db.UpdateSpamReport(email.MailboxID, messageId, spamassassinJson)
+          if err != nil {
+            log.Errorf("UpdateSpamReport: %v", err)
+          }
+        } else {
+          log.Errorf("CheckSpamEmail: %v", err)
+        }
       }
     }
   }
