@@ -96,7 +96,7 @@ func (ss *Spamassassin) CheckEmail() ([]string, error) {
 
 func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
   response := &SpamassassinResponse{}
-  regInfo, regSpam, regDetails := regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`), regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`), regexp.MustCompile(`^(-?[0-9]*[.][0-9])\s(\w*)\s`)
+  regInfo, regSpam, regDetails := regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`), regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`), regexp.MustCompile(`^(-?[0-9]*[.][0-9])\s(\w*)\s(\w*)`)
   for _, row := range output {
     if regInfo.MatchString(row) {
       res := regInfo.FindStringSubmatch(row)
@@ -125,6 +125,7 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
     if regDetails.MatchString(row) {
       log.Debugf("Details: %v", row)
     }
+    log.Debugf("Info: %v", row)
   }
   return response
 }
