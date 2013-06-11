@@ -20,6 +20,8 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     if err != nil {
       log.Errorf("Couldn't connect to database: %v", err)
       continue
+    } else {
+      db.DB.SetMaxIdleConns(-1)
     }
     // get settings
     settings, err := db.GetSettings(envelop.MailboxID)

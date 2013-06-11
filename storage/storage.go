@@ -26,9 +26,6 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
   switch strings.ToLower(config.Storage.Adapter) {
   case "postgresql":
     db, err := postgresql.InitDatabase(config)
-    if err == nil {
-      db.SetMaxIdleConns(-1)
-    }
     return &DBConn{ DB: db, config: config }, err
   default:
     return nil, errors.New("invalid database adapter")

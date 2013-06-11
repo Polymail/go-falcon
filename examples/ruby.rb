@@ -29,7 +29,6 @@ Net::SMTP.start('localhost',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
 
-
 Net::SMTP.start('localhost',
                 1025,
                 'localhost',
