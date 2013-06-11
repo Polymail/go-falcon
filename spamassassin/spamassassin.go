@@ -140,6 +140,7 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
     row = strings.TrimRight(row, " \t\r\n")
     if regDetails.MatchString(row) {
       res := regDetails.FindStringSubmatch(row)
+      log.Debugf("%v", res)
       header := SpamassassinHeader{ Pts: res[1], RuleName: res[2], Description: res[3] }
       response.Details = append(response.Details, header)
     }
