@@ -109,7 +109,7 @@ func (ss *Spamassassin) CheckEmail() ([]string, error) {
 func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
   response := &SpamassassinResponse{}
   regInfo, regSpam := regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`), regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`)
-  regDetails := regexp.MustCompile(`^(-?[0-9]*[.][0-9])\s([a-zA-Z0-9_]*)\s(\w*)`)
+  regDetails := regexp.MustCompile(`^(-?[0-9]*[.][0-9])\s([a-zA-Z0-9_]*)(\W*)([\w:\s-]*)`)
   for _, row := range output {
     if regInfo.MatchString(row) {
       res := regInfo.FindStringSubmatch(row)
@@ -140,10 +140,11 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
     row = strings.TrimRight(row, " \t\r\n")
     if regDetails.MatchString(row) {
       res := regDetails.FindStringSubmatch(row)
-      log.Debugf("Spam: %v", row)
-      log.Debugf("Spam parsed: %v", res)
-      header := SpamassassinHeader{ Pts: res[1], RuleName: res[2], Description: res[3] }
-      response.Details = append(response.Details, header)
+      log.Debugf("len: %v", len(res))
+      if len(res) == 4 || len(res) == 5 {
+        header := SpamassassinHeader{ Pts: res[1], RuleName: res[2], Description: res[4] }
+        response.Details = append(response.Details, header)
+      }
     }
   }
   return response
