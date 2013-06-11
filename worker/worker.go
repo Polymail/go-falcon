@@ -13,13 +13,14 @@ import (
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   log.Debugf("Starting storage worker")
   emailParser := parser.EmailParser{}
-  db, err := storage.InitDatabase(config)
-  if err != nil {
-    log.Errorf("Couldn't connect to database: %v", err)
-    return
-  }
   for {
     envelop := <- channel
+    // db connect 
+    db, err := storage.InitDatabase(config)
+    if err != nil {
+      log.Errorf("Couldn't connect to database: %v", err)
+      continue
+    }
     // get settings
     settings, err := db.GetSettings(envelop.MailboxID)
     if err != nil {
@@ -59,6 +60,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     } else {
       log.Errorf("ParseMail: %v", err)
     }
+    db.Close()
   }
 }
 
