@@ -135,9 +135,8 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
       }
     }
     if regDetails.MatchString(row) {
-      res := regSpam.FindStringSubmatch(row)
-      log.Debugf("Spam: %v", res)
-      header := SpamassassinHeader{ Pts: res[0], RuleName: res[1], Description: res[2] }
+      res := regDetails.FindStringSubmatch(row)
+      header := SpamassassinHeader{ Pts: res[1], RuleName: res[2], Description: res[3] }
       response.Details = append(response.Details, header)
     }
   }
