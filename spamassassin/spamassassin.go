@@ -44,11 +44,11 @@ func CheckSpamEmail(config *config.Config, email []byte) (string, error) {
     return "", err
   }
   response := spamassassin.parseOutput(output)
-  log.Debugf("Spam: %v", response)
   jsonResult, err := json.Marshal(response)
   if err != nil {
     return "", err
   }
+  log.Debugf("Spam: %s", string(jsonResult))
   return string(jsonResult), nil
 }
 
@@ -108,7 +108,8 @@ func (ss *Spamassassin) CheckEmail() ([]string, error) {
 
 func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
   response := &SpamassassinResponse{}
-  regInfo, regSpam, regDetails := regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`), regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`), regexp.MustCompile(`^(-?[0-9]*[.][0-9])\s(\w*)\s(\w*)`)
+  regInfo, regSpam := regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`), regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`)
+  regDetails := regexp.MustCompile(`^(-?[0-9]*[.][0-9])\s([a-zA-Z0-9_]*)\s(\w*)`)
   for _, row := range output {
     if regInfo.MatchString(row) {
       res := regInfo.FindStringSubmatch(row)
