@@ -18,12 +18,19 @@ type Spamassassin struct {
   RawEmail  []byte
 }
 
+type SpamassassinHeader struct {
+  Pts                   string
+  RuleName              string
+  Description           string
+}
+
 type SpamassassinResponse struct {
   ResponseCode          int
   ResponseMessage       string
   Score                 float64
   Spam                  bool
   Threshold             float64
+  Details               []SpamassassinHeader
 }
 
 func CheckSpamEmail(config *config.Config, email []byte) (*SpamassassinResponse, error) {
@@ -123,9 +130,10 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
       }
     }
     if regDetails.MatchString(row) {
-      log.Debugf("Details: %v", row)
+      res := regSpam.FindStringSubmatch(row)
+      header := SpamassassinHeader{ Pts: res[1], RuleName: res[2], Description: res[3] }
+      response.Details = append(response.Details, header)
     }
-    log.Debugf("Info: %v", row)
   }
   return response
 }
