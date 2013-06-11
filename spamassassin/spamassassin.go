@@ -22,7 +22,7 @@ type SpamassassinResponse struct {
   ResponseCode          int
   ResponseMessage       string
   Score                 float64
-  Spam                  float64
+  Spam                  bool
   Threshold             float64
 }
 
@@ -108,11 +108,12 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
     }
     if regSpam.MatchString(row) {
       res := regSpam.FindStringSubmatch(row)
-      resFloat, err := strconv.ParseFloat(res[1], 64)
-      if err == nil {
-        response.Spam = resFloat
+      if strings.ToLower(res[1]) == "false" {
+        response.Spam = false
+      } else {
+        response.Spam = true
       }
-      resFloat, err = strconv.ParseFloat(res[2], 64)
+      resFloat, err := strconv.ParseFloat(res[2], 64)
       if err == nil {
         response.Score = resFloat
       }
