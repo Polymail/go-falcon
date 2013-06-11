@@ -9,6 +9,7 @@ import (
   "io"
   "strings"
   "regexp"
+  "encoding/json"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
 )
@@ -33,18 +34,22 @@ type SpamassassinResponse struct {
   Details               []SpamassassinHeader
 }
 
-func CheckSpamEmail(config *config.Config, email []byte) (*SpamassassinResponse, error) {
+func CheckSpamEmail(config *config.Config, email []byte) (string, error) {
   spamassassin := &Spamassassin{
     config: config,
     RawEmail: email,
   }
   output, err := spamassassin.CheckEmail()
   if err != nil {
-    return nil, err
+    return "", err
   }
   response := spamassassin.parseOutput(output)
   log.Debugf("Spam: %v", response)
-  return response, nil
+  jsonResult, err := json.Marshal(response)
+  if err != nil {
+    return "", err
+  }
+  return string(jsonResult), nil
 }
 
 // check email by spamassassin
