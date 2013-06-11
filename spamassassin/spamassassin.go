@@ -100,23 +100,23 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
   for _, row := range output {
     if regInfo.MatchString(row) {
       res := regInfo.FindStringSubmatch(row)
-      resCode, err := strconv.Atoi(res[2])
+      resCode, err := strconv.Atoi(res[3])
       if err == nil {
         response.ResponseCode = resCode
       }
-      response.ResponseMessage = res[3]
+      response.ResponseMessage = res[4]
     }
     if regSpam.MatchString(row) {
       res := regSpam.FindStringSubmatch(row)
-      resFloat, err := strconv.ParseFloat(res[0], 64)
+      resFloat, err := strconv.ParseFloat(res[1], 64)
       if err == nil {
         response.Spam = resFloat
       }
-      resFloat, err = strconv.ParseFloat(res[1], 64)
+      resFloat, err = strconv.ParseFloat(res[2], 64)
       if err == nil {
         response.Score = resFloat
       }
-      resFloat, err = strconv.ParseFloat(res[2], 64)
+      resFloat, err = strconv.ParseFloat(res[3], 64)
       if err == nil {
         response.Threshold = resFloat
       }
