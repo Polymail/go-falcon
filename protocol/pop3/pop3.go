@@ -1,5 +1,6 @@
-// Package smtpd implements an pop3 server. Hooks are provided to customize
+// Package pop3 implements an pop3 server. Hooks are provided to customize
 // its behavior.
+// TODO: NOT FINISHED
 package pop3
 
 import (
