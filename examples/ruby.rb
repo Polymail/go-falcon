@@ -16,30 +16,31 @@ END
 message = <<-END.split("\n").map!(&:strip).join("\n")
 From: Private Person <me@fromdomain.com>
 To: A Test User <test@todomain.com>
+Subject: SMTP e-mail test
 
 $CEliacmaTrESTuScikgsn$FREE-TEST-SIGNATURE$EEEEE$
 $CEliacmaTrESTuScikgsn$FREE-TEST-SIGNATURE$EEEEE$
 END
 =end
-Net::SMTP.start('localhost',
-                1025,
-                'localhost',
+Net::SMTP.start('falcon.rw.rw',
+                2525,
+                'falcon.rw.rw',
                 username, password, :plain) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
 
-Net::SMTP.start('localhost',
-                1025,
-                'localhost',
+Net::SMTP.start('falcon.rw.rw',
+                2525,
+                'falcon.rw.rw',
                 username, password, :login) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
 
-Net::SMTP.start('localhost',
-                1025,
-                'localhost',
+Net::SMTP.start('falcon.rw.rw',
+                2525,
+                'falcon.rw.rw',
                 username, password, :cram_md5) do |smtp|
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
