@@ -12,7 +12,15 @@ Subject: SMTP e-mail test
 
 This is a test e-mail message.
 END
+=begin
+message = <<-END.split("\n").map!(&:strip).join("\n")
+From: Private Person <me@fromdomain.com>
+To: A Test User <test@todomain.com>
 
+$CEliacmaTrESTuScikgsn$FREE-TEST-SIGNATURE$EEEEE$
+$CEliacmaTrESTuScikgsn$FREE-TEST-SIGNATURE$EEEEE$
+END
+=end
 Net::SMTP.start('localhost',
                 1025,
                 'localhost',

@@ -4,24 +4,19 @@ package clamav
 
 import (
   "net"
-  "errors"
   "bufio"
   "strconv"
   "io"
   "strings"
-  "encoding/json"
+  "regexp"
   "github.com/le0pard/go-falcon/config"
 )
 
-const CHUNK_SIZE = 2048
+const CHUNK_SIZE = 1024
 
 type Clamav struct {
   config *config.Config
   RawEmail  []byte
-}
-
-type ClamavResponse struct {
-  ResponseMessage       string
 }
 
 func CheckEmailForViruses(config *config.Config, email []byte) (string, error) {
@@ -29,50 +24,79 @@ func CheckEmailForViruses(config *config.Config, email []byte) (string, error) {
     config: config,
     RawEmail: email,
   }
-  output, err := clamav.CheckEmail()
+  output, err := clamav.checkEmail()
   if err != nil {
     return "", err
   }
   response := clamav.parseOutput(output)
-  jsonResult, err := json.Marshal(response)
-  if err != nil {
-    return "", err
-  }
-  return string(jsonResult), nil
+  return response, nil
 }
 
 // check email by spamassassin
 
-func (ss *Clamav) CheckEmail() ([]string, error) {
+func (ss *Clamav) checkEmail() ([]string, error) {
   var dataArrays []string
-  ip := net.ParseIP(ss.config.Clamav.Ip)
-  if ip == nil {
-    return dataArrays, errors.New("Invalid ip address")
-  }
-  addr := &net.TCPAddr{
-    IP: ip,
-    Port: ss.config.Clamav.Port,
-  }
-  conn, err := net.DialTCP("tcp", nil, addr)
+  conn, err := net.Dial("tcp", ss.config.Clamav.Host + ":" + strconv.Itoa(ss.config.Clamav.Port))
   if err != nil {
     return dataArrays, err
+  }
+  // check email
+  if len(ss.RawEmail) <= 0 {
+    return dataArrays, nil
   }
   // write headers
-  _, err = conn.Write([]byte("zINSTREAM\0"))
+  _, err = conn.Write([]byte("nINSTREAM\n"))
   if err != nil {
     return dataArrays, err
   }
-  _, err = conn.Write([]byte("Content-length: " + strconv.Itoa(len(ss.RawEmail)) + "\r\n\r\n"))
+  chunkPos := 0
+  for {
+    if chunkPos + CHUNK_SIZE >= len(ss.RawEmail){
+      data := ss.RawEmail[chunkPos:len(ss.RawEmail)]
+      lenData := len(data)
+      var buf [4]byte
+      buf[0] = byte(lenData >> 24)
+      buf[1] = byte(lenData >> 16)
+      buf[2] = byte(lenData >> 8)
+      buf[3] = byte(lenData >> 0)
+      
+      dataWrite := []byte{}
+      dataWrite = append(dataWrite, buf[0], buf[1], buf[2], buf[3])
+      dataWrite = append(dataWrite, data...)
+
+      _, err = conn.Write(dataWrite)
+      if err != nil {
+        return dataArrays, err
+      }
+      break
+    } else {
+      data := ss.RawEmail[chunkPos:chunkPos + CHUNK_SIZE]
+      lenData := len(data)
+      var buf [4]byte
+      buf[0] = byte(lenData >> 24)
+      buf[1] = byte(lenData >> 16)
+      buf[2] = byte(lenData >> 8)
+      buf[3] = byte(lenData >> 0)
+      
+      dataWrite := []byte{}
+      dataWrite = append(dataWrite, buf[0], buf[1], buf[2], buf[3])
+      dataWrite = append(dataWrite, data...)
+
+      _, err = conn.Write(dataWrite)
+      if err != nil {
+        return dataArrays, err
+      }
+
+      chunkPos = chunkPos + CHUNK_SIZE + 1
+      
+    }
+  }
+  // write end
+  dataWrite := []byte{0, 0, 0, 0}
+  _, err = conn.Write(dataWrite)
   if err != nil {
     return dataArrays, err
   }
-  // write email
-  _, err = conn.Write(ss.RawEmail)
-  if err != nil {
-    return dataArrays, err
-  }
-  // force close writer
-  conn.CloseWrite()
   // read data
   reader := bufio.NewReader(conn)
   // reading
@@ -95,8 +119,22 @@ func (ss *Clamav) CheckEmail() ([]string, error) {
 
 // parse spamassassin output
 
-func (ss *Clamav) parseOutput(output []string) *ClamavResponse {
-  response := &ClamavResponse{}
-  return response
+func (ss *Clamav) parseOutput(output []string) string {
+  reg := regexp.MustCompile(`(?i)^stream:([\s+]?)(.*)`)
+  result := strings.Join(output, ", ")
+  result = strings.Trim(result, " \t\r\n")
+  if reg.MatchString(result) {
+    res := reg.FindStringSubmatch(result)
+    if len(res) >= 2 {
+      if strings.ToLower(res[2]) == "ok" {
+        return ""
+      } else {
+        return res[2]
+      }
+    } else {
+      return ""
+    }
+  }
+  return ""
 }
 

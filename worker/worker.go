@@ -6,6 +6,7 @@ import (
   "github.com/le0pard/go-falcon/parser"
   "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/spamassassin"
+  "github.com/le0pard/go-falcon/clamav"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
@@ -57,6 +58,20 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
           }
         } else {
           log.Errorf("CheckSpamEmail: %v", err)
+        }
+      }
+      // clamav
+      if config.Clamav.Enabled {
+        clamavReport, err := clamav.CheckEmailForViruses(config, email.RawMail)
+        if err == nil {
+          log.Debugf("Spam: %s", clamavReport)
+          // update viruses info
+          //_, err := db.UpdateVirusesReport(email.MailboxID, messageId, spamassassinJson)
+          //if err != nil {
+          //  log.Errorf("UpdateVirusesReport: %v", err)
+          //}
+        } else {
+          log.Errorf("CheckEmailForViruses: %v", err)
         }
       }
     } else {

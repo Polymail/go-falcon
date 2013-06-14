@@ -138,8 +138,7 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
       }
     }
     // details
-    row = strings.TrimLeft(row, " \t\r\n")
-    row = strings.TrimRight(row, " \t\r\n")
+    row = strings.Trim(row, " \t\r\n")
     if regDetails.MatchString(row) {
       res := regDetails.FindStringSubmatch(row)
       if len(res) == 5 {

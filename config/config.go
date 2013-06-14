@@ -58,6 +58,12 @@ type Config struct {
     Port          int
     Timeout       int
   }
+  Clamav struct {
+    Enabled       bool
+    Host          string
+    Port          int
+    Timeout       int
+  }
   Proxy struct {
     Enabled       bool
     Host          string

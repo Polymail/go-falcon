@@ -41,6 +41,12 @@ spamassassin:
   port: 783
   timeout: 30
 
+clamav:
+  enabled: true
+  host: 127.0.0.1
+  port: 3310
+  timeout: 30
+
 proxy:
   enabled: true
   host: localhost
