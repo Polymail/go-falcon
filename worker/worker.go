@@ -16,7 +16,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
   emailParser := parser.EmailParser{}
   for {
     envelop := <- channel
-    // db connect 
+    // db connect
     db, err := storage.InitDatabase(config)
     if err != nil {
       log.Errorf("Couldn't connect to database: %v", err)
@@ -64,12 +64,13 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       if config.Clamav.Enabled {
         clamavReport, err := clamav.CheckEmailForViruses(config, email.RawMail)
         if err == nil {
-          log.Debugf("Spam: %s", clamavReport)
-          // update viruses info
-          //_, err := db.UpdateVirusesReport(email.MailboxID, messageId, spamassassinJson)
-          //if err != nil {
-          //  log.Errorf("UpdateVirusesReport: %v", err)
-          //}
+          if len(clamavReport) > 0 {
+            // update viruses info
+            _, err := db.UpdateVirusesReport(email.MailboxID, messageId, clamavReport)
+            if err != nil {
+              log.Errorf("UpdateVirusesReport: %v", err)
+            }
+          }
         } else {
           log.Errorf("CheckEmailForViruses: %v", err)
         }

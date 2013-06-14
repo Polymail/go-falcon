@@ -28,8 +28,7 @@ func CheckEmailForViruses(config *config.Config, email []byte) (string, error) {
   if err != nil {
     return "", err
   }
-  response := clamav.parseOutput(output)
-  return response, nil
+  return clamav.parseOutput(output), nil
 }
 
 // check email by spamassassin
@@ -51,49 +50,24 @@ func (ss *Clamav) checkEmail() ([]string, error) {
   }
   chunkPos := 0
   for {
-    if chunkPos + CHUNK_SIZE >= len(ss.RawEmail){
+    if chunkPos + CHUNK_SIZE >= len(ss.RawEmail) {
       data := ss.RawEmail[chunkPos:len(ss.RawEmail)]
-      lenData := len(data)
-      var buf [4]byte
-      buf[0] = byte(lenData >> 24)
-      buf[1] = byte(lenData >> 16)
-      buf[2] = byte(lenData >> 8)
-      buf[3] = byte(lenData >> 0)
-      
-      dataWrite := []byte{}
-      dataWrite = append(dataWrite, buf[0], buf[1], buf[2], buf[3])
-      dataWrite = append(dataWrite, data...)
-
-      _, err = conn.Write(dataWrite)
+      err = sendChunkOfData(conn, data)
       if err != nil {
         return dataArrays, err
       }
       break
     } else {
       data := ss.RawEmail[chunkPos:chunkPos + CHUNK_SIZE]
-      lenData := len(data)
-      var buf [4]byte
-      buf[0] = byte(lenData >> 24)
-      buf[1] = byte(lenData >> 16)
-      buf[2] = byte(lenData >> 8)
-      buf[3] = byte(lenData >> 0)
-      
-      dataWrite := []byte{}
-      dataWrite = append(dataWrite, buf[0], buf[1], buf[2], buf[3])
-      dataWrite = append(dataWrite, data...)
-
-      _, err = conn.Write(dataWrite)
+      err = sendChunkOfData(conn, data)
       if err != nil {
         return dataArrays, err
       }
-
       chunkPos = chunkPos + CHUNK_SIZE + 1
-      
     }
   }
   // write end
-  dataWrite := []byte{0, 0, 0, 0}
-  _, err = conn.Write(dataWrite)
+  _, err = conn.Write([]byte{0, 0, 0, 0})
   if err != nil {
     return dataArrays, err
   }
@@ -115,6 +89,22 @@ func (ss *Clamav) checkEmail() ([]string, error) {
   }
 
   return dataArrays, nil
+}
+
+func sendChunkOfData(conn net.Conn, data []byte) error {
+  lenData := len(data)
+  var buf [4]byte
+  buf[0] = byte(lenData >> 24)
+  buf[1] = byte(lenData >> 16)
+  buf[2] = byte(lenData >> 8)
+  buf[3] = byte(lenData >> 0)
+
+  dataWrite := []byte{}
+  dataWrite = append(dataWrite, buf[0], buf[1], buf[2], buf[3])
+  dataWrite = append(dataWrite, data...)
+
+  _, err := conn.Write(dataWrite)
+  return err
 }
 
 // parse spamassassin output

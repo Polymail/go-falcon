@@ -51,6 +51,8 @@ type Config struct {
     Max_Attachments_Cleanup_Sql string
 
     Spamassassin_Sql          string
+
+    Clamav_Sql                string
   }
   Spamassassin struct {
     Enabled       bool

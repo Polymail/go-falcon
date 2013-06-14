@@ -34,6 +34,8 @@ storage:
 
   spamassassin_sql: "UPDATE messages_[[inbox_id]] SET spam_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
 
+  clamav_sql: "UPDATE messages_[[inbox_id]] SET viruses_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
+
 
 spamassassin:
   enabled: false
@@ -42,7 +44,7 @@ spamassassin:
   timeout: 30
 
 clamav:
-  enabled: true
+  enabled: false
   host: 127.0.0.1
   port: 3310
   timeout: 30

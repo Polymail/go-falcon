@@ -100,6 +100,24 @@ func(db *DBConn) UpdateSpamReport(mailboxId int, messageId int, spamReport strin
   return id, nil
 }
 
+// update viruses report
+
+func(db *DBConn) UpdateVirusesReport(mailboxId int, messageId int, virusesReport string) (int, error) {
+  var (
+    id int
+  )
+  sql := strings.Replace(db.config.Storage.Clamav_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  err := db.DB.QueryRow(sql,
+    mailboxId,
+    messageId,
+    virusesReport).Scan(&id)
+  if err != nil {
+    log.Errorf("Clamav SQL error: %v", err)
+    return 0, err
+  }
+  return id, nil
+}
+
 
 // save attachment
 
