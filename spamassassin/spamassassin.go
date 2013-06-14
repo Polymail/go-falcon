@@ -40,7 +40,7 @@ func CheckSpamEmail(config *config.Config, email []byte) (string, error) {
     config: config,
     RawEmail: email,
   }
-  output, err := spamassassin.CheckEmail()
+  output, err := spamassassin.checkEmail()
   if err != nil {
     return "", err
   }
@@ -54,7 +54,7 @@ func CheckSpamEmail(config *config.Config, email []byte) (string, error) {
 
 // check email by spamassassin
 
-func (ss *Spamassassin) CheckEmail() ([]string, error) {
+func (ss *Spamassassin) checkEmail() ([]string, error) {
   var dataArrays []string
   ip := net.ParseIP(ss.config.Spamassassin.Ip)
   if ip == nil {
