@@ -51,8 +51,8 @@ func (ss *Clamav) checkEmail() ([]string, error) {
   }
   chunkPos := 0
   for {
-    if chunkPos + CHUNK_SIZE >= len(ss.RawEmail) {
-      data := ss.RawEmail[chunkPos:len(ss.RawEmail)]
+    if chunkPos + CHUNK_SIZE >= len(ss.RawEmail) - 1 {
+      data := ss.RawEmail[chunkPos:len(ss.RawEmail) - 1]
       err = sendChunkOfData(conn, data)
       if err != nil {
         return dataArrays, err
