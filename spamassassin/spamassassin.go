@@ -33,6 +33,8 @@ type SpamassassinResponse struct {
   Details               []SpamassassinHeader
 }
 
+// check email by spamassassin
+
 func CheckSpamEmail(config *config.Config, email []byte) (string, error) {
   spamassassin := &Spamassassin{
     config: config,

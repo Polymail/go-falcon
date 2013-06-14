@@ -1,5 +1,4 @@
 // http://www.clamav.net/doc/latest/clamdoc.pdf
-// TODO: NOT FINISHED
 package clamav
 
 import (
@@ -19,6 +18,8 @@ type Clamav struct {
   RawEmail  []byte
 }
 
+// check email for viruses by clamav
+
 func CheckEmailForViruses(config *config.Config, email []byte) (string, error) {
   clamav := &Clamav{
     config: config,
@@ -31,7 +32,7 @@ func CheckEmailForViruses(config *config.Config, email []byte) (string, error) {
   return clamav.parseOutput(output), nil
 }
 
-// check email by spamassassin
+// check email by clamav
 
 func (ss *Clamav) checkEmail() ([]string, error) {
   var dataArrays []string
@@ -91,6 +92,8 @@ func (ss *Clamav) checkEmail() ([]string, error) {
   return dataArrays, nil
 }
 
+// send data in chunks
+
 func sendChunkOfData(conn net.Conn, data []byte) error {
   lenData := len(data)
   var buf [4]byte
@@ -107,7 +110,7 @@ func sendChunkOfData(conn net.Conn, data []byte) error {
   return err
 }
 
-// parse spamassassin output
+// parse clamav output
 
 func (ss *Clamav) parseOutput(output []string) string {
   reg := regexp.MustCompile(`(?i)^stream:([\s+]?)(.*)`)
