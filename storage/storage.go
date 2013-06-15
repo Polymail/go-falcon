@@ -58,6 +58,7 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
   var (
     id int
   )
+  strBody := string(rawEmail)
   sql := strings.Replace(db.config.Storage.Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
@@ -69,8 +70,8 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
     to_name,
     html,
     text,
-    string(rawEmail),
-    len(rawEmail)).Scan(&id)
+    strBody,
+    len(strBody)).Scan(&id)
   if err != nil {
     log.Errorf("Messages SQL error: %v", err)
     return 0, err
