@@ -16,9 +16,9 @@ END
 message = <<-END.split("\n").map!(&:strip).join("\n")
 From: Private Person <me@fromdomain.com>
 To: A Test User <test@todomain.com>
-Subject: SMTP e-mail test
+Subject: Virus message
 
-$CEliacmaTrESTuScikgsn$FREE-TEST-SIGNATURE$EEEEE$
+This is virus
 $CEliacmaTrESTuScikgsn$FREE-TEST-SIGNATURE$EEEEE$
 END
 =end
