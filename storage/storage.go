@@ -125,6 +125,7 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
   var (
     id int
   )
+  strBody := string(rawData)
   sql := strings.Replace(db.config.Storage.Attachments_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
@@ -134,8 +135,8 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
     contentType,
     contentId,
     transferEncoding,
-    rawData,
-    len(rawData)).Scan(&id)
+    strBody,
+    len(strBody)).Scan(&id)
   if err != nil {
     log.Errorf("Attachments SQL error: %v", err)
     return 0, err
