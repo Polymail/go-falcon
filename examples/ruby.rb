@@ -12,6 +12,7 @@ Subject: SMTP e-mail test
 
 This is a test e-mail message.
 END
+
 =begin
 message = <<-END.split("\n").map!(&:strip).join("\n")
 From: Private Person <me@fromdomain.com>
@@ -22,6 +23,8 @@ This is virus
 $CEliacmaTrESTuScikgsn$FREE-TEST-SIGNATURE$EEEEE$
 END
 =end
+
+=begin
 Net::SMTP.start('falcon.rw.rw',
                 2525,
                 'falcon.rw.rw',
@@ -37,7 +40,7 @@ Net::SMTP.start('falcon.rw.rw',
     smtp.send_message message, 'me@fromdomain.com',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
-
+=end
 Net::SMTP.start('falcon.rw.rw',
                 2525,
                 'falcon.rw.rw',
