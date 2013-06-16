@@ -20,7 +20,7 @@ storage:
   database: falcon_dev
   pool: 5
 
-  auth_sql: "SELECT id, password FROM inboxes WHERE username = $1" # $1 - username, should return id and password
+  auth_sql: "SELECT id, password FROM inboxes WHERE username = $1 OR (username || '@' || domain) = $1" # $1 - username, should return id and password
 
   settings_sql: "SELECT max_size FROM inboxes WHERE id = $1" # $1 - inbox_id
 
