@@ -3,8 +3,8 @@ before_script:
   - psql -c 'CREATE DATABASE pqgotest;' -U postgres
 install:
   - gvm update
-  - gvm install go1.1
-  - gvm use go1.1 --default
+  - gvm install go1.1.1
+  - gvm use go1.1.1 --default
   - export GOPATH=$HOME/gopath
   - go get launchpad.net/gocheck
   - go get launchpad.net/goyaml
