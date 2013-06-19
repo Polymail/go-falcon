@@ -282,9 +282,7 @@ func (s *session) serve() {
       s.handleData()
     case "XCLIENT":
       // Nginx sends this
-      log.Debugf("XCLIENT info: %v", line)
-      // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
-      s.sendlinef("250 2.0.0 OK")
+      s.handleNginx(line.Arg())
     case "AUTH":
       s.handleAuth(line.Arg())
     case "STARTTLS":
@@ -415,6 +413,33 @@ func (s *session) handleRcpt(line cmdLine) {
     return
   }
   s.sendlinef("250 2.1.0 Ok")
+}
+
+// Handle nginx
+
+func (s *session) handleNginx(line string) {
+  if s.srv.ServerConfig.Proxy.Enabled {
+    log.Debugf("XCLIENT info: %v", line)
+    reg := regexp.MustCompile(`(?i)(.*) LOGIN=(\d+) (.*)`)
+    if reg.MatchString(line) {
+      res := reg.FindStringSubmatch(line)
+      if len(res) == 3 {
+        mailboxId, err := strconv.Atoi(res[2])
+        if err != nil {
+          s.sendlinef("535 5.7.1 authentication failed")
+        } else {
+          s.mailboxId = mailboxId
+          s.sendlinef("250 2.0.0 OK")
+        }
+      } else {
+        s.sendlinef("535 5.7.1 authentication failed")
+      } 
+    } else {
+      s.sendlinef("535 5.7.1 authentication failed")
+    }
+  } else {
+    s.sendlinef("535 5.7.1 authentication failed")
+  }
 }
 
 // Handle data
