@@ -5,7 +5,6 @@ import (
   "strconv"
   "bytes"
   "net/http"
-  "net/mail"
   "strings"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
@@ -83,11 +82,7 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
     password := r.Header.Get("Auth-Pass")
     secret := ""
     if strings.ToLower(authMethod) == "cram-md5" {
-      secretMail := r.Header.Get("Auth-Salt")
-      parsedEmail, err := mail.ParseAddress(secretMail)
-      if err == nil {
-        secret = parsedEmail.Address
-      }
+      secret = r.Header.Get("Auth-Salt")
     }
     // db connect
     db, err := storage.InitDatabase(config)
