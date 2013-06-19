@@ -423,6 +423,7 @@ func (s *session) handleNginx(line string) {
     reg := regexp.MustCompile(`(?i)(.*) LOGIN=(\d+) (.*)`)
     if reg.MatchString(line) {
       res := reg.FindStringSubmatch(line)
+      log.Debugf("%v", res)
       if len(res) == 3 {
         mailboxId, err := strconv.Atoi(res[2])
         if err != nil {
