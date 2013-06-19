@@ -88,19 +88,19 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
     db, err := storage.InitDatabase(config)
     if err != nil {
       log.Errorf("Couldn't connect to database: %v", err)
-      nginxResponseFail(w)
+      nginxResponseFail(w, r)
       return
     }
     defer db.Close()
     db.DB.SetMaxIdleConns(-1)
     id, err := db.CheckUser(username, password, secret)
     if err != nil {
-      nginxResponseFail(w)
+      nginxResponseFail(w, r)
       return
     }
     nginxResponseSuccess(config, w, strconv.Itoa(id))
   } else {
-    nginxResponseFail(w)
+    nginxResponseFail(w, r)
   }
 }
 
@@ -108,15 +108,27 @@ func nginxResponseSuccess(config *config.Config, w http.ResponseWriter, userId s
   w.Header().Add("Auth-Status", "OK")
   w.Header().Add("Auth-Server", config.Adapter.Host)
   w.Header().Add("Auth-Port", strconv.Itoa(config.Adapter.Port))
+  // return mailbox id
   if userId != "" {
     w.Header().Add("Auth-User", userId)
   }
+  // empty body
   fmt.Fprint(w, "")
 }
 
 
-func nginxResponseFail(w http.ResponseWriter) {
+func nginxResponseFail(w http.ResponseWriter, r *http.Request) {
   w.Header().Add("Auth-Status", "Invalid login or password")
-  w.Header().Add("Auth-Wait", "3")
+  // login attempt
+  loginAttempt := r.Header.Get("Auth-Login-Attempt")
+  if loginAttempt != "" {
+    loginAttemptInt, err := strconv.Atoi(loginAttempt)
+    if err == nil {
+      if loginAttemptInt < 10 {
+        w.Header().Add("Auth-Wait", "3")
+      }
+    }
+  }
+  // empty body
   fmt.Fprint(w, "")
 }
