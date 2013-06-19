@@ -40,6 +40,12 @@ func StartNginxHTTPProxy(config *config.Config) {
 2013/06/19 13:07:58 DEBUG Command from client QUIT
 2013/06/19 13:08:15 DEBUG Nginx proxy get request: &{GET / HTTP/1.0 1 0 map[Auth-Pass:[a6da18f4b2a1b68556fded166007be61] Auth-Protocol:[smtp] Auth-Login-Attempt:[1] Client-Ip:[213.160.145.74] Auth-Method:[cram-md5] Auth-User:[123] Auth-Salt:[<613169054.1371647295@falcon.rw.rw>] Client-Host:[[UNAVAILABLE]]] 0xc20011a880 0 [] false localhost map[] map[] <nil> map[] 127.0.0.1:53272 / <nil>}
 
+
+HTTP/1.0 200 OK      # this line is actually ignored and may not exist at all
+Auth-Status: Invalid login or password
+Auth-Wait: 3         # nginx will wait 3 seconds before reading
+# client's login/passwd again
+
 */
 
 func nginxHTTPAuth(config *config.Config) {
