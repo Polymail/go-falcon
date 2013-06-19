@@ -46,6 +46,8 @@ Auth-Status: Invalid login or password
 Auth-Wait: 3         # nginx will wait 3 seconds before reading
 # client's login/passwd again
 
+2013/06/19 15:22:29 DEBUG XCLIENT info: XCLIENT ADDR=213.160.145.74 LOGIN=test NAME=[UNAVAILABLE]
+
 */
 
 func nginxHTTPAuth(config *config.Config) {
