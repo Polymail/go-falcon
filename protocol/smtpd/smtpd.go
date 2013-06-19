@@ -282,6 +282,7 @@ func (s *session) serve() {
       s.handleData()
     case "XCLIENT":
       // Nginx sends this
+      log.Debugf("XCLIENT info: %v", line)
       // XCLIENT ADDR=212.96.64.216 NAME=[UNAVAILABLE]
       s.sendlinef("250 2.0.0 OK")
     case "AUTH":
