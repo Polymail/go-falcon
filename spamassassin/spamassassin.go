@@ -68,6 +68,7 @@ func (ss *Spamassassin) checkEmail() ([]string, error) {
   if err != nil {
     return dataArrays, err
   }
+  defer conn.Close()
   // write headers
   _, err = conn.Write([]byte("REPORT SPAMC/1.2\r\n"))
   if err != nil {
@@ -90,11 +91,9 @@ func (ss *Spamassassin) checkEmail() ([]string, error) {
   for {
     line, err := reader.ReadString('\n')
     if err == io.EOF {
-      conn.Close()
       break
     }
     if err != nil {
-      conn.Close()
       return dataArrays, err
     }
     line = strings.TrimRight(line, " \t\r\n")

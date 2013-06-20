@@ -419,17 +419,17 @@ func (s *session) handleRcpt(line cmdLine) {
 
 func (s *session) handleNginx(line string) {
   if s.srv.ServerConfig.Proxy.Enabled {
-    reg := regexp.MustCompile(`(?i)(.*) LOGIN=(\d+) (.*)`)
-    if reg.MatchString(line) {
-      res := reg.FindStringSubmatch(line)
-      if len(res) == 4 {
-        mailboxId, err := strconv.Atoi(res[2])
-        if err != nil {
-          s.sendlinef("535 5.7.1 authentication failed")
-        } else {
-          s.mailboxId = mailboxId
-          s.sendlinef("250 2.0.0 OK")
-          return
+    if s.srv.ServerConfig.Adapter.Auth {
+      reg := regexp.MustCompile(`(?i)(.*) LOGIN=(\d+) (.*)`)
+      if reg.MatchString(line) {
+        res := reg.FindStringSubmatch(line)
+        if len(res) == 4 {
+          mailboxId, err := strconv.Atoi(res[2])
+          if err == nil {
+            s.mailboxId = mailboxId
+            s.sendlinef("250 2.0.0 OK")
+            return
+          }
         }
       }
     }

@@ -46,7 +46,12 @@ func nginxHTTPAuth(config *config.Config) {
 
 func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config.Config) {
   log.Debugf("Nginx proxy get request: %v", r)
-  
+
+  if !config.Adapter.Auth {
+    nginxResponseSuccess(config, w, "")
+    return
+  }
+
   protocol := r.Header.Get("Auth-Protocol")
 
   if strings.ToLower(protocol) == "smtp" {

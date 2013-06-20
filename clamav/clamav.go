@@ -40,6 +40,7 @@ func (ss *Clamav) checkEmail() ([]string, error) {
   if err != nil {
     return dataArrays, err
   }
+  defer conn.Close()
   // check email
   if len(ss.RawEmail) <= 0 {
     return dataArrays, nil
@@ -78,11 +79,9 @@ func (ss *Clamav) checkEmail() ([]string, error) {
   for {
     line, err := reader.ReadString('\n')
     if err == io.EOF {
-      conn.Close()
       break
     }
     if err != nil {
-      conn.Close()
       return dataArrays, err
     }
     line = strings.TrimRight(line, " \t\r\n")
