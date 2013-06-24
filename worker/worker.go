@@ -100,6 +100,7 @@ func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
 func webHookSender(config *config.Config, mailboxID int) {
   if len(config.Web_Hooks.Urls) > 0 {
     mailboxStr := strconv.Itoa(mailboxID)
+    client := &http.Client{}
     for _, url := range config.Web_Hooks.Urls {
       r, err := http.NewRequest("POST", url,
         strings.NewReader("{\"channel\": \"/inboxes/" + mailboxStr + "\", \"ext\": {\"username\": \"" + config.Web_Hooks.Username + "\", \"password\": \"" + config.Web_Hooks.Password + "\"}, \"data\": {\"mailbox_id\": \"" + mailboxStr + "\"}}"))
@@ -108,7 +109,6 @@ func webHookSender(config *config.Config, mailboxID int) {
         continue
       } else {
         r.Header.Set("Content-Type", "application/json")
-        client := &http.Client{}
         _, err := client.Do(r)
         if err != nil {
            log.Errorf("error init web hook: %v", err)
