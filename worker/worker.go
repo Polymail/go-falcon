@@ -59,6 +59,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
           if err != nil {
             log.Errorf("UpdateSpamReport: %v", err)
           }
+          spamassassinJson = nil
         } else {
           log.Errorf("CheckSpamEmail: %v", err)
         }
@@ -74,6 +75,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
               log.Errorf("UpdateVirusesReport: %v", err)
             }
           }
+          clamavReport = nil
         } else {
           log.Errorf("CheckEmailForViruses: %v", err)
         }
