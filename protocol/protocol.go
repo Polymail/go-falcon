@@ -53,8 +53,8 @@ func loadTLSCerts(config *config.Config) (*tls.Config, error) {
 
 
 func StartMailServer(config *config.Config) {
-  // create queue for emails (100 max)
-  SaveMailChan = make(chan *smtpd.BasicEnvelope, 100)
+  // create queue for emails (20 max)
+  SaveMailChan = make(chan *smtpd.BasicEnvelope, 20)
   // start parser and storage workers
   worker.StartWorkers(config, SaveMailChan)
   // buffer
