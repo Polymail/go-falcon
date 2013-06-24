@@ -109,12 +109,12 @@ func webHookSender(config *config.Config, mailboxID int) {
         continue
       } else {
         r.Header.Set("Content-Type", "application/json")
-        _, err := client.Do(r)
+        resp, err := client.Do(r)
         if err != nil {
            log.Errorf("error init web hook: %v", err)
            continue
         } else {
-          r.Body.Close()
+          resp.Body.Close()
         }
       }
     }
