@@ -45,7 +45,7 @@ func nginxHTTPAuth(config *config.Config) {
 // nginx auth by nginx headers
 
 func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config.Config) {
-  log.Debugf("Nginx proxy get request: %v", r)
+  //log.Debugf("Nginx proxy get request: %v", r)
 
   if !config.Adapter.Auth {
     nginxResponseSuccess(config, w, "")
