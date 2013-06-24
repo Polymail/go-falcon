@@ -51,6 +51,8 @@ clamav:
 
 web_hooks:
   enabled: true
+  username: adminadmin
+  password: monkey
   urls:
    - "http://127.0.0.1/pusher"
 

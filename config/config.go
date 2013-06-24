@@ -73,6 +73,8 @@ type Config struct {
   }
   Web_Hooks struct {
     Enabled       bool
+    Username      string
+    Password      string
     Urls          []string
   }
   Log struct {
