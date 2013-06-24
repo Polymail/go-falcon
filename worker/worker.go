@@ -79,7 +79,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
         }
       }
       if config.Web_Hooks.Enabled {
-        webHookSender(config, email.MailboxID)
+        go webHookSender(config, email.MailboxID)
       }
     } else {
       log.Errorf("ParseMail: %v", err)
