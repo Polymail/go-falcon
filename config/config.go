@@ -71,6 +71,10 @@ type Config struct {
     Host          string
     Port          int
   }
+  Web_Hooks struct {
+    Enabled       bool
+    Urls          []string
+  }
   Log struct {
     Debug         bool
   }

@@ -49,6 +49,11 @@ clamav:
   port: 3310
   timeout: 30
 
+web_hooks:
+  enabled: true
+  urls:
+   - "http://127.0.0.1/pusher"
+
 proxy:
   enabled: true
   host: localhost

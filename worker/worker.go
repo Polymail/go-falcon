@@ -1,6 +1,9 @@
 package worker
 
 import (
+  "net/http"
+  "strings"
+  "strconv"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/parser"
@@ -75,6 +78,9 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
           log.Errorf("CheckEmailForViruses: %v", err)
         }
       }
+      if config.Web_Hooks.Enabled {
+        go webHookSender(config, email.MailboxID)
+      }
     } else {
       log.Errorf("ParseMail: %v", err)
     }
@@ -86,5 +92,30 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
 func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   for i := 0; i < config.Storage.Pool; i++ {
     go startParserAndStorageWorker(config, channel)
+  }
+}
+
+// web hooks
+
+func webHookSender(config *config.Config, mailboxID int) {
+  if len(config.Web_Hooks.Urls) > 0 {
+    for _, url := range config.Web_Hooks.Urls {
+      r, err := http.NewRequest("POST", url,
+        strings.NewReader("{\"channel\": \"/inboxes/" + strconv.Itoa(mailboxID) + "\", \"ext\": {\"username\": \"adminadmin\", \"password\": \"monkey\"}, \"data\": {}}"))
+      if err != nil {
+        log.Errorf("error init web hook: %v", err)
+        continue
+      } else {
+        r.Header.Set("Content-Type", "application/json")
+        client := &http.Client{}
+        _, err := client.Do(r)
+        if err != nil {
+           log.Errorf("error init web hook: %v", err)
+           continue
+        } else {
+          r.Body.Close()
+        }
+      }
+    }
   }
 }
