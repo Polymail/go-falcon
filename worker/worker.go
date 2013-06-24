@@ -78,12 +78,14 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
           log.Errorf("CheckEmailForViruses: %v", err)
         }
       }
+      // web hooks
       if config.Web_Hooks.Enabled {
         go webHookSender(config, email.MailboxID)
       }
     } else {
       log.Errorf("ParseMail: %v", err)
     }
+    email = nil
     db.Close()
   }
 }
