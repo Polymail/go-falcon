@@ -117,6 +117,7 @@ func webHookSender(config *config.Config, mailboxID int) {
            continue
         } else {
           resp.Body.Close()
+          r.Body.Close()
         }
       }
     }
