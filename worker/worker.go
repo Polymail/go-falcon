@@ -16,6 +16,8 @@ import (
 // start worker
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   var (
+    emailParser           *parser.EmailParser
+    envelop               *smtpd.BasicEnvelope
     db                    *storage.DBConn
     settings              *storage.AccountSettings
     email                 *parser.ParsedEmail
@@ -25,9 +27,8 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     err                   error
   )
   log.Debugf("Starting storage worker")
-  emailParser := parser.EmailParser{}
   for {
-    envelop := <- channel
+    envelop = <- channel
     // db connect
     db, err = storage.InitDatabase(config)
     if err != nil {
@@ -89,12 +90,20 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       }
       // web hooks
       if config.Web_Hooks.Enabled {
-        go webHookSender(config, email.MailboxID)
+        go webHookSender(config, email.MailboxID, messageId)
       }
     } else {
       log.Errorf("ParseMail: %v", err)
     }
     db.Close()
+    // runtime
+    /*
+    memstats := new(runtime.MemStats)
+    runtime.ReadMemStats(memstats)
+    log.Debugf("Gorutines: %v", runtime.NumGoroutine())
+    log.Debugf("memstats before GC: bytes = %d footprint = %d", memstats.HeapAlloc, memstats.Sys)
+    log.Debugf("memstats before GC: HeapObjects = %d HeapSys = %d", memstats.HeapObjects, memstats.HeapSys)
+    */
   }
 }
 
@@ -107,13 +116,13 @@ func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
 
 // web hooks
 
-func webHookSender(config *config.Config, mailboxID int) {
+func webHookSender(config *config.Config, mailboxID, messageId int) {
   if len(config.Web_Hooks.Urls) > 0 {
     mailboxStr := strconv.Itoa(mailboxID)
     client := &http.Client{}
     for _, url := range config.Web_Hooks.Urls {
       r, err := http.NewRequest("POST", url,
-        strings.NewReader("{\"channel\": \"/inboxes/" + mailboxStr + "\", \"ext\": {\"username\": \"" + config.Web_Hooks.Username + "\", \"password\": \"" + config.Web_Hooks.Password + "\"}, \"data\": {\"mailbox_id\": \"" + mailboxStr + "\"}}"))
+        strings.NewReader("{\"channel\": \"/inboxes/" + mailboxStr + "\", \"ext\": {\"username\": \"" + config.Web_Hooks.Username + "\", \"password\": \"" + config.Web_Hooks.Password + "\"}, \"data\": {\"mailbox_id\": \"" + mailboxStr + "\", \"message_id\": \"" + strconv.Itoa(messageId) + "\"}}"))
       if err != nil {
         log.Errorf("error init web hook: %v", err)
         continue

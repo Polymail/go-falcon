@@ -70,6 +70,7 @@ func StartMailServer(config *config.Config) {
     log.Errorf("Problem with connection to storage: %s", err)
     return
   }
+  db.DB.SetMaxIdleConns(2)
   // config server
   s := &smtpd.Server{
     Addr:      bufferServer.String(),
