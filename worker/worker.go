@@ -15,12 +15,21 @@ import (
 
 // start worker
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
+  var (
+    db                    *storage.DBConn
+    settings              *storage.AccountSettings
+    email                 *parser.ParsedEmail
+    messageId             int
+    spamassassinReport    string
+    clamavReport          string
+    err                   error
+  )
   log.Debugf("Starting storage worker")
   emailParser := parser.EmailParser{}
   for {
     envelop := <- channel
     // db connect
-    db, err := storage.InitDatabase(config)
+    db, err = storage.InitDatabase(config)
     if err != nil {
       log.Errorf("Couldn't connect to database: %v", err)
       continue
@@ -28,15 +37,15 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       db.DB.SetMaxIdleConns(-1)
     }
     // get settings
-    settings, err := db.GetSettings(envelop.MailboxID)
+    settings, err = db.GetSettings(envelop.MailboxID)
     if err != nil {
       // invalid settings
       continue
     }
     // parse email
-    email, err := emailParser.ParseMail(envelop)
+    email, err = emailParser.ParseMail(envelop)
     if err == nil {
-      messageId, err := db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
+      messageId, err = db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
       // store attachments
       if err == nil {
         for _, attachment := range email.Attachments {
@@ -52,21 +61,20 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       db.CleanupMessages(email.MailboxID, settings.MaxMessages)
       // spamassassin
       if config.Spamassassin.Enabled {
-        spamassassinJson, err := spamassassin.CheckSpamEmail(config, email.RawMail)
+        spamassassinReport, err = spamassassin.CheckSpamEmail(config, email.RawMail)
         if err == nil {
           // update spam info
-          _, err := db.UpdateSpamReport(email.MailboxID, messageId, spamassassinJson)
+          _, err := db.UpdateSpamReport(email.MailboxID, messageId, spamassassinReport)
           if err != nil {
             log.Errorf("UpdateSpamReport: %v", err)
           }
-          spamassassinJson = ""
         } else {
           log.Errorf("CheckSpamEmail: %v", err)
         }
       }
       // clamav
       if config.Clamav.Enabled {
-        clamavReport, err := clamav.CheckEmailForViruses(config, email.RawMail)
+        clamavReport, err = clamav.CheckEmailForViruses(config, email.RawMail)
         if err == nil {
           if len(clamavReport) > 0 {
             // update viruses info
@@ -75,7 +83,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
               log.Errorf("UpdateVirusesReport: %v", err)
             }
           }
-          clamavReport = ""
         } else {
           log.Errorf("CheckEmailForViruses: %v", err)
         }
@@ -87,7 +94,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     } else {
       log.Errorf("ParseMail: %v", err)
     }
-    email = nil
     db.Close()
   }
 }
