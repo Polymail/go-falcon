@@ -16,8 +16,6 @@ import (
 // start worker
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   var (
-    envelop               *smtpd.BasicEnvelope
-    email                 *parser.ParsedEmail
     db                    *storage.DBConn
     messageId             int
     spamassassinReport    string
@@ -28,7 +26,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
   settings := &storage.AccountSettings{}
   emailParser := &parser.EmailParser{}
   for {
-    envelop = <- channel
+    envelop := <- channel
     // db connect
     db, err = storage.InitDatabase(config)
     if err != nil {
@@ -44,7 +42,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       continue
     }
     // parse email
-    email, err = emailParser.ParseMail(envelop)
+    email, err := emailParser.ParseMail(envelop)
     if err == nil {
       messageId, err = db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
       // store attachments
@@ -95,7 +93,9 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     } else {
       log.Errorf("ParseMail: %v", err)
     }
+    //cleanup
     db.Close()
+    db = nil
     // runtime
     /*
     memstats := new(runtime.MemStats)

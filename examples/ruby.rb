@@ -52,9 +52,9 @@ Net::SMTP.start('falcon.rw.rw',
 end
 =end
 10000.times do
-  Net::SMTP.start('localhost',
+  Net::SMTP.start('falcon.rw.rw',
                   2525,
-                  'localhost',
+                  'falcon.rw.rw',
                   username, password, :cram_md5) do |smtp|
       smtp.send_message message, "me#{rand(10)}@fromdomain.com",
                                 ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
