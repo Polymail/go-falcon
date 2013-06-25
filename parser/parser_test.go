@@ -919,12 +919,11 @@ func TestGoodMailParser(t *testing.T) {
   // uncomment for debug
   //log.Debug = true
 
-  emailParser := EmailParser{}
   for _, mail := range goodMailTypeTests {
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
     // parse email
     envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
-    email, err := emailParser.ParseMail(envelop)
+    email, err := ParseMail(envelop)
     if email == nil || err != nil {
       t.Error("Error in parsing email: %v", err)
     } else {
@@ -952,12 +951,11 @@ func TestBadMailParser(t *testing.T) {
   // uncomment for debug
   //log.Debug = true
 
-  emailParser := EmailParser{}
   for _, mail := range badMailTypeTests {
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
     // parse email
     envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
-    email, err := emailParser.ParseMail(envelop)
+    email, err := ParseMail(envelop)
     if err == nil {
       t.Error("No error in parsing email: %v", email)
     }

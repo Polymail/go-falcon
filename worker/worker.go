@@ -34,8 +34,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       continue
     }
     // parse email
-    emailParser := new(parser.EmailParser)
-    email, err := emailParser.ParseMail(envelop)
+    email, err := parser.ParseMail(envelop)
     if err == nil {
       messageId, err := db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
       // store attachments
@@ -92,7 +91,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     email = nil
     envelop = nil
     settings = nil
-    emailParser = nil
     // runtime
     /*
     memstats := new(runtime.MemStats)

@@ -217,14 +217,9 @@ func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
   }
 }
 
-// obj
-
-type EmailParser struct {
-}
-
 // parse email
 
-func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
+func ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
   email := &ParsedEmail{ env: env, MailboxID: env.MailboxID  }
   msg, err := mail.ReadMessage(bytes.NewBuffer(email.env.MailBody))
   if err != nil {
