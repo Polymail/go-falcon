@@ -17,7 +17,7 @@ type env struct {
 }
 
 var (
-  SaveMailChan chan smtpd.BasicEnvelope
+  SaveMailChan chan *smtpd.BasicEnvelope
 )
 
 func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
@@ -32,8 +32,7 @@ func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
 
 func (e *env) Close() error {
   // send mail to storage workers
-  SaveMailChan <- *e.BasicEnvelope
-  e.BasicEnvelope = nil
+  SaveMailChan <- e.BasicEnvelope
   return nil
 }
 
@@ -55,7 +54,7 @@ func loadTLSCerts(config *config.Config) (*tls.Config, error) {
 
 func StartMailServer(config *config.Config) {
   // create queue for emails (100 max)
-  SaveMailChan = make(chan smtpd.BasicEnvelope, 100)
+  SaveMailChan = make(chan *smtpd.BasicEnvelope, 100)
   // start parser and storage workers
   worker.StartWorkers(config, SaveMailChan)
   // buffer
