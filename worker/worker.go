@@ -96,6 +96,8 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     //cleanup
     db.Close()
     db = nil
+    email = nil
+    envelop = nil
     // runtime
     /*
     memstats := new(runtime.MemStats)
