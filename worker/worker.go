@@ -23,8 +23,8 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     err                   error
   )
   log.Debugf("Starting storage worker")
-  settings := &storage.AccountSettings{}
-  emailParser := &parser.EmailParser{}
+  settings := new(storage.AccountSettings)
+  emailParser := new(parser.EmailParser)
   for {
     envelop := <- channel
     // db connect
