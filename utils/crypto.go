@@ -2,7 +2,6 @@ package utils
 
 import (
   "bytes"
-  "io/ioutil"
   "encoding/base64"
   "strings"
   "crypto/hmac"
@@ -41,8 +40,7 @@ func GenerateSMTPCramMd5(hostname string) string {
 // decode cram-md5
 
 func DecodeSMTPCramMd5(b64 string) (string, string) {
-  str := DecodeBase64(b64)
-  f := strings.Split(string(str), " ")
+  f := strings.Split(DecodeBase64(b64), " ")
   if len(f) == 2 {
     return f[0], f[1]
   }
@@ -67,8 +65,7 @@ func CheckSMTPAuthPass(rawPassword, cramPassword, cramSecret string) bool {
 // Decode smtp plain auth
 
 func DecodeSMTPAuthPlain(b64 string) (string, string, string) {
-  dest := DecodeBase64(b64)
-  f := bytes.Split(dest, []byte{ 0 })
+  f := bytes.Split([]byte(DecodeBase64(b64)), []byte{ 0 })
 
   if ((len(f) == 4) || (len(f) == 3)) {
     return string(f[0]), string(f[1]), string(f[2])
@@ -79,18 +76,16 @@ func DecodeSMTPAuthPlain(b64 string) (string, string, string) {
 
 // encode base64
 
-func EncodeBase64(b64 string) []byte {
-  var b bytes.Buffer
-  w := base64.NewEncoder(base64.StdEncoding, &b)
-  w.Write([]byte(b64))
-  w.Close()
-  return b.Bytes()
+func EncodeBase64(b64 string) string {
+  return base64.StdEncoding.EncodeToString([]byte(b64))
 }
 
 // decode base64
 
-func DecodeBase64(b64 string) []byte {
-  buf := bytes.NewBufferString(b64)
-  dest, _ := ioutil.ReadAll(base64.NewDecoder(base64.StdEncoding, buf))
-  return dest
+func DecodeBase64(b64 string) string {
+  dest, err := base64.StdEncoding.DecodeString(b64)
+  if err != nil {
+    return ""
+  }
+  return string(dest)
 }

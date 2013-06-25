@@ -122,6 +122,9 @@ func (srv *Server) hostname() string {
   if srv.Hostname != "" {
     return srv.Hostname
   }
+  if srv.ServerConfig.Adapter.Ssl_Hostname != "" {
+    return srv.ServerConfig.Adapter.Ssl_Hostname
+  }
   out, err := exec.Command("hostname").Output()
   if err != nil {
     return ""
@@ -532,7 +535,7 @@ func (s *session) tryPlainAuth(authToken string) {
 
 func (s *session) loginAuth(line string) {
   if s.authUsername == "" {
-    s.authUsername = string(utils.DecodeBase64(line))
+    s.authUsername = utils.DecodeBase64(line)
     if s.authUsername != "" {
       s.sendlinef("334 UGFzc3dvcmQ6")
     } else {
@@ -542,7 +545,7 @@ func (s *session) loginAuth(line string) {
     return
   }
   if s.authPassword == "" {
-    s.authPassword = string(utils.DecodeBase64(line))
+    s.authPassword = utils.DecodeBase64(line)
     if s.authPassword != "" {
       s.authByDB()
     } else {
@@ -577,7 +580,7 @@ func (s *session) cramMd5Auth(line string) {
 func (s *session) tryCramMd5Auth() {
   s.clearAuthData()
   s.authCramMd5Login = utils.GenerateSMTPCramMd5(s.srv.hostname())
-  s.sendlinef("334 " + string(utils.EncodeBase64(s.authCramMd5Login)))
+  s.sendlinef("334 " + utils.EncodeBase64(s.authCramMd5Login))
 }
 
 // clear auth

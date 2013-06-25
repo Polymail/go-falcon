@@ -50,7 +50,7 @@ Net::SMTP.start('falcon.rw.rw',
     smtp.send_message message, "me#{rand(10)}@fromdomain.com",
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
-
+=end
 10000.times do
   Net::SMTP.start('localhost',
                   2525,
@@ -60,4 +60,3 @@ end
                                 ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
   end
 end
-=end

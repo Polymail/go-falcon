@@ -18,7 +18,7 @@ storage:
   username: leo
   password:
   database: falcon_dev
-  pool: 5
+  pool: 1
 
   auth_sql: "SELECT id, password FROM inboxes WHERE username = $1 OR (username || '@' || domain) = $1" # $1 - username, should return id and password
 

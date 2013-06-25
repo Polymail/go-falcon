@@ -17,16 +17,16 @@ import (
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   var (
     envelop               *smtpd.BasicEnvelope
-    emailParser           *parser.EmailParser
-    db                    *storage.DBConn
-    settings              *storage.AccountSettings
     email                 *parser.ParsedEmail
+    db                    *storage.DBConn
     messageId             int
     spamassassinReport    string
     clamavReport          string
     err                   error
   )
   log.Debugf("Starting storage worker")
+  settings := &storage.AccountSettings{}
+  emailParser := &parser.EmailParser{}
   for {
     envelop = <- channel
     // db connect
@@ -38,7 +38,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       db.DB.SetMaxIdleConns(-1)
     }
     // get settings
-    settings, err = db.GetSettings(envelop.MailboxID)
+    err = db.GetSettings(envelop.MailboxID, settings)
     if err != nil {
       // invalid settings
       continue

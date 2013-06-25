@@ -151,25 +151,25 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
 
 // get settings
 
-func (db *DBConn) GetSettings(mailboxId int) (*AccountSettings, error) {
-  settings := &AccountSettings{}
+func (db *DBConn) GetSettings(mailboxId int, settings *AccountSettings) error {
+  settings.MaxMessages = 0
   err := db.DB.QueryRow(db.config.Storage.Settings_Sql, mailboxId).Scan(&settings.MaxMessages)
   if err != nil {
     log.Errorf("Settings SQL error: %v", err)
-    return nil, err
   }
-  return settings, err
+  return err
 }
 
 // cleanup messages
 func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
   if db.config.Storage.Max_Messages_Enabled && maxMessages > 0 {
     var (
-      count int
-      tmpId int
-      msgIds []string
+      sql     string
+      count   int
+      tmpId   int
+      msgIds  []string
     )
-    sql := strings.Replace(db.config.Storage.Max_Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+    sql = strings.Replace(db.config.Storage.Max_Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
     err := db.DB.QueryRow(sql, mailboxId).Scan(&count)
     if err != nil {
       log.Errorf("CleanupMessages SQL error: %v", err)
@@ -177,7 +177,7 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
     }
     cleanupCount := count - maxMessages
     if cleanupCount > 0 {
-      sql := strings.Replace(db.config.Storage.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+      sql = strings.Replace(db.config.Storage.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
       rows, err := db.DB.Query(sql, mailboxId, cleanupCount)
       if err != nil {
         log.Errorf("CleanupMessages SQL error: %v", err)
@@ -193,7 +193,7 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
         msgIds = append(msgIds, strconv.Itoa(tmpId))
       }
       if len(msgIds) > 0 {
-        sql := strings.Replace(db.config.Storage.Max_Attachments_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+        sql = strings.Replace(db.config.Storage.Max_Attachments_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
         for _, msgId := range msgIds {
           _, err := db.DB.Query(sql, mailboxId, msgId)
           if err != nil {
