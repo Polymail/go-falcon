@@ -14,10 +14,10 @@ import (
 )
 
 // start worker
-func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
+func startParserAndStorageWorker(config *config.Config, channel chan smtpd.BasicEnvelope) {
   var (
+    envelop               smtpd.BasicEnvelope
     emailParser           *parser.EmailParser
-    envelop               *smtpd.BasicEnvelope
     db                    *storage.DBConn
     settings              *storage.AccountSettings
     email                 *parser.ParsedEmail
@@ -44,7 +44,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       continue
     }
     // parse email
-    email, err = emailParser.ParseMail(envelop)
+    email, err = emailParser.ParseMail(&envelop)
     if err == nil {
       messageId, err = db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
       // store attachments
@@ -108,7 +108,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
 }
 
 // workers
-func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
+func StartWorkers(config *config.Config, channel chan smtpd.BasicEnvelope) {
   for i := 0; i < config.Storage.Pool; i++ {
     go startParserAndStorageWorker(config, channel)
   }

@@ -225,7 +225,7 @@ type EmailParser struct {
 // parse email
 
 func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
-  email := ParsedEmail{ env: env, MailboxID: env.MailboxID  }
+  email := &ParsedEmail{ env: env, MailboxID: env.MailboxID  }
   msg, err := mail.ReadMessage(bytes.NewBuffer(email.env.MailBody))
   if err != nil {
     log.Errorf("Failed parsing message: %v", err)
@@ -239,5 +239,5 @@ func (parser *EmailParser) ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, er
   email.RawMail = email.env.MailBody
   email.parseEmailHeaders(msg)
   email.parseEmailBody(msg, mailBody)
-  return &email, nil
+  return email, nil
 }

@@ -91,7 +91,6 @@ func EncodeBase64(b64 string) []byte {
 
 func DecodeBase64(b64 string) []byte {
   buf := bytes.NewBufferString(b64)
-  encoded := base64.NewDecoder(base64.StdEncoding, buf)
-  dest, _ := ioutil.ReadAll(encoded)
+  dest, _ := ioutil.ReadAll(base64.NewDecoder(base64.StdEncoding, buf))
   return dest
 }

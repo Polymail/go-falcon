@@ -13,6 +13,13 @@ import (
   "code.google.com/p/mahonia"
 )
 
+var (
+  invalidUnquotedRE = regexp.MustCompile(`(.)*\s(filename|name)=[^"](.+\s)+[^"]`)
+  invalidUnquotedResRE = regexp.MustCompile(`[^=]+$`)
+  invalidEscapedRE = regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
+  mahoniaEnc = mahonia.NewEncoder("iso2022jp")
+)
+
 // fix escaped and unquoted headers values
 
 func FixMailEncodedHeader(str string) string {
@@ -23,10 +30,8 @@ func FixMailEncodedHeader(str string) string {
 
 
 func fixInvalidUnquotedAttachmentName(str string) string {
-  reg := regexp.MustCompile(`(.)*\s(filename|name)=[^"](.+\s)+[^"]`)
-  if reg.MatchString(str) {
-    reg := regexp.MustCompile(`[^=]+$`)
-    str = reg.ReplaceAllString(str, "\"$0\"")
+  if invalidUnquotedRE.MatchString(str) {
+    str = invalidUnquotedResRE.ReplaceAllString(str, "\"$0\"")
   }
   return str
 }
@@ -34,15 +39,13 @@ func fixInvalidUnquotedAttachmentName(str string) string {
 
 func fixInvalidEscapedAttachmentName(str string) string {
   var words []string
-  reg := regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
   arrayStr := strings.Split(str, " ")
   for _, word := range arrayStr {
-    if reg.MatchString(word) {
+    if invalidEscapedRE.MatchString(word) {
       unescapedStr, err := url.QueryUnescape(word)
       if err == nil {
-        enc := mahonia.NewEncoder("iso2022jp")
-        unescapedStr = enc.ConvertString(unescapedStr)
-        unescapedStr = reg.ReplaceAllString(unescapedStr, "name=\"$1\"")
+        unescapedStr = mahoniaEnc.ConvertString(unescapedStr)
+        unescapedStr = invalidEscapedRE.ReplaceAllString(unescapedStr, "name=\"$1\"")
         word = unescapedStr
       }
     }

@@ -28,6 +28,7 @@ import (
 var (
   rcptToRE = regexp.MustCompile(`[Tt][Oo]:[\s*]?<(.+)>`)
   mailFromRE = regexp.MustCompile(`[Ff][Rr][Oo][Mm]:[\s*]?<(.*)>`)
+  nginxRE = regexp.MustCompile(`(?i)(.*) LOGIN=(\d+) (.*)`)
 )
 
 // Server is an SMTP server.
@@ -106,7 +107,7 @@ func (e *BasicEnvelope) BeginData() error {
 func (e *BasicEnvelope) Write(line []byte, maxSize int) error {
   e.MailBody = append(e.MailBody, line...)
   if maxSize > 0 && len(e.MailBody) > maxSize {
-    return SMTPError("552 5.3.4 Error: message file too big")
+    return SMTPError("552 5.3.4 Error: message too big")
   }
   return nil
 }
@@ -420,9 +421,8 @@ func (s *session) handleRcpt(line cmdLine) {
 func (s *session) handleNginx(line string) {
   if s.srv.ServerConfig.Proxy.Enabled {
     if s.srv.ServerConfig.Adapter.Auth {
-      reg := regexp.MustCompile(`(?i)(.*) LOGIN=(\d+) (.*)`)
-      if reg.MatchString(line) {
-        res := reg.FindStringSubmatch(line)
+      if nginxRE.MatchString(line) {
+        res := nginxRE.FindStringSubmatch(line)
         if len(res) == 4 {
           mailboxId, err := strconv.Atoi(res[2])
           if err == nil {
