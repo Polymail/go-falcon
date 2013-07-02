@@ -71,6 +71,14 @@ type Config struct {
     Host          string
     Port          int
   }
+  Redis struct {
+    Enabled       bool
+    Host          string
+    Port          int
+    Namespace     string
+    Hook_Username string
+    Hook_Password string
+  }
   Web_Hooks struct {
     Enabled       bool
     Username      string

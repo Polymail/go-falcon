@@ -49,8 +49,16 @@ clamav:
   port: 3310
   timeout: 30
 
-web_hooks:
+redis:
   enabled: true
+  host: 127.0.0.1
+  port: 6379
+  namespace: development
+  hook_username: adminadmin
+  hook_password: monkey
+
+web_hooks:
+  enabled: false
   username: adminadmin
   password: monkey
   urls:

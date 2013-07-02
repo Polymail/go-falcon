@@ -10,6 +10,7 @@ import (
   "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/spamassassin"
   "github.com/le0pard/go-falcon/clamav"
+  "github.com/le0pard/go-falcon/redishook"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
@@ -84,6 +85,10 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
         } else {
           log.Errorf("CheckEmailForViruses: %v", err)
         }
+      }
+      // redis hooks
+      if config.Redis.Enabled {
+        redishook.SendNotifications(config, email.MailboxID, messageId)
       }
       // web hooks
       if config.Web_Hooks.Enabled {

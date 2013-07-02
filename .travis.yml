@@ -10,6 +10,7 @@ install:
   - go get launchpad.net/goyaml
   - go get github.com/bmizerany/pq
   - go get code.google.com/p/mahonia
+  - go get github.com/garyburd/redigo/redis
 notifications:
   email: false
 branches:
