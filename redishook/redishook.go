@@ -31,15 +31,9 @@ func SendNotifications(config *config.Config, mailboxID, messageID int) (bool, e
 
   if config.Redis.Hook_Username != "" && config.Redis.Hook_Password != "" {
     // Faye begin
-    reply, err := redisCon.Do("SUNION", config.Redis.Namespace + "/channels/inboxes/" + mailboxStr)
+    clients, err := redis.Strings(redisCon.Do("SUNION", config.Redis.Namespace + "/channels/inboxes/" + mailboxStr))
     if err != nil {
       log.Errorf("redis SUNION command error: %v", err)
-      return false, err
-    }
-
-    clients, err := redis.Strings(reply, nil)
-    if err != nil {
-      log.Errorf("redis Strings error: %v", err)
       return false, err
     }
 
@@ -56,6 +50,22 @@ func SendNotifications(config *config.Config, mailboxID, messageID int) (bool, e
           log.Errorf("redis PUBLISH command error: %v", err)
           continue
         }
+        //cleanup
+        cutoff := time.Now().UTC().UnixNano() - 16000
+        score, err := redis.Int64(redisCon.Do("ZSCORE", config.Redis.Namespace + "/clients", clientId))
+        if err != nil {
+          log.Errorf("redis ZSCORE command error: %v", err)
+          continue
+        }
+
+        if score > cutoff {
+          _, err := redisCon.Do("DEL", queue)
+          if err != nil {
+            log.Errorf("redis DEL command error: %v", err)
+            continue
+          }
+        }
+
       }
     }
     // Faye end
