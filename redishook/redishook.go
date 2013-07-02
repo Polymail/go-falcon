@@ -40,6 +40,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int) (bool, e
     if clients != nil {
       for _, clientId := range clients {
         queue := config.Redis.Namespace + "/clients/" + string(clientId) + "/messages"
+
         _, err := redisCon.Do("RPUSH", queue, data)
         if err != nil {
           log.Errorf("redis RPUSH command error: %v", err)
@@ -74,15 +75,14 @@ func SendNotifications(config *config.Config, mailboxID, messageID int) (bool, e
 
   if config.Redis.Sidekiq_Queue != "" && config.Redis.Sidekiq_Class != "" {
     // Sidekiq begin
-    _, err = redisCon.Do("SADD", config.Redis.Namespace + ":queues", config.Redis.Sidekiq_Queue)
-    if err != nil {
-      log.Errorf("redis SADD command error: %v", err)
-      return false, err
-    }
     data = "{\"retry\":true,\"queue\":\"" + config.Redis.Sidekiq_Queue + "\",\"class\":\"" + config.Redis.Sidekiq_Class + "\",\"args\":[" + messageStr + "],\"jid\":\"" + utils.GenerateRandString(20) + "\",\"enqueued_at\":" + strconv.FormatInt(time.Now().UTC().Unix(), 10) + "}"
-    _, err = redisCon.Do("LPUSH", config.Redis.Namespace + ":queue:" + config.Redis.Sidekiq_Queue, data)
+
+    redisCon.Send("MULTI")
+    redisCon.Send("SADD", config.Redis.Namespace + ":queues", config.Redis.Sidekiq_Queue)
+    redisCon.Send("LPUSH", config.Redis.Namespace + ":queue:" + config.Redis.Sidekiq_Queue, data)
+    _, err = redisCon.Do("EXEC")
     if err != nil {
-      log.Errorf("redis LPUSH command error: %v", err)
+      log.Errorf("redis sidekiq command error: %v", err)
       return false, err
     }
     // Sidekiq end
