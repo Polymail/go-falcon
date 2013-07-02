@@ -25,7 +25,7 @@ func randInt(min int , max int) int {
     return min + rand.Intn(max-min)
 }
 
-func generateRandString(l int) string {
+func GenerateRandString(l int) string {
   rand.Seed(time.Now().UTC().UnixNano())
   return randomString(l)
 }

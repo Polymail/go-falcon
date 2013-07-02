@@ -78,6 +78,8 @@ type Config struct {
     Namespace     string
     Hook_Username string
     Hook_Password string
+    Sidekiq_Queue string
+    Sidekiq_Class string
   }
   Web_Hooks struct {
     Enabled       bool
