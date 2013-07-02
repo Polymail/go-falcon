@@ -51,7 +51,7 @@ Net::SMTP.start('falcon.rw.rw',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
 =end
-=begin
+#=begin
 10000.times do
   Net::SMTP.start('falcon.rw.rw',
                   2525,
@@ -61,8 +61,8 @@ end
                                 ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
   end
 end
-=end
-
+#=end
+=begin
 6.times do
   Net::SMTP.start('localhost',
                   2525,
@@ -72,3 +72,4 @@ end
                                 ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
   end
 end
+=end
