@@ -6,6 +6,7 @@ import (
   "encoding/json"
   "strings"
   "testing"
+  "math/rand"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
@@ -940,6 +941,21 @@ func TestGoodMailParser(t *testing.T) {
       if len(mail.Attachments) > 0 {
         expectEq(t, mail.Attachments[0].Filename, email.Attachments[0].AttachmentFileName, "Value of attachment name")
       }
+    }
+  }
+}
+
+func BenchmarkMailParser(b *testing.B) {
+  // logger
+  log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
+  for i := 0; i < b.N; i++ {
+    mail := goodMailTypeTests[rand.Intn(len(goodMailTypeTests))]
+    testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
+    // parse email
+    envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
+    email, err := ParseMail(envelop)
+    if email == nil || err != nil {
+      log.Errorf("Error in parsing email: %v", err)
     }
   }
 }
