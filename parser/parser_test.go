@@ -1003,7 +1003,66 @@ nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,naz
 nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,GIUSEPPE,LOCATELLI,info@gielleelettrica.it,GIELLE ELETTRICA S.R.L.,03130400165,24060,Bergamo,Chiuduno,"VIA A. FANTONI, 22",035838995,Italy,0354496941,false,INSTALLER
 nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,CRIVAN,"",ivancri@crivan.191.it,CRIVAN di Crippa Ivan,02437640960,20040,Monza Brianza,Cornate d'Adda,via Fornace,3386273773,Italy,"","",INSTALLER
 nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria.`,
-  "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", "", []goodMailAttachments{}},
+  "Bft Oauth development - Export Utenti", "webmaster@bft.it", "", "mybft@bft.it", "", "",
+  `<html>
+<head>
+  <style type="text/css" media="screen">
+  a { color: #0077CC; }
+  p {
+    font-family: Verdana, Arial, Helvetica, Sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    color: #333333;
+    text-align: left;
+  }
+  #header {
+    width: 1000px;
+  }
+  #footer {
+    width: 1000px;
+    padding-top: 100px;
+  }
+  </style>
+</head>
+
+<body bgcolor="#FFFFFF" style="margin:0px; padding:0px">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="1000" align="center">
+        <div id="header">
+          <img alt="Bft-logo-email" src="http://bft-oauth.dev/assets/bft-logo-email.png" style="margin-left: 20px;" />
+        </div>
+      </td>
+    </tr>
+  </table>
+  <table align="center" width="540" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="540">
+      <p style="margin-top:36px"><strong>Nuovo Export Utenti</strong></p>
+
+      <p>
+        In Allegato Export Utenti Bft Oauth<br>
+      </p>
+
+      <p style="margin-top:40px">Grazie <br/>
+        Lo Staff Bft
+      </p>
+
+      <p style="padding-top:22px"></p>
+    </td>
+  </tr>
+</table>
+  <table align="center" width="1000" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="1000" align="center">
+        <img alt="Footer-email" src="http://bft-oauth.dev/assets/footer-email.jpg" />
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>
+`, []goodMailAttachments{}},
 }
 // bad mails
 
