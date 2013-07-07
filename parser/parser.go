@@ -190,6 +190,7 @@ func (email *ParsedEmail) parseMimeEmail(pbody []byte, boundary string) {
     }
     if err != nil {
       log.Errorf("Mime Part error: %v", err)
+      break
     } else {
       email.parseEmailPart(p)
     }
