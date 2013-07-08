@@ -131,7 +131,7 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
           attachmentContentID = contentId.Address
         }
       }
-      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
+      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
       email.Attachments = append(email.Attachments, attachment)
     default:
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)
@@ -140,9 +140,9 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   } else {
     switch strings.ToLower(contentTypeVal) {
     case "text/html":
-      email.HtmlPart = FixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+      email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
     case "text/plain":
-      email.TextPart = FixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+      email.TextPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
     default:
       if strings.HasPrefix(strings.ToLower(contentTypeVal), "multipart/") {
         email.parseMimeEmail(pbody, contentTypeParams["boundary"])
