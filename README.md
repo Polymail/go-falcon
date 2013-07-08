@@ -8,6 +8,8 @@ storage of mail messages in a relational database
     go get github.com/bmizerany/pq
     go get code.google.com/p/mahonia
     go get github.com/garyburd/redigo/redis
+    go get github.com/sloonz/go-qprintable
+    go get github.com/sloonz/go-iconv
 
 ## Database SQL
 

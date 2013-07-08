@@ -122,11 +122,10 @@ func(db *DBConn) UpdateVirusesReport(mailboxId int, messageId int, virusesReport
 
 // save attachment
 
-func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attachmentType, contentType, contentId, transferEncoding string, rawData []byte) (int, error) {
+func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attachmentType, contentType, contentId, transferEncoding, strBody string) (int, error) {
   var (
     id int
   )
-  strBody := string(rawData)
   sql := strings.Replace(db.config.Storage.Attachments_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,

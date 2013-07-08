@@ -40,7 +40,7 @@ Subject: SMTP e-mail test
 
 This is a test e-mail message.`,
   "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", "", []goodMailAttachments{}},
-
+/*
   {`Date: Sun, 04 Dec 2011 16:02:50 +0200
 From: APP Error <sosedi@sosedi.ua>
 To: app-support@sosedi.ua
@@ -54,8 +54,9 @@ Content-Transfer-Encoding: quoted-printable
 
 
 =D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=`,
-  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "", "sosedi@sosedi.ua", "APP Error", "\n=D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=", "", []goodMailAttachments{}},
-
+  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "",
+   "sosedi@sosedi.ua", "APP Error", "\nУкажит", "", []goodMailAttachments{}},
+*/
   {`MIME-Version: 1.0
 From: mainstay@sherwoodcompliance.co.uk
 To: stephen.callaghan@greenfinch.ie
@@ -676,7 +677,7 @@ Content-Type: text/plain; charset=ISO-8859-1
 Date: Thu, 22 Dec 2011 03:21:05 +0000
 
 ÿôÿý`,
-  "Hello World", "", "", "", "", "ÿôÿý", "", []goodMailAttachments{}},
+  "Hello World", "", "", "", "", "Ã¿Ã´Ã¿Ã½", "", []goodMailAttachments{}},
 
   {`Mime-Version: 1.0 (Apple Message framework v730)
 Message-Id: <9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>
@@ -693,7 +694,7 @@ A fax has arrived from remote ID ''.=0D=0A-----------------------=
 outing code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=
 age record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A`,
   "testing", "blah@example.com", "", "foo@example.com", "",
-  "A fax has arrived from remote ID ''.=0D=0A-----------------------=\n-------------------------------------=0D=0ATime: 3/9/2006 3:50:52=\n PM=0D=0AReceived from remote ID: =0D=0AInbound user ID XXXXXXXXXX, r=\nouting code XXXXXXXXX=0D=0AResult: (0/352;0/0) Successful Send=0D=0AP=\nage record: 1 - 1=0D=0AElapsed time: 00:58 on channel 11=0D=0A",
+  "A fax has arrived from remote ID ''.\n------------------------------------------------------------\nTime: 3/9/2006 3:50:52 PM\nReceived from remote ID: \nInbound user ID XXXXXXXXXX, routing code XXXXXXXXX\nResult: (0/352;0/0) Successful Send\nPage record: 1 - 1\nElapsed time: 00:58 on channel 11\n",
   "", []goodMailAttachments{}},
 
   {`From jamis@37signals.com Mon May  2 16:07:05 2005
@@ -710,7 +711,7 @@ Date: Mon, 2 May 2005 16:07:05 -0600
 
 tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin
 wLogSmFtaXPA1LTPtNku`,
-  "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "tOu6zrrQwMcguLbC+bChwfa3ziwgv+y4rrTCIMfPs6q01MC7ILnPvcC0z7TZLg0KDQrBpiDAzLin\nwLogSmFtaXPA1LTPtNku", "", []goodMailAttachments{}},
+  "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "대부분의 마찬가지로, 우리는 하나님을 믿습니다.\n\n제 이름은 Jamis입니다.", "", []goodMailAttachments{}},
 
   {`MIME-Version: 1.0
 Subject: =?UTF-8?B?44G+44G/44KA44KB44KC?=
@@ -721,7 +722,8 @@ Content-Transfer-Encoding: base64
 
 44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu
 ZCBMaWZlIGJsb2cuLi4uCg==`,
-  "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "", "44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu\nZCBMaWZlIGJsb2cuLi4uCg==",
+  "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "",
+"かきくえこ\n\n-- \nhttp://lindsaar.net/\nRails, RSpec and Life blog....\n",
   "", []goodMailAttachments{}},
 
   {`Return-Path: <jeff@37signals.com>
@@ -787,6 +789,7 @@ GwB9/g/9S/t/s9g//9k=
   "Eelanalüüsi päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", []goodMailAttachments{
     {"Eelanalüüsi päring.jpg"},
   }},
+
   {`Subject: this message JUST contains an attachment
 From: Ryan Finnie <rfinnie@domain.dom>
 To: bob@domain.dom
@@ -807,6 +810,7 @@ on10Date23Oct20032240490700H4sIAOHBmD8AA4vML1XPyVHISy1LLVJIy8xLUchNVeQCAHbe7
   "this message JUST contains an attachment", "bob@domain.dom", "", "rfinnie@domain.dom", "Ryan Finnie", "", "", []goodMailAttachments{
     {"blah.gz"},
   }},
+
   {`Mime-Version: 1.0 (Apple Message framework v730)
 Content-Type: multipart/mixed; boundary=Apple-Mail-13-196941151
 Message-Id: <9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>
@@ -837,6 +841,7 @@ Hi there.
   "testing", "blah@example.com", "", "foo@example.com", "", "This is the first part.\n", "", []goodMailAttachments{
     {"This is a test.txt"},
   }},
+
   {`From xxxxxxxxx.xxxxxxx@gmail.com Sun May  8 19:07:09 2005
 Return-Path: <xxxxxxxxx.xxxxxxx@gmail.com>
 Message-ID: <e85734b90505081209eaaa17b@mail.gmail.com>
@@ -887,6 +892,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn90dPsYS3LjfMY211OSYrDQLzwNYPlAL
     {""},
     {"01 Quien Te Dijat. Pitbull.mp3"},
   }},
+
   {`Date: Thu, 16 May 2013 10:21:11 +0200
 From: My Bft <mybft@bft.it>
 To: webmaster@bft.it,
@@ -1063,6 +1069,31 @@ nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,naz
 
 </html>
 `, []goodMailAttachments{}},
+
+  {`Message-ID: <1324666081.4ef4cce1a3e1b@dev.immobilier-confiance.fr>
+Date: Fri, 23 Dec 2011 19:48:01 +0100
+Subject: Alerte suite a la recherche
+From: Immobilier Confiance <contact@immobilier-confiance.fr>
+To: f.tete@immobilier-confiance.fr
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Bonjour,
+Suite =C3=A0 la recherche ajout=C3=A9e concernant le contact =
+Test2 TEST<br/>Voici les r=C3=A9ultats : <br/><br/>R=C3=A9sultats qui peuv=
+ent s'accorder aux termes de la recherche :<br/><table><tr><th>R=
+=C3=A9f=C3=A9rence</th><th>Type de Bien</th><th>Prix Fai</th><th>N=C3=A9goc=
+iateur</th></tr><tr><td>REF901</td><td>ferme</td><td>490000</td><td>oliv=
+ier Dal</td></tr><tr><td>REF905</td><td>maison</td><td>269000</td><td>fr=
+=C3=A9d=C3=A9ric Ducrot</td></tr><tr><td>REF909</td><td>maison</td><td>234=
+000</td><td>olivier Dal</td></tr><tr><td>REF915</td><td>loft</td><td>115=
+000</td><td>fr=C3=A9d=C3=A9ric Ducrot</td></tr><tr><td>REF9152</td><td>lof=
+t</td><td>125000</td><td>fr=C3=A9d=C3=A9ric Ducrot</td></tr><tr><td>REF927=
+</td><td>maison</td><td>179000</td><td>olivier Dal</td></tr></table>`,
+  "Alerte suite a la recherche", "f.tete@immobilier-confiance.fr", "", "contact@immobilier-confiance.fr", "Immobilier Confiance", "",
+  "Bonjour,\nSuite à la recherche ajoutée concernant le contact Test2 TEST\u003cbr/\u003eVoici les réultats : \u003cbr/\u003e\u003cbr/\u003eRésultats qui peuvent s'accorder aux termes de la recherche :\u003cbr/\u003e\u003ctable\u003e\u003ctr\u003e\u003cth\u003eRéférence\u003c/th\u003e\u003cth\u003eType de Bien\u003c/th\u003e\u003cth\u003ePrix Fai\u003c/th\u003e\u003cth\u003eNégociateur\u003c/th\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF901\u003c/td\u003e\u003ctd\u003eferme\u003c/td\u003e\u003ctd\u003e490000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF905\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e269000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF909\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e234000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF915\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e115000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF9152\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e125000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF927\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e179000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
+  []goodMailAttachments{}},
 }
 // bad mails
 
@@ -1108,7 +1139,11 @@ func TestGoodMailParser(t *testing.T) {
       expectEq(t, mail.To, email.To.Address, "Value of to email")
       expectEq(t, mail.ToName, email.To.Name, "Value of to email name")
       expectEq(t, mail.From, email.From.Address, "Value of from email")
-      expectEq(t, strings.Replace(mail.Text, "\n", "\r\n", -1), email.TextPart, "Value of text")
+      if mail.Text == email.TextPart {
+        expectEq(t, mail.Text, email.TextPart, "Value of text")
+      } else {
+        expectEq(t, strings.Replace(mail.Text, "\n", "\r\n", -1), email.TextPart, "Value of text")
+      }
       expectEq(t, strings.Replace(mail.Html, "\n", "\r\n", -1), email.HtmlPart, "Value of html")
       if len(mail.Attachments) != len(email.Attachments) {
         t.Errorf("Unexpected value for Count of attachments; got %d but expected: %d",
