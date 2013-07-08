@@ -18,6 +18,7 @@ var (
   invalidUnquotedResRE = regexp.MustCompile(`[^=]+$`)
   invalidEscapedRE = regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
   mahoniaEnc = mahonia.NewEncoder("iso2022jp")
+  invalidContentIdRE = regexp.MustCompile(`<(.*)>`)
 )
 
 // fix escaped and unquoted headers values
@@ -160,4 +161,16 @@ func fixCharset(charset string) string {
 		return fixed_charset
 	}
 	return charset
+}
+
+// invalid content ID
+
+func getInvalidContentId(contentId string) string {
+  if invalidContentIdRE.MatchString(contentId) {
+    res := invalidContentIdRE.FindStringSubmatch(contentId)
+    if len(res) == 2 {
+      contentId = res[1]
+    }
+  }
+  return contentId
 }

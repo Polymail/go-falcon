@@ -129,6 +129,8 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
         contentId, err := mail.ParseAddress(attachmentContentID)
         if err == nil {
           attachmentContentID = contentId.Address
+        } else {
+          attachmentContentID = getInvalidContentId(attachmentContentID)
         }
       }
       attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
