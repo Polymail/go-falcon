@@ -11,6 +11,9 @@ import (
   "strconv"
   "regexp"
   "code.google.com/p/mahonia"
+  "github.com/sloonz/go-iconv"
+  "github.com/sloonz/go-qprintable"
+  "github.com/le0pard/go-falcon/utils"
 )
 
 var (
@@ -172,72 +175,62 @@ func isVchar(c byte) bool {
 }
 
 
+// fix email body
 
-
-
-
-
-/*
-
-// decode from 7bit to 8bit UTF-8
-func mailTransportDecode(pbody string, encodingType string, charset string) string {
-  if charset == "" {
-    charset = "UTF-8"
+func FixEmailBody(data, contentEncoding, contentCharset string) string {
+  // encoding
+  if contentEncoding == "quoted-printable" {
+    data = fromQuotedP(data)
+  } else if contentEncoding == "base64" {
+    data = utils.DecodeBase64(data)
+  }
+  // charset
+  if contentCharset == "" {
+    contentCharset = "UTF-8"
   } else {
-    charset = strings.ToUpper(charset)
+    contentCharset = strings.ToUpper(contentCharset)
   }
-  if strings.ToLower(encodingType) == "base64" {
-    pbody = decodeFromBase64(pbody)
-  } else if encodingType == "quoted-printable" {
-    pbody = fromQuotedP(pbody)
-  }
-  if charset != "UTF-8" {
-    charset = decodeFixCharset(charset)
-    cd, err := iconv.Open(charset, "UTF-8")
-    if err != nil {
-      return pbody
+  if contentCharset != "UTF-8" {
+	  // eg. charset can be "ISO-2022-JP"
+    convstr, err := iconv.Conv(data, "UTF-8", fixCharset(contentCharset))
+    if err == nil {
+      return convstr
     }
-    defer cd.Close()
-    return cd.ConvString(pbody)
   }
-  return pbody
+  // result
+  return data
 }
+
+// quoted-printable
 
 func fromQuotedP(data string) string {
-  buf := bytes.NewBufferString(data)
-  decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
-  res, _ := ioutil.ReadAll(decoder)
-  return string(res)
+	buf := bytes.NewBufferString(data)
+	decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
+	res, _ := ioutil.ReadAll(decoder)
+	return string(res)
 }
 
-func decodeFromBase64(data string) string {
-  buf := bytes.NewBufferString(data)
-  decoder := base64.NewDecoder(base64.StdEncoding, buf)
-  res, _ := ioutil.ReadAll(decoder)
-  return string(res)
-}
+// fix charset
 
-func decodeFixCharset(charset string) string {
-  reg, _ := regexp.Compile(`[_:.\/\\]`)
-  fixedCharset := reg.ReplaceAllString(charset, "-")
-  // Fix charset
-  // borrowed from http://squirrelmail.svn.sourceforge.net/viewvc/squirrelmail/trunk/squirrelmail/include/languages.php?revision=13765&view=markup
-  // OE ks_c_5601_1987 > cp949
-  fixedCharset = strings.Replace(fixedCharset, "ks-c-5601-1987", "cp949", -1)
-  // Moz x-euc-tw > euc-tw
-  fixedCharset = strings.Replace(fixedCharset, "x-euc", "euc", -1)
-  // Moz x-windows-949 > cp949
-  fixedCharset = strings.Replace(fixedCharset, "x-windows_", "cp", -1)
-  // windows-125x and cp125x charsets
-  fixedCharset = strings.Replace(fixedCharset, "windows-", "cp", -1)
-  // ibm > cp
-  fixedCharset = strings.Replace(fixedCharset, "ibm", "cp", -1)
-  // iso-8859-8-i -> iso-8859-8
-  fixedCharset = strings.Replace(fixedCharset, "iso-8859-8-i", "iso-8859-8", -1)
-  if charset != fixedCharset {
-    return fixedCharset
-  }
-  return charset
+func fixCharset(charset string) string {
+	reg, _ := regexp.Compile(`[_:.\/\\]`)
+	fixed_charset := reg.ReplaceAllString(charset, "-")
+	// Fix charset
+	// borrowed from http://squirrelmail.svn.sourceforge.net/viewvc/squirrelmail/trunk/squirrelmail/include/languages.php?revision=13765&view=markup
+	// OE ks_c_5601_1987 > cp949
+	fixed_charset = strings.Replace(fixed_charset, "ks-c-5601-1987", "cp949", -1)
+	// Moz x-euc-tw > euc-tw
+	fixed_charset = strings.Replace(fixed_charset, "x-euc", "euc", -1)
+	// Moz x-windows-949 > cp949
+	fixed_charset = strings.Replace(fixed_charset, "x-windows_", "cp", -1)
+	// windows-125x and cp125x charsets
+	fixed_charset = strings.Replace(fixed_charset, "windows-", "cp", -1)
+	// ibm > cp
+	fixed_charset = strings.Replace(fixed_charset, "ibm", "cp", -1)
+	// iso-8859-8-i -> iso-8859-8
+	fixed_charset = strings.Replace(fixed_charset, "iso-8859-8-i", "iso-8859-8", -1)
+	if charset != fixed_charset {
+		return fixed_charset
+	}
+	return charset
 }
-
-*/

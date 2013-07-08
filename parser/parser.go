@@ -10,11 +10,7 @@ import (
   "io/ioutil"
   "strings"
   "time"
-  "regexp"
-  "github.com/sloonz/go-iconv"
-  "github.com/sloonz/go-qprintable"
   "github.com/le0pard/go-falcon/log"
-  "github.com/le0pard/go-falcon/utils"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
@@ -135,7 +131,7 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
           attachmentContentID = contentId.Address
         }
       }
-      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: fixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
+      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
       email.Attachments = append(email.Attachments, attachment)
     default:
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)
@@ -144,9 +140,9 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   } else {
     switch strings.ToLower(contentTypeVal) {
     case "text/html":
-      email.HtmlPart = fixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+      email.HtmlPart = FixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
     case "text/plain":
-      email.TextPart = fixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+      email.TextPart = FixEmailBody(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
     default:
       if strings.HasPrefix(strings.ToLower(contentTypeVal), "multipart/") {
         email.parseMimeEmail(pbody, contentTypeParams["boundary"])
@@ -240,64 +236,4 @@ func ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
   email.parseEmailHeaders(msg)
   email.parseEmailBody(msg, mailBody)
   return email, nil
-}
-
-// fix email body
-
-func fixEmailBody(data, contentEncoding, contentCharset string) string {
-  // encoding
-  if contentEncoding == "quoted-printable" {
-    data = fromQuotedP(data)
-  } else if contentEncoding == "base64" {
-    data = utils.DecodeBase64(data)
-  }
-  // charset
-  if contentCharset == "" {
-    contentCharset = "UTF-8"
-  } else {
-    contentCharset = strings.ToUpper(contentCharset)
-  }
-  if contentCharset != "UTF-8" {
-	  // eg. charset can be "ISO-2022-JP"
-    convstr, err := iconv.Conv(data, "UTF-8", fixCharset(contentCharset))
-    if err == nil {
-      return convstr
-    }
-  }
-  // result
-  return data
-}
-
-// quoted-printable
-
-func fromQuotedP(data string) string {
-	buf := bytes.NewBufferString(data)
-	decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
-	res, _ := ioutil.ReadAll(decoder)
-	return string(res)
-}
-
-// fix charset
-
-func fixCharset(charset string) string {
-	reg, _ := regexp.Compile(`[_:.\/\\]`)
-	fixed_charset := reg.ReplaceAllString(charset, "-")
-	// Fix charset
-	// borrowed from http://squirrelmail.svn.sourceforge.net/viewvc/squirrelmail/trunk/squirrelmail/include/languages.php?revision=13765&view=markup
-	// OE ks_c_5601_1987 > cp949
-	fixed_charset = strings.Replace(fixed_charset, "ks-c-5601-1987", "cp949", -1)
-	// Moz x-euc-tw > euc-tw
-	fixed_charset = strings.Replace(fixed_charset, "x-euc", "euc", -1)
-	// Moz x-windows-949 > cp949
-	fixed_charset = strings.Replace(fixed_charset, "x-windows_", "cp", -1)
-	// windows-125x and cp125x charsets
-	fixed_charset = strings.Replace(fixed_charset, "windows-", "cp", -1)
-	// ibm > cp
-	fixed_charset = strings.Replace(fixed_charset, "ibm", "cp", -1)
-	// iso-8859-8-i -> iso-8859-8
-	fixed_charset = strings.Replace(fixed_charset, "iso-8859-8-i", "iso-8859-8", -1)
-	if charset != fixed_charset {
-		return fixed_charset
-	}
-	return charset
 }
