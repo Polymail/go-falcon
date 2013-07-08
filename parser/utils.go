@@ -165,7 +165,7 @@ func isQtext(c byte) bool {
   if c == '\\' || c == '"' {
     return false
   }
-  return '!' <= c && c <= '~'
+  return isVchar(c)
 }
 
 // isVchar returns true if c is an RFC 5322 VCHAR character.
