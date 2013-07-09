@@ -142,7 +142,7 @@ func fromQuotedP(data string) string {
 
 func fixCharset(charset string) string {
 	reg, _ := regexp.Compile(`[_:.\/\\]`)
-	fixed_charset := reg.ReplaceAllString(charset, "-")
+	fixed_charset := reg.ReplaceAllString(strings.ToLower(charset), "-")
 	// Fix charset
 	// borrowed from http://squirrelmail.svn.sourceforge.net/viewvc/squirrelmail/trunk/squirrelmail/include/languages.php?revision=13765&view=markup
 	// OE ks_c_5601_1987 > cp949
@@ -157,6 +157,8 @@ func fixCharset(charset string) string {
 	fixed_charset = strings.Replace(fixed_charset, "ibm", "cp", -1)
 	// iso-8859-8-i -> iso-8859-8
 	fixed_charset = strings.Replace(fixed_charset, "iso-8859-8-i", "iso-8859-8", -1)
+  // fix
+  fixed_charset = strings.ToUpper(fixed_charset)
 	if charset != fixed_charset {
 		return fixed_charset
 	}
