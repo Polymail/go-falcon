@@ -1094,6 +1094,86 @@ t</td><td>125000</td><td>fr=C3=A9d=C3=A9ric Ducrot</td></tr><tr><td>REF927=
   "Alerte suite a la recherche", "f.tete@immobilier-confiance.fr", "", "contact@immobilier-confiance.fr", "Immobilier Confiance", "",
   "Bonjour,\nSuite à la recherche ajoutée concernant le contact Test2 TEST\u003cbr/\u003eVoici les réultats : \u003cbr/\u003e\u003cbr/\u003eRésultats qui peuvent s'accorder aux termes de la recherche :\u003cbr/\u003e\u003ctable\u003e\u003ctr\u003e\u003cth\u003eRéférence\u003c/th\u003e\u003cth\u003eType de Bien\u003c/th\u003e\u003cth\u003ePrix Fai\u003c/th\u003e\u003cth\u003eNégociateur\u003c/th\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF901\u003c/td\u003e\u003ctd\u003eferme\u003c/td\u003e\u003ctd\u003e490000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF905\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e269000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF909\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e234000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF915\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e115000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF9152\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e125000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF927\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e179000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
   []goodMailAttachments{}},
+
+
+  {`Return-Path: <email_test@me.nowhere>
+Received: from omta05sl.mx.bigpond.com by me.nowhere.else with ESMTP id 632BD5758 for <mikel@me.nowhere.else>; Sun, 21 Oct 2007 19:38:21 +1000
+Received: from oaamta05sl.mx.bigpond.com by omta05sl.mx.bigpond.com with ESMTP id <20071021093820.HSPC16667.omta05sl.mx.bigpond.com@oaamta05sl.mx.bigpond.com> for <mikel@me.nowhere.else>; Sun, 21 Oct 2007 19:38:20 +1000
+Received: from mikel091a by oaamta05sl.mx.bigpond.com with SMTP id <20071021093820.JFMT24025.oaamta05sl.mx.bigpond.com@mikel091a> for <mikel@me.nowhere.else>; Sun, 21 Oct 2007 19:38:20 +1000
+Date: Sun, 21 Oct 2007 19:38:13 +1000
+From: Mikel Lindsaar <email_test@me.nowhere>
+Reply-To: Mikel Lindsaar <email_test@me.nowhere>
+To: mikel@me.nowhere
+Message-Id: <009601c813c6$19df3510$0437d30a@mikel091a>
+Subject: Testing outlook
+Mime-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_NextPart_000_0093_01C81419.EB75E850"
+X-Get_mail_default: mikel@me.nowhere.else
+X-Priority: 3
+X-Original-To: mikel@me.nowhere
+X-Mailer: Microsoft Outlook Express 6.00.2900.3138
+Delivered-To: mikel@me.nowhere
+X-Mimeole: Produced By Microsoft MimeOLE V6.00.2900.3138
+X-Msmail-Priority: Normal
+
+This is a multi-part message in MIME format.
+
+
+------=_NextPart_000_0093_01C81419.EB75E850
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: Quoted-printable
+
+Hello
+This is an outlook test
+
+So there.
+
+Me.
+
+------=_NextPart_000_0093_01C81419.EB75E850
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: Quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.6000.16525" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Hello</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><STRONG>This is an outlook=20
+test</STRONG></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><STRONG></STRONG></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><STRONG>So there.</STRONG></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Me.</FONT></DIV></BODY></HTML>
+
+
+------=_NextPart_000_0093_01C81419.EB75E850--`,
+  "Testing outlook", "mikel@me.nowhere", "", "email_test@me.nowhere", "", "Hello\nThis is an outlook test\n\nSo there.\n\nMe.\n",
+  "\u003c!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\u003e\n\u003cHTML\u003e\u003cHEAD\u003e\n\u003cMETA http-equiv=3DContent-Type content=3D\"text/html; =\ncharset=3Diso-8859-1\"\u003e\n\u003cMETA content=3D\"MSHTML 6.00.6000.16525\" name=3DGENERATOR\u003e\n\u003cSTYLE\u003e\u003c/STYLE\u003e\n\u003c/HEAD\u003e\n\u003cBODY bgColor=3D#ffffff\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003eHello\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003eThis is an outlook=20\ntest\u003c/STRONG\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003e\u003c/STRONG\u003e\u003c/FONT\u003e&nbsp;\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003eSo there.\u003c/STRONG\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003c/FONT\u003e&nbsp;\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003eMe.\u003c/FONT\u003e\u003c/DIV\u003e\u003c/BODY\u003e\u003c/HTML\u003e\n\n",
+  []goodMailAttachments{}},
+
+  {`From test@example.com  Mon Aug 22 09:45:15 2011
+Date: Fri, 19 Aug 2011 10:47:17 +0900
+From: Atsushi Yoshida <atsushi@example.com>
+Reply-To: rudeboyjet@gmail.com
+Subject: Re: TEST
+ 
+ =?ISO-2022-JP?B?GyRCJUYlOSVIGyhC?=
+ =?ISO-2022-JP?B?GyRCJUYlOSVIGyhCJUYlOSVIGyhC?=
+To: rudeboyjet@gmail.com
+Message-Id: <0CC5E11ED2C1D@example.com>
+In-Reply-To: <rid_5582199198@msgid.example.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+
+Hello`,
+  "Re: TEST  テスト テスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "", "Hello", "", []goodMailAttachments{}},
+
 }
 // bad mails
 
