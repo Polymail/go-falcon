@@ -105,13 +105,13 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
   }
   // charset
   if contentCharset == "" {
-    contentCharset = "UTF-8"
+    contentCharset = "utf-8"
   } else {
-    contentCharset = strings.ToUpper(contentCharset)
+    contentCharset = strings.ToLower(contentCharset)
   }
-  if contentCharset != "UTF-8" {
+  if contentCharset != "utf-8" {
     switch contentCharset {
-    case "ISO-8859-1":
+    case "iso-8859-1":
       b := new(bytes.Buffer)
       for _, c := range []byte(data) {
         b.WriteRune(rune(c))
@@ -119,7 +119,7 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
       return b.String()
     default:
       // eg. charset can be "ISO-2022-JP"
-      convstr, err := iconv.Conv(data, "UTF-8", fixCharset(contentCharset))
+      convstr, err := iconv.Conv(data, "UTF-8", strings.ToUpper(fixCharset(contentCharset)))
       if err == nil {
         return convstr
       }
@@ -142,7 +142,7 @@ func fromQuotedP(data string) string {
 
 func fixCharset(charset string) string {
 	reg, _ := regexp.Compile(`[_:.\/\\]`)
-	fixed_charset := reg.ReplaceAllString(strings.ToLower(charset), "-")
+	fixed_charset := reg.ReplaceAllString(charset, "-")
 	// Fix charset
 	// borrowed from http://squirrelmail.svn.sourceforge.net/viewvc/squirrelmail/trunk/squirrelmail/include/languages.php?revision=13765&view=markup
 	// OE ks_c_5601_1987 > cp949
@@ -157,8 +157,6 @@ func fixCharset(charset string) string {
 	fixed_charset = strings.Replace(fixed_charset, "ibm", "cp", -1)
 	// iso-8859-8-i -> iso-8859-8
 	fixed_charset = strings.Replace(fixed_charset, "iso-8859-8-i", "iso-8859-8", -1)
-  // fix
-  fixed_charset = strings.ToUpper(fixed_charset)
 	if charset != fixed_charset {
 		return fixed_charset
 	}
