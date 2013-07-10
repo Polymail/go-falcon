@@ -49,12 +49,7 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
   var err error
 
   email.Headers = msg.Header
-  subject, err := MimeHeaderDecode(email.Headers.Get("Subject"))
-  if err != nil {
-    email.Subject = email.Headers.Get("Subject")
-  } else {
-    email.Subject = subject
-  }
+  email.Subject = MimeHeaderDecode(email.Headers.Get("Subject"))
   email.Date, err = msg.Header.Date()
   if err != nil {
     email.Date = time.Now()
@@ -120,10 +115,8 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       if filename == "" {
         filename = contentTypeParams["filename"]
       }
-      decodedFilename, err := MimeHeaderDecode(filename)
-      if err == nil {
-        filename = decodedFilename
-      }
+      filename = MimeHeaderDecode(filename)
+
       attachmentContentID := headers.Get("Content-ID")
       if attachmentContentID != "" {
         contentId, err := mail.ParseAddress(attachmentContentID)

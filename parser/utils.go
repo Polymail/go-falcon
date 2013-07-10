@@ -5,7 +5,6 @@ import (
   "net/url"
   "io/ioutil"
   "strings"
-  "errors"
   "regexp"
   "code.google.com/p/mahonia"
   "github.com/sloonz/go-iconv"
@@ -57,42 +56,24 @@ func fixInvalidEscapedAttachmentName(str string) string {
 
 // encode Mime
 
-func MimeHeaderDecode(str string) (string, error) {
-  var (
-    words []string
-    err error
-  )
-  arrayStr := strings.Split(str, " ")
-  for _, word := range arrayStr {
-    if strings.HasPrefix(word, "=?") && strings.HasSuffix(word, "?=") && strings.Count(word, "?") == 4 {
-      word, err = decodeRFC2047Word(word)
-    }
-    if err == nil {
-      words = append(words, word)
+func MimeHeaderDecode(str string) string {
+  reg := regexp.MustCompile(`=\?(.+?)\?([QBqp])\?(.+?)\?=`)
+  matched := reg.FindAllStringSubmatch(str, -1)
+  if matched != nil {
+    for _, word := range matched {
+      if len(word) > 2 {
+        switch strings.ToUpper(word[2]) {
+          case "B":
+            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1]), 1)
+          case "Q":
+            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "quoted-printable", word[1]), 1)
+        }
+      }
     }
   }
-  phrase := strings.Join(words, " ")
-  return phrase, nil
+  return str
 }
 
-
-func decodeRFC2047Word(s string) (string, error) {
-  fields := strings.Split(s, "?")
-  if len(fields) != 5 || fields[0] != "=" || fields[4] != "=" {
-    return "", errors.New("header not RFC 2047 encoded")
-  }
-  charset, enc := strings.ToLower(fields[1]), strings.ToLower(fields[2])
-
-  contentEncoding := ""
-  switch enc {
-  case "b":
-    contentEncoding = "base64"
-  case "q":
-    contentEncoding = "quoted-printable"
-  }
-
-  return FixEncodingAndCharsetOfPart(fields[3], contentEncoding, charset), nil
-}
 
 // fix email body
 
@@ -132,35 +113,35 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
 // quoted-printable
 
 func fromQuotedP(data string) string {
-	buf := bytes.NewBufferString(data)
-	decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
-	res, _ := ioutil.ReadAll(decoder)
-	return string(res)
+  buf := bytes.NewBufferString(data)
+  decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
+  res, _ := ioutil.ReadAll(decoder)
+  return string(res)
 }
 
 // fix charset
 
 func fixCharset(charset string) string {
-	reg, _ := regexp.Compile(`[_:.\/\\]`)
-	fixed_charset := reg.ReplaceAllString(charset, "-")
-	// Fix charset
-	// borrowed from http://squirrelmail.svn.sourceforge.net/viewvc/squirrelmail/trunk/squirrelmail/include/languages.php?revision=13765&view=markup
-	// OE ks_c_5601_1987 > cp949
-	fixed_charset = strings.Replace(fixed_charset, "ks-c-5601-1987", "cp949", -1)
-	// Moz x-euc-tw > euc-tw
-	fixed_charset = strings.Replace(fixed_charset, "x-euc", "euc", -1)
-	// Moz x-windows-949 > cp949
-	fixed_charset = strings.Replace(fixed_charset, "x-windows_", "cp", -1)
-	// windows-125x and cp125x charsets
-	fixed_charset = strings.Replace(fixed_charset, "windows-", "cp", -1)
-	// ibm > cp
-	fixed_charset = strings.Replace(fixed_charset, "ibm", "cp", -1)
-	// iso-8859-8-i -> iso-8859-8
-	fixed_charset = strings.Replace(fixed_charset, "iso-8859-8-i", "iso-8859-8", -1)
-	if charset != fixed_charset {
-		return fixed_charset
-	}
-	return charset
+  reg := regexp.MustCompile(`[_:.\/\\]`)
+  fixed_charset := reg.ReplaceAllString(charset, "-")
+  // Fix charset
+  // borrowed from http://squirrelmail.svn.sourceforge.net/viewvc/squirrelmail/trunk/squirrelmail/include/languages.php?revision=13765&view=markup
+  // OE ks_c_5601_1987 > cp949
+  fixed_charset = strings.Replace(fixed_charset, "ks-c-5601-1987", "cp949", -1)
+  // Moz x-euc-tw > euc-tw
+  fixed_charset = strings.Replace(fixed_charset, "x-euc", "euc", -1)
+  // Moz x-windows-949 > cp949
+  fixed_charset = strings.Replace(fixed_charset, "x-windows_", "cp", -1)
+  // windows-125x and cp125x charsets
+  fixed_charset = strings.Replace(fixed_charset, "windows-", "cp", -1)
+  // ibm > cp
+  fixed_charset = strings.Replace(fixed_charset, "ibm", "cp", -1)
+  // iso-8859-8-i -> iso-8859-8
+  fixed_charset = strings.Replace(fixed_charset, "iso-8859-8-i", "iso-8859-8", -1)
+  if charset != fixed_charset {
+    return fixed_charset
+  }
+  return charset
 }
 
 // invalid content ID

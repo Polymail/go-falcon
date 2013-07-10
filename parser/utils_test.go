@@ -43,11 +43,7 @@ var mimeHeaderTests = []mimeHeaderTest{
 
 func TestMimeHeaderDecode(t *testing.T) {
   for _, header := range mimeHeaderTests {
-    decodedHeader, err := MimeHeaderDecode(header.From)
-    if err != nil {
-      t.Error("Error in parsing header: %v", err)
-    } else {
-      expectEq(t, header.To, decodedHeader, "Value of decoded header")
-    }
+    decodedHeader := MimeHeaderDecode(header.From)
+    expectEq(t, header.To, decodedHeader, "Value of decoded header")
   }
 }
