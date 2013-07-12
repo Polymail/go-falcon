@@ -1285,6 +1285,7 @@ func (s *ParserSuite) TestBadMailParser(c *C) {
     // parse email
     envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
     email, err := ParseMail(envelop)
+    c.Assert(err, NotNil)
     if err == nil {
       c.Errorf("No error in parsing email: %v", email)
     }
