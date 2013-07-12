@@ -155,3 +155,15 @@ func getInvalidContentId(contentId string) string {
   }
   return contentId
 }
+
+// invalid from/to email
+
+func getInvalidFromToHeader(header string) string {
+  if invalidContentIdRE.MatchString(header) {
+    res := invalidContentIdRE.FindStringSubmatch(header)
+    if len(res) == 2 {
+      return res[1]
+    }
+  }
+  return header
+}

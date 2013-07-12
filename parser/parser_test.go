@@ -83,7 +83,7 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
   illness 26 Dec - 26 Dec 2007`,
-  "illness", "", "", "sender@mail.com", "Mr. Sender", "  illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
+  "illness", "Mr. X \"wrongquote@b.com\"", "", "sender@mail.com", "Mr. Sender", "  illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
 
   {`Date: Sun, 31 Jul 2011 14:57:10 +0300
 From: "Mr. Sender" <sender@mail.com>
@@ -1160,7 +1160,7 @@ Hello`,
   "Re: TEST テスト テスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
   {`From: "Doug Sauder" <doug@example.com>
-To: "Atsushi Yoshida" <schmuergen@example.com>
+To: "Jürgen Schmürgen" <schmuergen@example.com>
 Subject: Die Hasen und die Frösche (Microsoft Outlook 00)
 Date: Wed, 17 May 2000 19:11:50 -0400
 Message-ID: <NDBBIAKOPKHFGPLCODIGAEKCCHAA.doug@example.com>
@@ -1188,7 +1188,7 @@ U3ByZWNoZXIsICJ3aXIgd29sbGVuIGRhcyBFcnPkdWZlbiBub2NoIGVpbiB3ZW5pZyBhdWZzY2hp
 ZWJlbiwgZGVubiBhdWNoIHVucyBm/HJjaHRlbiwgd2llIGlociBzZWh0LCBlaW5pZ2UgVGllcmUs
 IHdlbGNoZSBhbHNvIHdvaGwgbm9jaCB1bmds/GNrbGljaGVyIHNlaW4gbfxzc2VuIGFscyB3aXIu
 IiANCg==`,
-  "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "Atsushi Yoshida", "doug@example.com", "Doug Sauder",
+  "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "", "doug@example.com", "Doug Sauder",
   "Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
   "", []goodMailAttachments{}},
 
