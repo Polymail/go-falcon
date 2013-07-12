@@ -2,21 +2,16 @@ package parser
 
 import (
   stdlog "log"
+  . "launchpad.net/gocheck"
   "os"
   "encoding/json"
   "strings"
   "testing"
   "math/rand"
+  "syscall"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
-  . "launchpad.net/gocheck"
 )
-
-// Hook up gocheck into the "go test" runner.
-func Test(t *testing.T) { TestingT(t) }
-
-type ParserSuite struct{}
-var _ = Suite(&ParserSuite{})
 
 // good mails
 
@@ -1209,6 +1204,22 @@ var badMailTypeTests = []badMailTypeTest{
   {"Invalid email body"},
 }
 
+// TESTS
+
+// Hook up gocheck into the "go test" runner.
+func Test(t *testing.T) { TestingT(t) }
+
+type ParserSuite struct{}
+var _ = Suite(&ParserSuite{})
+
+func (s *ParserSuite) SetUpTest(c *C) {
+  // logger
+  //log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
+  log.SetTarget(stdlog.New(os.NewFile(uintptr(syscall.Stdout), os.DevNull), "", stdlog.LstdFlags))
+  // uncomment for debug
+  //log.Debug = true
+}
+
 
 func escapeString(v string) string {
   bytes, _ := json.Marshal(v)
@@ -1224,11 +1235,6 @@ func expectEq(t *testing.T, expected, actual, what string) {
 }
 
 func (s *ParserSuite) TestGoodMailParser(c *C) {
-  // logger
-  log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
-  // uncomment for debug
-  //log.Debug = true
-
   for _, mail := range goodMailTypeTests {
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
     // parse email
@@ -1261,7 +1267,6 @@ func (s *ParserSuite) TestGoodMailParser(c *C) {
 }
 
 func (s *ParserSuite) BenchmarkLogic(c *C) {
-  log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   for i := 0; i < c.N; i++ {
     mail := goodMailTypeTests[rand.Intn(len(goodMailTypeTests))]
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
@@ -1275,11 +1280,6 @@ func (s *ParserSuite) BenchmarkLogic(c *C) {
 }
 
 func (s *ParserSuite) TestBadMailParser(c *C) {
-  // logger
-  log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
-  // uncomment for debug
-  //log.Debug = true
-
   for _, mail := range badMailTypeTests {
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
     // parse email
