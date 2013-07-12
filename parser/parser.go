@@ -100,6 +100,8 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
     log.Errorf("Invalid ContentType: %v", err)
     return
   }
+  contentTypeVal = strings.ToLower(contentTypeVal)
+  // contentDisposition
   if contentDisposition != "" {
     contentDisposition = FixMailEncodedHeader(contentDisposition)
     contentDispositionVal, contentDispositionParams, err := mime.ParseMediaType(contentDisposition)
@@ -107,7 +109,8 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       log.Errorf("Invalid ContentDisposition: %v", err)
       return
     }
-    switch strings.ToLower(contentDispositionVal) {
+    contentDispositionVal = strings.ToLower(contentDispositionVal)
+    switch contentDispositionVal {
     case "attachment", "inline":
       filename := getFilenameOfAttachment(contentTypeParams, contentDispositionParams)
       attachmentContentID := headers.Get("Content-ID")
@@ -126,7 +129,6 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       log.Errorf("Unknown content params: %v", contentDispositionParams)
     }
   } else {
-    contentTypeVal = strings.ToLower(contentTypeVal)
     switch contentTypeVal {
     case "text/html":
       email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
