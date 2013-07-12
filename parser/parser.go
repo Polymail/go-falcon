@@ -109,18 +109,7 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
     }
     switch strings.ToLower(contentDispositionVal) {
     case "attachment", "inline":
-      filename := contentDispositionParams["filename"]
-      if filename == "" {
-        filename = contentTypeParams["name"]
-      }
-      if filename == "" {
-        filename = contentDispositionParams["name"]
-      }
-      if filename == "" {
-        filename = contentTypeParams["filename"]
-      }
-      filename = MimeHeaderDecode(filename)
-
+      filename := getFilenameOfAttachment(contentTypeParams, contentDispositionParams)
       attachmentContentID := headers.Get("Content-ID")
       if attachmentContentID != "" {
         contentId, err := mail.ParseAddress(attachmentContentID)
@@ -137,14 +126,21 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       log.Errorf("Unknown content params: %v", contentDispositionParams)
     }
   } else {
-    switch strings.ToLower(contentTypeVal) {
+    contentTypeVal = strings.ToLower(contentTypeVal)
+    switch contentTypeVal {
     case "text/html":
       email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
     case "text/plain":
       email.TextPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
     default:
-      if strings.HasPrefix(strings.ToLower(contentTypeVal), "multipart/") {
+      // multipart
+      if strings.HasPrefix(contentTypeVal, "multipart/") {
         email.parseMimeEmail(pbody, contentTypeParams["boundary"])
+      // images
+      } else if strings.HasPrefix(contentTypeVal, "image/") {
+        filename := getFilenameOfAttachment(contentTypeParams, nil)
+        attachment := ParsedAttachment{ AttachmentType: contentTypeVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: "" }
+        email.Attachments = append(email.Attachments, attachment)
       } else {
         log.Errorf("Unknown content type: %s", contentTypeVal)
         log.Errorf("Unknown content params: %v", contentTypeParams)
@@ -152,6 +148,26 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       }
     }
   }
+}
+
+// get filename of attachment
+
+func getFilenameOfAttachment(contentTypeParams, contentDispositionParams map[string]string) string {
+  filename := ""
+  if filename == "" {
+    filename = contentTypeParams["filename"]
+  }
+  if filename == "" {
+    filename = contentTypeParams["name"]
+  }
+  if filename == "" {
+    filename = contentDispositionParams["filename"]
+  }
+  if filename == "" {
+    filename = contentDispositionParams["name"]
+  }
+  filename = MimeHeaderDecode(filename)
+  return filename
 }
 
 // parse part of email
