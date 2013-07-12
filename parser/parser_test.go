@@ -8,7 +8,7 @@ import (
   "strings"
   "testing"
   "math/rand"
-  "syscall"
+  //"syscall"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
@@ -1214,8 +1214,8 @@ var _ = Suite(&ParserSuite{})
 
 func (s *ParserSuite) SetUpTest(c *C) {
   // logger
-  //log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
-  log.SetTarget(stdlog.New(os.NewFile(uintptr(syscall.Stdout), os.DevNull), "", stdlog.LstdFlags))
+  log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
+  //log.SetTarget(stdlog.New(os.NewFile(uintptr(syscall.Stdout), os.DevNull), "", stdlog.LstdFlags))
   // uncomment for debug
   //log.Debug = true
 }
@@ -1233,6 +1233,8 @@ func expectEq(t *testing.T, expected, actual, what string) {
   t.Errorf("Unexpected value for %s; got %s (len %d) but expected: %s (len %d)",
     what, escapeString(actual), len(actual), escapeString(expected), len(expected))
 }
+
+// good emails
 
 func (s *ParserSuite) TestGoodMailParser(c *C) {
   for _, mail := range goodMailTypeTests {
@@ -1266,18 +1268,22 @@ func (s *ParserSuite) TestGoodMailParser(c *C) {
   }
 }
 
-func (s *ParserSuite) BenchmarkLogic(c *C) {
+// parser bench
+
+func (s *ParserSuite) BenchmarkParser(c *C) {
   for i := 0; i < c.N; i++ {
     mail := goodMailTypeTests[rand.Intn(len(goodMailTypeTests))]
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
     // parse email
     envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
-    email, err := ParseMail(envelop)
-    if email == nil || err != nil {
+    _, err := ParseMail(envelop)
+    if err != nil {
       c.Errorf("Error in parsing email: %v", err)
     }
   }
 }
+
+// bad emails
 
 func (s *ParserSuite) TestBadMailParser(c *C) {
   for _, mail := range badMailTypeTests {
