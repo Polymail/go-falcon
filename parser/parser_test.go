@@ -1477,7 +1477,9 @@ func (s *ParserSuite) TestGoodMailParser(c *C) {
           len(mail.Attachments), len(email.Attachments))
       }
       if len(mail.Attachments) > 0 {
-        c.Check(email.Attachments[0].AttachmentFileName, Equals, mail.Attachments[0].Filename)
+        for i, attachment := range email.Attachments {
+          c.Check(attachment.AttachmentFileName, Equals, mail.Attachments[i].Filename)
+        }
       }
     }
   }
