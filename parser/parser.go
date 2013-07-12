@@ -156,17 +156,21 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
 
 func getFilenameOfAttachment(contentTypeParams, contentDispositionParams map[string]string) string {
   filename := ""
-  if filename == "" {
-    filename = contentTypeParams["filename"]
+  if contentTypeParams != nil {
+    if filename == "" {
+      filename = contentTypeParams["filename"]
+    }
+    if filename == "" {
+      filename = contentTypeParams["name"]
+    }
   }
-  if filename == "" {
-    filename = contentTypeParams["name"]
-  }
-  if filename == "" {
-    filename = contentDispositionParams["filename"]
-  }
-  if filename == "" {
-    filename = contentDispositionParams["name"]
+  if contentDispositionParams != nil && filename == "" {
+    if filename == "" {
+      filename = contentDispositionParams["filename"]
+    }
+    if filename == "" {
+      filename = contentDispositionParams["name"]
+    }
   }
   filename = MimeHeaderDecode(filename)
   return filename
