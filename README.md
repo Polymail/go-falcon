@@ -10,6 +10,7 @@ storage of mail messages in a relational database
     go get github.com/garyburd/redigo/redis
     go get github.com/sloonz/go-qprintable
     go get github.com/sloonz/go-iconv
+    go get launchpad.net/gocheck
 
 ## Database SQL
 

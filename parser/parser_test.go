@@ -9,7 +9,14 @@ import (
   "math/rand"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
+  . "launchpad.net/gocheck"
 )
+
+// Hook up gocheck into the "go test" runner.
+func Test(t *testing.T) { TestingT(t) }
+
+type ParserSuite struct{}
+var _ = Suite(&ParserSuite{})
 
 // good mails
 
@@ -40,23 +47,7 @@ Subject: SMTP e-mail test
 
 This is a test e-mail message.`,
   "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", "", []goodMailAttachments{}},
-/*
-  {`Date: Sun, 04 Dec 2011 16:02:50 +0200
-From: APP Error <sosedi@sosedi.ua>
-To: app-support@sosedi.ua
-Message-ID: <4edb7d8ae34d4_e7113fedc0834ecc846e@vnazarenko.mail>
-Subject: [Sosedi2 production] cities#show (ActionView::Template::Error)
- "/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-
-=D0=A3=D0=BA=D0=B0=D0=B6=D0=B8=D1=82=D0=`,
-  "[Sosedi2 production] cities#show (ActionView::Template::Error) \"/Users/viktornazarenko/code/sosedi2/app/models/poll.rb:3...", "app-support@sosedi.ua", "",
-   "sosedi@sosedi.ua", "APP Error", "\nУкажит", "", []goodMailAttachments{}},
-*/
   {`MIME-Version: 1.0
 From: mainstay@sherwoodcompliance.co.uk
 To: stephen.callaghan@greenfinch.ie
@@ -97,7 +88,7 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
   illness 26 Dec - 26 Dec 2007`,
-  "illness", "", "", "sender@mail.com", "", "  illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
+  "illness", "", "", "sender@mail.com", "Mr. Sender", "  illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
 
   {`Date: Sun, 31 Jul 2011 14:57:10 +0300
 From: "Mr. Sender" <sender@mail.com>
@@ -722,7 +713,7 @@ Content-Transfer-Encoding: base64
 
 44GL44GN44GP44GI44GTCgotLSAKaHR0cDovL2xpbmRzYWFyLm5ldC8KUmFpbHMsIFJTcGVjIGFu
 ZCBMaWZlIGJsb2cuLi4uCg==`,
-  "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "",
+  "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "Mikel Lindsaar",
 "かきくえこ\n\n-- \nhttp://lindsaar.net/\nRails, RSpec and Life blog....\n",
   "", []goodMailAttachments{}},
 
@@ -1009,7 +1000,7 @@ nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,naz
 nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,GIUSEPPE,LOCATELLI,info@gielleelettrica.it,GIELLE ELETTRICA S.R.L.,03130400165,24060,Bergamo,Chiuduno,"VIA A. FANTONI, 22",035838995,Italy,0354496941,false,INSTALLER
 nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,CRIVAN,"",ivancri@crivan.191.it,CRIVAN di Crippa Ivan,02437640960,20040,Monza Brianza,Cornate d'Adda,via Fornace,3386273773,Italy,"","",INSTALLER
 nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria.`,
-  "Bft Oauth development - Export Utenti", "webmaster@bft.it", "", "mybft@bft.it", "", "",
+  "Bft Oauth development - Export Utenti", "webmaster@bft.it", "", "mybft@bft.it", "My Bft", "",
   `<html>
 <head>
   <style type="text/css" media="screen">
@@ -1152,7 +1143,7 @@ test</STRONG></FONT></DIV>
 
 
 ------=_NextPart_000_0093_01C81419.EB75E850--`,
-  "Testing outlook", "mikel@me.nowhere", "", "email_test@me.nowhere", "", "Hello\nThis is an outlook test\n\nSo there.\n\nMe.\n",
+  "Testing outlook", "mikel@me.nowhere", "", "email_test@me.nowhere", "Mikel Lindsaar", "Hello\nThis is an outlook test\n\nSo there.\n\nMe.\n",
   "\u003c!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\u003e\n\u003cHTML\u003e\u003cHEAD\u003e\n\u003cMETA http-equiv=3DContent-Type content=3D\"text/html; =\ncharset=3Diso-8859-1\"\u003e\n\u003cMETA content=3D\"MSHTML 6.00.6000.16525\" name=3DGENERATOR\u003e\n\u003cSTYLE\u003e\u003c/STYLE\u003e\n\u003c/HEAD\u003e\n\u003cBODY bgColor=3D#ffffff\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003eHello\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003eThis is an outlook=20\ntest\u003c/STRONG\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003e\u003c/STRONG\u003e\u003c/FONT\u003e&nbsp;\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003eSo there.\u003c/STRONG\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003c/FONT\u003e&nbsp;\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003eMe.\u003c/FONT\u003e\u003c/DIV\u003e\u003c/BODY\u003e\u003c/HTML\u003e\n\n",
   []goodMailAttachments{}},
 
@@ -1161,9 +1152,8 @@ Date: Fri, 19 Aug 2011 10:47:17 +0900
 From: Atsushi Yoshida <atsushi@example.com>
 Reply-To: rudeboyjet@gmail.com
 Subject: Re: TEST
- 
- =?ISO-2022-JP?B?GyRCJUYlOSVIGyhC?=
- =?ISO-2022-JP?B?GyRCJUYlOSVIGyhCJUYlOSVIGyhC?=
+   =?ISO-2022-JP?B?GyRCJUYlOSVIGyhC?=
+   =?ISO-2022-JP?B?GyRCJUYlOSVIGyhCJUYlOSVIGyhC?=
 To: rudeboyjet@gmail.com
 Message-Id: <0CC5E11ED2C1D@example.com>
 In-Reply-To: <rid_5582199198@msgid.example.com>
@@ -1172,7 +1162,40 @@ Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 
 Hello`,
-  "Re: TEST  テスト テスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "", "Hello", "", []goodMailAttachments{}},
+  "Re: TEST テスト テスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
+
+  {`From: "Doug Sauder" <doug@example.com>
+To: "Atsushi Yoshida" <schmuergen@example.com>
+Subject: Die Hasen und die Frösche (Microsoft Outlook 00)
+Date: Wed, 17 May 2000 19:11:50 -0400
+Message-ID: <NDBBIAKOPKHFGPLCODIGAEKCCHAA.doug@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: base64
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+
+RGllIEhhc2VuIHVuZCBkaWUgRnL2c2NoZQ0KDQpEaWUgSGFzZW4ga2xhZ3RlbiBlaW5zdCD8YmVy
+IGlocmUgbWnfbGljaGUgTGFnZTsgIndpciBsZWJlbiIsIHNwcmFjaCBlaW4gUmVkbmVyLCAiaW4g
+c3RldGVyIEZ1cmNodCB2b3IgTWVuc2NoZW4gdW5kIFRpZXJlbiwgZWluZSBCZXV0ZSBkZXIgSHVu
+ZGUsIGRlciBBZGxlciwgamEgZmFzdCBhbGxlciBSYXVidGllcmUhIFVuc2VyZSBzdGV0ZSBBbmdz
+dCBpc3Qg5HJnZXIgYWxzIGRlciBUb2Qgc2VsYnN0LiBBdWYsIGxh33QgdW5zIGVpbiBm/HIgYWxs
+ZW1hbCBzdGVyYmVuLiIgDQoNCkluIGVpbmVtIG5haGVuIFRlaWNoIHdvbGx0ZW4gc2llIHNpY2gg
+bnVuIGVyc+R1ZmVuOyBzaWUgZWlsdGVuIGlobSB6dTsgYWxsZWluIGRhcyBhdd9lcm9yZGVudGxp
+Y2hlIEdldPZzZSB1bmQgaWhyZSB3dW5kZXJiYXJlIEdlc3RhbHQgZXJzY2hyZWNrdGUgZWluZSBN
+ZW5nZSBGcvZzY2hlLCBkaWUgYW0gVWZlciBzYd9lbiwgc28gc2VociwgZGHfIHNpZSBhdWZzIHNj
+aG5lbGxzdGUgdW50ZXJ0YXVjaHRlbi4gDQoNCiJIYWx0IiwgcmllZiBudW4gZWJlbiBkaWVzZXIg
+U3ByZWNoZXIsICJ3aXIgd29sbGVuIGRhcyBFcnPkdWZlbiBub2NoIGVpbiB3ZW5pZyBhdWZzY2hp
+ZWJlbiwgZGVubiBhdWNoIHVucyBm/HJjaHRlbiwgd2llIGlociBzZWh0LCBlaW5pZ2UgVGllcmUs
+IHdlbGNoZSBhbHNvIHdvaGwgbm9jaCB1bmds/GNrbGljaGVyIHNlaW4gbfxzc2VuIGFscyB3aXIu
+IiANCg==`,
+  "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "Atsushi Yoshida", "doug@example.com", "Doug Sauder",
+  "Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
+  "", []goodMailAttachments{}},
 
 }
 // bad mails
@@ -1200,8 +1223,7 @@ func expectEq(t *testing.T, expected, actual, what string) {
     what, escapeString(actual), len(actual), escapeString(expected), len(expected))
 }
 
-
-func TestGoodMailParser(t *testing.T) {
+func (s *ParserSuite) TestGoodMailParser(c *C) {
   // logger
   log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   // uncomment for debug
@@ -1212,47 +1234,47 @@ func TestGoodMailParser(t *testing.T) {
     // parse email
     envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
     email, err := ParseMail(envelop)
+    c.Assert(err, IsNil)
     if email == nil || err != nil {
-      t.Error("Error in parsing email: %v", err)
+      c.Errorf("Error in parsing email: %v", err)
     } else {
-      expectEq(t, mail.Subject, email.Subject, "Value of subject")
-      expectEq(t, mail.To, email.To.Address, "Value of to email")
-      expectEq(t, mail.ToName, email.To.Name, "Value of to email name")
-      expectEq(t, mail.From, email.From.Address, "Value of from email")
+      c.Check(mail.Subject, Equals, email.Subject)
+      c.Check(mail.To, Equals, email.To.Address)
+      c.Check(mail.ToName, Equals, email.To.Name)
+      c.Check(mail.From, Equals, email.From.Address)
+      c.Check(mail.FromName, Equals, email.From.Name)
       if mail.Text == email.TextPart {
-        expectEq(t, mail.Text, email.TextPart, "Value of text")
+        c.Check(mail.Text, Equals, email.TextPart)
       } else {
-        expectEq(t, strings.Replace(mail.Text, "\n", "\r\n", -1), email.TextPart, "Value of text")
+        c.Check(strings.Replace(mail.Text, "\n", "\r\n", -1), Equals, email.TextPart)
       }
-      expectEq(t, strings.Replace(mail.Html, "\n", "\r\n", -1), email.HtmlPart, "Value of html")
+      c.Check(strings.Replace(mail.Html, "\n", "\r\n", -1), Equals, email.HtmlPart)
       if len(mail.Attachments) != len(email.Attachments) {
-        t.Errorf("Unexpected value for Count of attachments; got %d but expected: %d",
+        c.Errorf("Unexpected value for Count of attachments; got %d but expected: %d",
           len(mail.Attachments), len(email.Attachments))
       }
       if len(mail.Attachments) > 0 {
-        expectEq(t, mail.Attachments[0].Filename, email.Attachments[0].AttachmentFileName, "Value of attachment name")
+        c.Check(mail.Attachments[0].Filename, Equals, email.Attachments[0].AttachmentFileName)
       }
     }
   }
 }
 
-func BenchmarkMailParser(b *testing.B) {
-  // logger
+func (s *ParserSuite) BenchmarkLogic(c *C) {
   log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
-  for i := 0; i < b.N; i++ {
+  for i := 0; i < c.N; i++ {
     mail := goodMailTypeTests[rand.Intn(len(goodMailTypeTests))]
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
     // parse email
     envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
     email, err := ParseMail(envelop)
     if email == nil || err != nil {
-      log.Errorf("Error in parsing email: %v", err)
+      c.Errorf("Error in parsing email: %v", err)
     }
   }
 }
 
-
-func TestBadMailParser(t *testing.T) {
+func (s *ParserSuite) TestBadMailParser(c *C) {
   // logger
   log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   // uncomment for debug
@@ -1264,7 +1286,7 @@ func TestBadMailParser(t *testing.T) {
     envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
     email, err := ParseMail(envelop)
     if err == nil {
-      t.Error("No error in parsing email: %v", email)
+      c.Errorf("No error in parsing email: %v", email)
     }
   }
 }
