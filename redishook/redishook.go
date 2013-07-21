@@ -13,8 +13,8 @@ import (
   "github.com/le0pard/go-falcon/utils"
 )
 
-const RedisKeyTTL = 120
-const RedisKeyMaxCount = 20
+const RedisKeyTTL = 60
+const RedisKeyMaxCount = 15
 
 
 func SendNotifications(config *config.Config, mailboxID, messageID int, subject string) (bool, error) {
@@ -112,35 +112,37 @@ func checkIsSpamAtack(redisCon redis.Conn, mailboxId, subject string) bool {
   res, err := redis.Int(redisCon.Do("EXISTS", redisKey))
   if err != nil {
     log.Errorf("redis checkIsSpamAtack EXISTS key %s: %v", redisKey, err)
-    return false
+    return true
   }
   // exist
   if res != 0 {
     resCount, err := redis.Int(redisCon.Do("GET", redisKey))
     if err != nil {
       log.Errorf("redis checkIsSpamAtack GET key %s: %v", redisKey, err)
-      return false
+      return true
     }
     if resCount > 0 && resCount < RedisKeyMaxCount {
-      _, err = redisCon.Do("INCR", redisKey)
-      if err != nil {
-        log.Errorf("redis checkIsSpamAtack INCR key %s: %v", redisKey, err)
-        return false
-      }
+      setRedisAttackKey(redisCon, redisKey)
     // too many dublicates
     } else {
+      redisCon.Do("EXPIRE", redisKey, RedisKeyTTL)
       return false
     }
   // not exist
   } else {
-    redisCon.Send("MULTI")
-    redisCon.Send("INCR", redisKey)
-    redisCon.Send("EXPIRE", redisKey, RedisKeyTTL)
-    _, err = redisCon.Do("EXEC")
-    if err != nil {
-      log.Errorf("redis checkIsSpamAtack INCR key %s: %v", redisKey, err)
-      return false
-    }
+    setRedisAttackKey(redisCon, redisKey)
   }
   return true
+}
+
+// set key
+
+func setRedisAttackKey(redisCon redis.Conn, redisKey string) {
+  redisCon.Send("MULTI")
+  redisCon.Send("INCR", redisKey)
+  redisCon.Send("EXPIRE", redisKey, RedisKeyTTL)
+  _, err := redisCon.Do("EXEC")
+  if err != nil {
+    log.Errorf("redis checkIsSpamAtack INCR key %s: %v", redisKey, err)
+  }
 }
