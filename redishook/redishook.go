@@ -125,7 +125,10 @@ func checkIsSpamAtack(redisCon redis.Conn, mailboxId, subject string) bool {
       setRedisAttackKey(redisCon, redisKey)
     // too many dublicates
     } else {
-      redisCon.Do("EXPIRE", redisKey, RedisKeyTTL)
+      _, err = redisCon.Do("EXPIRE", redisKey, RedisKeyTTL)
+      if err != nil {
+        log.Errorf("redis checkIsSpamAtack EXPIRE key %s: %v", redisKey, err)
+      }
       return false
     }
   // not exist
@@ -143,6 +146,6 @@ func setRedisAttackKey(redisCon redis.Conn, redisKey string) {
   redisCon.Send("EXPIRE", redisKey, RedisKeyTTL)
   _, err := redisCon.Do("EXEC")
   if err != nil {
-    log.Errorf("redis checkIsSpamAtack INCR key %s: %v", redisKey, err)
+    log.Errorf("redis setRedisAttackKey INCR key %s: %v", redisKey, err)
   }
 }
