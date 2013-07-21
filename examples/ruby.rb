@@ -4,9 +4,9 @@ raise "args shoud be email ans pass" if ARGV.length < 2
 username, password = ARGV[0], ARGV[1]
 
 message = <<-END.split("\n").map!(&:strip).join("\n")
-From: Private Person <me@fromdomain.com>
-To: A Test User <test@todomain.com>
-CC: <test2@todomain.com>
+From: Private Person <me@railsware.com>
+To: A Test User <test@railsware.com>
+To: <test2@railsware.com>
 CC: <test3@todomain.com>
 Subject: SMTP e-mail test
 
