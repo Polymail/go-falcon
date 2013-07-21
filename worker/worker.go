@@ -88,7 +88,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       }
       // redis hooks
       if config.Redis.Enabled {
-        redishook.SendNotifications(config, email.MailboxID, messageId)
+        redishook.SendNotifications(config, email.MailboxID, messageId, email.Subject)
       }
       // web hooks
       if config.Web_Hooks.Enabled {

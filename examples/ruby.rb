@@ -63,7 +63,7 @@ end
 end
 #=end
 =begin
-6.times do
+100.times do
   Net::SMTP.start('localhost',
                   2525,
                   'localhost',
