@@ -128,11 +128,11 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   // contentType cases
   switch contentTypeVal {
   case "text/html":
-    if email.HtmlPart == "" {
+    if email.HtmlPart == "" && email.isRFC == false {
       email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
     }
   case "text/plain":
-    if email.TextPart == "" {
+    if email.TextPart == "" && email.isRFC == false {
       email.TextPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
     }
   case "message/rfc822":
@@ -156,7 +156,7 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
     } else if contentDisposition != "" {
       email.parseAttachment(headers, contentTypeVal, contentDispositionVal, contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
     // attachments without content disposition (sic!)
-    } else if strings.HasPrefix(contentTypeVal, "image/") || strings.HasPrefix(contentTypeVal, "audio/") || strings.HasPrefix(contentTypeVal, "video/") || strings.HasPrefix(contentTypeVal, "application/") {
+    } else if strings.HasPrefix(contentTypeVal, "image/") || strings.HasPrefix(contentTypeVal, "audio/") || strings.HasPrefix(contentTypeVal, "video/") || strings.HasPrefix(contentTypeVal, "application/") || strings.HasPrefix(contentTypeVal, "text/") {
       email.parseAttachment(headers, contentTypeVal, "attachment", contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
     } else {
       log.Errorf("Unknown content type: %s", contentTypeVal)
