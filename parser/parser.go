@@ -153,11 +153,11 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
     // multipart
     if strings.HasPrefix(contentTypeVal, "multipart/") {
       email.parseMimeEmail(pbody, contentTypeParams["boundary"])
-    // images
-    } else if contentDisposition == "" && (strings.HasPrefix(contentTypeVal, "image/") || strings.HasPrefix(contentTypeVal, "audio/") || strings.HasPrefix(contentTypeVal, "video/") || strings.HasPrefix(contentTypeVal, "application/")) {
-      email.parseAttachment(headers, contentTypeVal, "attachment", contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
     } else if contentDisposition != "" {
       email.parseAttachment(headers, contentTypeVal, contentDispositionVal, contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
+    // attachments without content disposition (sic!)
+    } else if strings.HasPrefix(contentTypeVal, "image/") || strings.HasPrefix(contentTypeVal, "audio/") || strings.HasPrefix(contentTypeVal, "video/") || strings.HasPrefix(contentTypeVal, "application/") {
+      email.parseAttachment(headers, contentTypeVal, "attachment", contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
     } else {
       log.Errorf("Unknown content type: %s", contentTypeVal)
       log.Errorf("Unknown content params: %v", contentTypeParams)
