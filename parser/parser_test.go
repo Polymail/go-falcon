@@ -873,8 +873,21 @@ ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMR8wHQYJKoZIhvcNAQkBFhBzbWhhdW5jaEBtYWMuY29t
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn90dPsYS3LjfMY211OSYrDQLzwNYPlAL
 7+/0XA+kdy8/rRnyEHFGwhNCDmg0B6pxC7z3xxJD/8GfCd+IYUUNUQV5m9MkxfP9pTVXZVIYLaBw
 ------=_Part_5028_7368284.1115579351471--`,
-  "Fwd: Signed email causes file attachments", "xxxxx@xxxxxxxxx.com", "xxxxx xxxx", "xxxxxxxxx.xxxxxxx@gmail.com", "xxxxxxxxx xxxxxxx", "", "", []goodMailAttachments{
-    {""},
+  "Fwd: Signed email causes file attachments", "xxxxx@xxxxxxxxx.com", "xxxxx xxxx", "xxxxxxxxx.xxxxxxx@gmail.com", "xxxxxxxxx xxxxxxx", 
+  `We should not include these files or vcards as attachments.
+
+---------- Forwarded message ----------
+From: xxxxx xxxxxx <xxxxxxxx@xxx.com>
+Date: May 8, 2005 1:17 PM
+Subject: Signed email causes file attachments
+To: xxxxxxx@xxxxxxxxxx.com
+
+
+Hi,
+
+Test attachments oddly encoded with japanese charset.
+
+`, "", []goodMailAttachments{
     {"01 Quien Te Dijat. Pitbull.mp3"},
   }},
 
@@ -1158,37 +1171,37 @@ Content-Transfer-Encoding: 7bit
 Hello`,
   "Re: TEST テスト テスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
-  {`From: "Doug Sauder" <doug@example.com>
-To: "Jürgen Schmürgen" <schmuergen@example.com>
-Subject: Die Hasen und die Frösche (Microsoft Outlook 00)
-Date: Wed, 17 May 2000 19:11:50 -0400
-Message-ID: <NDBBIAKOPKHFGPLCODIGAEKCCHAA.doug@example.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
+  {`from: "doug sauder" <doug@example.com>
+to: "jürgen schmürgen" <schmuergen@example.com>
+subject: die hasen und die frösche (microsoft outlook 00)
+date: wed, 17 may 2000 19:11:50 -0400
+message-id: <ndbbiakopkhfgplcodigaekcchaa.doug@example.com>
+mime-version: 1.0
+content-type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: base64
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+content-transfer-encoding: base64
+x-priority: 3 (normal)
+x-msmail-priority: normal
+x-mailer: microsoft outlook imo, build 9.0.2416 (9.0.2910.0)
+importance: normal
+x-mimeole: produced by microsoft mimeole v5.00.2314.1300
 
-RGllIEhhc2VuIHVuZCBkaWUgRnL2c2NoZQ0KDQpEaWUgSGFzZW4ga2xhZ3RlbiBlaW5zdCD8YmVy
-IGlocmUgbWnfbGljaGUgTGFnZTsgIndpciBsZWJlbiIsIHNwcmFjaCBlaW4gUmVkbmVyLCAiaW4g
-c3RldGVyIEZ1cmNodCB2b3IgTWVuc2NoZW4gdW5kIFRpZXJlbiwgZWluZSBCZXV0ZSBkZXIgSHVu
-ZGUsIGRlciBBZGxlciwgamEgZmFzdCBhbGxlciBSYXVidGllcmUhIFVuc2VyZSBzdGV0ZSBBbmdz
-dCBpc3Qg5HJnZXIgYWxzIGRlciBUb2Qgc2VsYnN0LiBBdWYsIGxh33QgdW5zIGVpbiBm/HIgYWxs
-ZW1hbCBzdGVyYmVuLiIgDQoNCkluIGVpbmVtIG5haGVuIFRlaWNoIHdvbGx0ZW4gc2llIHNpY2gg
-bnVuIGVyc+R1ZmVuOyBzaWUgZWlsdGVuIGlobSB6dTsgYWxsZWluIGRhcyBhdd9lcm9yZGVudGxp
-Y2hlIEdldPZzZSB1bmQgaWhyZSB3dW5kZXJiYXJlIEdlc3RhbHQgZXJzY2hyZWNrdGUgZWluZSBN
-ZW5nZSBGcvZzY2hlLCBkaWUgYW0gVWZlciBzYd9lbiwgc28gc2VociwgZGHfIHNpZSBhdWZzIHNj
-aG5lbGxzdGUgdW50ZXJ0YXVjaHRlbi4gDQoNCiJIYWx0IiwgcmllZiBudW4gZWJlbiBkaWVzZXIg
-U3ByZWNoZXIsICJ3aXIgd29sbGVuIGRhcyBFcnPkdWZlbiBub2NoIGVpbiB3ZW5pZyBhdWZzY2hp
-ZWJlbiwgZGVubiBhdWNoIHVucyBm/HJjaHRlbiwgd2llIGlociBzZWh0LCBlaW5pZ2UgVGllcmUs
-IHdlbGNoZSBhbHNvIHdvaGwgbm9jaCB1bmds/GNrbGljaGVyIHNlaW4gbfxzc2VuIGFscyB3aXIu
-IiANCg==`,
-  "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "", "doug@example.com", "Doug Sauder",
-  "Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
+rglliehhc2vuihvuzcbkawugrnl2c2nozq0kdqpeawugsgfzzw4ga2xhz3rlbiblaw5zdcd8ymvy
+iglocmugbwnfbgljagugtgfnztsgindpcibszwjlbiisihnwcmfjacblaw4gumvkbmvylcaiaw4g
+c3rldgvyiez1cmnodcb2b3igtwvuc2nozw4gdw5kifrpzxjlbiwgzwluzsbczxv0zsbkzxigshvu
+zgusigrlcibbzgxlciwgamegzmfzdcbhbgxlcibsyxvidgllcmuhifvuc2vyzsbzdgv0zsbbbmdz
+dcbpc3qg5hjnzxigywxzigrlcibub2qgc2vsynn0libbdwysigxh33qgdw5zigvpbibm/higywxs
+zw1hbcbzdgvyymvuliigdqonckluigvpbmvtig5hagvuifrlawnoihdvbgx0zw4gc2llihnpy2gg
+bnvuigvyc+r1zmvuoybzawugzwlsdgvuiglobsb6dtsgywxszwluigrhcybhdd9lcm9yzgvudgxp
+y2hliedldpzzzsb1bmqgawhyzsb3dw5kzxjiyxjliedlc3rhbhqgzxjzy2hyzwnrdgugzwluzsbn
+zw5nzsbgcvzzy2hllcbkawugyw0gvwzlcibzyd9lbiwgc28gc2vociwgzghfihnpzsbhdwzzihnj
+ag5lbgxzdgugdw50zxj0yxvjahrlbi4gdqoncijiywx0iiwgcmllzibudw4gzwjlbibkawvzzxig
+u3byzwnozxisicj3axigd29sbgvuigrhcybfcnpkdwzlbibub2noigvpbib3zw5pzybhdwzzy2hp
+zwjlbiwgzgvubibhdwnoihvucybm/hjjahrlbiwgd2lliglocibzzwh0lcblaw5pz2ugvgllcmus
+ihdlbgnozsbhbhnvihdvagwgbm9jacb1bmds/gnrbgljagvyihnlaw4gbfxzc2vuigfscyb3axiu
+iiancg==`,
+  "die hasen und die frösche (microsoft outlook 00)", "schmuergen@example.com", "", "doug@example.com", "doug sauder",
+  "die hasen und die frösche\n\ndie hasen klagten einst über ihre mißliche lage; \"wir leben\", sprach ein redner, \"in steter furcht vor menschen und tieren, eine beute der hunde, der adler, ja fast aller raubtiere! unsere stete angst ist ärger als der tod selbst. auf, laßt uns ein für allemal sterben.\" \n\nin einem nahen teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche getöse und ihre wunderbare gestalt erschreckte eine menge frösche, die am ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"halt\", rief nun eben dieser sprecher, \"wir wollen das ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
   "", []goodMailAttachments{}},
 
   {`From test@example.com  Mon Aug 22 09:45:15 2011
@@ -1406,6 +1419,103 @@ IFl2ZXMgUGlndWV0NnM7vAAAAABJRU5ErkJggg==
     {"redball.png"},
   }},
 
+  {`Mime-Version: 1.0 (Apple Message framework v730)
+Content-Type: multipart/mixed; boundary=Apple-Mail-13-196941151
+Message-Id: <9169D984-4E0B-45EF-82D4-8F5E53AD7012@example.com>
+From: foo@example.com
+Subject: testing
+Date: Mon, 6 Jun 2005 22:21:22 +0200
+To: blah@example.com
+
+
+--Apple-Mail-13-196941151
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	delsp=yes;
+	format=flowed
+
+This is the first part.
+
+--Apple-Mail-13-196941151
+Content-Type: message/rfc822
+
+From xxxx@xxxx.com Tue May 10 11:28:07 2005
+Return-Path: <xxxx@xxxx.com>
+X-Original-To: xxxx@xxxx.com
+Delivered-To: xxxx@xxxx.com
+Received: from localhost (localhost [127.0.0.1])
+	by xxx.xxxxx.com (Postfix) with ESMTP id 50FD3A96F
+	for <xxxx@xxxx.com>; Tue, 10 May 2005 17:26:50 +0000 (GMT)
+Received: from xxx.xxxxx.com ([127.0.0.1])
+ by localhost (xxx.xxxxx.com [127.0.0.1]) (amavisd-new, port 10024)
+ with LMTP id 70060-03 for <xxxx@xxxx.com>;
+ Tue, 10 May 2005 17:26:49 +0000 (GMT)
+Received: from xxx.xxxxx.com (xxx.xxxxx.com [69.36.39.150])
+	by xxx.xxxxx.com (Postfix) with ESMTP id 8B957A94B
+	for <xxxx@xxxx.com>; Tue, 10 May 2005 17:26:48 +0000 (GMT)
+Received: from xxx.xxxxx.com (xxx.xxxxx.com [64.233.184.203])
+	by xxx.xxxxx.com (Postfix) with ESMTP id 9972514824C
+	for <xxxx@xxxx.com>; Tue, 10 May 2005 12:26:40 -0500 (CDT)
+Received: by xxx.xxxxx.com with SMTP id 68so1694448wri
+        for <xxxx@xxxx.com>; Tue, 10 May 2005 10:26:40 -0700 (PDT)
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=xxxxx.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=g8ZO5ttS6GPEMAz9WxrRk9+9IXBUfQIYsZLL6T88+ECbsXqGIgfGtzJJFn6o9CE3/HMrrIGkN5AisxVFTGXWxWci5YA/7PTVWwPOhJff5BRYQDVNgRKqMl/SMttNrrRElsGJjnD1UyQ/5kQmcBxq2PuZI5Zc47u6CILcuoBcM+A=
+Received: by 10.54.96.19 with SMTP id t19mr621017wrb;
+        Tue, 10 May 2005 10:26:39 -0700 (PDT)
+Received: by 10.54.110.5 with HTTP; Tue, 10 May 2005 10:26:39 -0700 (PDT)
+Message-ID: <xxxx@xxxx.com>
+Date: Tue, 10 May 2005 11:26:39 -0600
+From: Test Tester <xxxx@xxxx.com>
+Reply-To: Test Tester <xxxx@xxxx.com>
+To: xxxx@xxxx.com, xxxx@xxxx.com
+Subject: Another PDF
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_Part_2192_32400445.1115745999735"
+X-Virus-Scanned: amavisd-new at textdrive.com
+
+------=_Part_2192_32400445.1115745999735
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Just attaching another PDF, here, to see what the message looks like,
+and to see if I can figure out what is going wrong here.
+
+------=_Part_2192_32400445.1115745999735
+Content-Type: application/pdf; name="broken.pdf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="broken.pdf"
+
+JVBERi0xLjQNCiXk9tzfDQoxIDAgb2JqDQo8PCAvTGVuZ3RoIDIgMCBSDQogICAvRmlsdGVyIC9G
+bGF0ZURlY29kZQ0KPj4NCnN0cmVhbQ0KeJy9Wt2KJbkNvm/od6jrhZxYln9hWEh2p+8HBvICySaE
+ycLuTV4/1ifJ9qnq09NpSBimu76yLUuy/qzqcPz7+em3Ixx/CDc6CsXxs3b5+fvfjr/8cPz6/BRu
+rbfAx/n3739/fuJylJ5u5fjX81OuDr4deK4Bz3z/aDP+8fz0yw8g0Ofq7ktr1Mn+u28rvhy/jVeD
+QSa+9YNKHP/pxjvDNfVAx/m3MFz54FhvTbaseaxiDoN2LeMVMw+yA7RbHSCDzxZuaYB2E1Yay7QU
+x89vz0+tyFDKMlAHK5yqLmnjF+c4RjEiQIUeKwblXMe+AsZjN1J5yGQL5DHpDHksurM81rF6PKab
+gK6zAarIDzIiUY23rJsN9iorAE816aIu6lsgAdQFsuhhkHOUFgVjp2GjMqSewITXNQ27jrMeamkg
+1rPI3iLWG2CIaSBB+V1245YVRICGbbpYKHc2USFDl6M09acQVQYhlwIrkBNLISvXhGlF1wi5FHCw
+wxZkoGNJlVeJCEsqKA+3YAV5AMb6KkeaqEJQmFKKQU8T1pRi2ihE1Y4CDrqoYFFXYjJJOatsyzuI
+8SIlykuxKTMibWK8H1PgEvqYgs4GmQSrEjJAalgGirIhik+p4ZQN9E3ETFPAHE1b8pp1l/0Rc1gl
+fQs0ABWvyoZZzU8VnPXwVVcO9BEsyjEJaO6eBoZRyKGlrKoYoOygA8BGIzgwN3RQ15ouigG5idZQ
+fx2U4Db2CqiLO0WHAZoylGiCAqhniNQjFjQPSkmjwfNTgQ6M1Ih+eWo36wFmjIxDJZiGUBiWsAyR
+xX3EekGOizkGI96Ol9zVZTAivikURhRsHh2E3JhWMpSTZCnnonrLhMCodgrNcgo4uyJUJc6qnVss
+nrGd1Ptr0YwisCOYyIbUwVjV4xBUNLbguSO2YHujonAMJkMdSI7bIw91Akq2AUlMUWGFTMAOamjU
+OvZQCxIkY2pCpMFo/IwLdVLHs6nddwTRrgoVbvLU9eB0G4EMndV0TNoxHbt3JBWwK6hhv3iHfDtF
+yokB302IpEBTnWICde4uYc/1khDbSIkQopO6lcqamGBu1OSE3N5IPSsZX00CkSHRiiyx6HQIShsS
+HSVNswdVsaOUSAWq9aYhDtGDaoG5a3lBGkYt/lFlBFt1UqrYnzVtUpUQnLiZeouKgf1KhRBViRRk
+ExepJCzTwEmFDalIRbLEGtw0gfpESOpIAF/NnpPzcVCG86s0g2DuSyd41uhNGbEgaSrWEXORErbw
+------=_Part_2192_32400445.1115745999735--
+
+--Apple-Mail-13-196941151--`,
+  "testing", "blah@example.com", "", "foo@example.com", "", "This is the first part.\n", "", []goodMailAttachments{
+    {"broken.pdf"},
+  }},
+
+
 }
 // bad mails
 
@@ -1473,8 +1583,8 @@ func (s *ParserSuite) TestGoodMailParser(c *C) {
 
       c.Check(email.HtmlPart, Equals, strings.Replace(mail.Html, "\n", "\r\n", -1))
       if len(mail.Attachments) != len(email.Attachments) {
-        c.Errorf("Unexpected value for Count of attachments; got %d but expected: %d",
-          len(mail.Attachments), len(email.Attachments))
+        c.Errorf("Unexpected value for Count of attachments; got %d but expected: %d, subject: %s",
+          len(mail.Attachments), len(email.Attachments), email.Subject)
       }
       if len(mail.Attachments) > 0 {
         for i, attachment := range email.Attachments {

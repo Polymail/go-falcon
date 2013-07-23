@@ -36,6 +36,7 @@ type ParsedEmail struct {
 
   HtmlPart      string
   TextPart      string
+  isRFC         bool
 
   Attachments   []ParsedAttachment
 
@@ -87,6 +88,11 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
 // select type of email
 
 func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody []byte) {
+  var (
+    contentDispositionVal string
+    contentDispositionParams map[string]string
+  )
+
   contentType, contentDisposition, contentTransferEncoding := headers.Get("Content-Type"), headers.Get("Content-Disposition"), headers.Get("Content-Transfer-Encoding")
   if contentType == "" {
     contentType = "text/plain; charset=UTF-8"
@@ -94,6 +100,8 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   if contentTransferEncoding == "" {
     contentTransferEncoding = "8bit"
   }
+
+  // content type
   contentType = FixMailEncodedHeader(contentType)
   contentTypeVal, contentTypeParams, err := mime.ParseMediaType(contentType)
   if err != nil {
@@ -101,15 +109,69 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
     return
   }
   contentTypeVal = strings.ToLower(contentTypeVal)
-  // contentDisposition
+
+  // content disposition
   if contentDisposition != "" {
     contentDisposition = FixMailEncodedHeader(contentDisposition)
-    contentDispositionVal, contentDispositionParams, err := mime.ParseMediaType(contentDisposition)
+    contentDispositionVal, contentDispositionParams, err = mime.ParseMediaType(contentDisposition)
     if err != nil {
       log.Errorf("Invalid ContentDisposition: %v", err)
       return
     }
     contentDispositionVal = strings.ToLower(contentDispositionVal)
+    if contentDispositionVal == "attachment" {
+      email.parseAttachment(headers, contentTypeVal, contentDispositionVal, contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
+      return
+    }
+  }
+
+  // contentType cases
+  switch contentTypeVal {
+  case "text/html":
+    if email.HtmlPart == "" {
+      email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+    }
+  case "text/plain":
+    if email.TextPart == "" {
+      email.TextPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+    }
+  case "message/rfc822":
+    msg, err := mail.ReadMessage(bytes.NewBuffer(pbody))
+    if err != nil {
+      log.Errorf("Failed parsing message of rfc822: %v", err)
+    } else {
+      mailBody, err := ioutil.ReadAll(msg.Body)
+      if err != nil {
+        log.Errorf("Failed parsing message of rfc822: %v", err)
+      } else {
+        email.Headers = msg.Header
+        email.isRFC = true
+        email.parseEmailBody(mailBody)
+      }
+    }
+  default:
+    // multipart
+    if strings.HasPrefix(contentTypeVal, "multipart/") {
+      email.parseMimeEmail(pbody, contentTypeParams["boundary"])
+    // images
+    } else if strings.HasPrefix(contentTypeVal, "image/") {
+      filename := getFilenameOfAttachment(contentTypeParams, nil)
+      attachment := ParsedAttachment{ AttachmentType: contentTypeVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: "" }
+      email.Attachments = append(email.Attachments, attachment)
+    } else if contentDisposition != "" {
+
+      email.parseAttachment(headers, contentTypeVal, contentDispositionVal, contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
+    } else {
+      log.Errorf("Unknown content type: %s", contentTypeVal)
+      log.Errorf("Unknown content params: %v", contentTypeParams)
+      log.Errorf("Unknown content: %v", string(pbody))
+    }
+  }
+}
+
+// parse attachments
+
+func (email *ParsedEmail) parseAttachment(headers textproto.MIMEHeader, contentTypeVal, contentDispositionVal, contentTransferEncoding string, contentTypeParams, contentDispositionParams map[string]string, pbody []byte) {
     switch contentDispositionVal {
     case "attachment", "inline":
       filename := getFilenameOfAttachment(contentTypeParams, contentDispositionParams)
@@ -128,28 +190,6 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)
       log.Errorf("Unknown content params: %v", contentDispositionParams)
     }
-  } else {
-    switch contentTypeVal {
-    case "text/html":
-      email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
-    case "text/plain":
-      email.TextPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
-    default:
-      // multipart
-      if strings.HasPrefix(contentTypeVal, "multipart/") {
-        email.parseMimeEmail(pbody, contentTypeParams["boundary"])
-      // images
-      } else if strings.HasPrefix(contentTypeVal, "image/") {
-        filename := getFilenameOfAttachment(contentTypeParams, nil)
-        attachment := ParsedAttachment{ AttachmentType: contentTypeVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: "" }
-        email.Attachments = append(email.Attachments, attachment)
-      } else {
-        log.Errorf("Unknown content type: %s", contentTypeVal)
-        log.Errorf("Unknown content params: %v", contentTypeParams)
-        log.Errorf("Unknown content: %v", string(pbody))
-      }
-    }
-  }
 }
 
 // get filename of attachment
@@ -220,7 +260,7 @@ func (email *ParsedEmail) parseMimeEmail(pbody []byte, boundary string) {
 
 // parse body
 
-func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
+func (email *ParsedEmail) parseEmailBody(body []byte) {
   email.EmailBody = body
   mimeVersion := email.Headers.Get("Mime-Version")
   contentType := email.Headers.Get("Content-Type")
@@ -242,7 +282,7 @@ func (email *ParsedEmail) parseEmailBody(msg *mail.Message, body []byte) {
 // parse email
 
 func ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
-  email := &ParsedEmail{ env: env, MailboxID: env.MailboxID  }
+  email := &ParsedEmail{ env: env, MailboxID: env.MailboxID, isRFC: false }
   msg, err := mail.ReadMessage(bytes.NewBuffer(email.env.MailBody))
   if err != nil {
     log.Errorf("Failed parsing message: %v", err)
@@ -255,6 +295,6 @@ func ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
   }
   email.RawMail = email.env.MailBody
   email.parseEmailHeaders(msg)
-  email.parseEmailBody(msg, mailBody)
+  email.parseEmailBody(mailBody)
   return email, nil
 }
