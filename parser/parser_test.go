@@ -1171,37 +1171,37 @@ Content-Transfer-Encoding: 7bit
 Hello`,
   "Re: TEST テスト テスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
-  {`from: "doug sauder" <doug@example.com>
-to: "jürgen schmürgen" <schmuergen@example.com>
-subject: die hasen und die frösche (microsoft outlook 00)
-date: wed, 17 may 2000 19:11:50 -0400
-message-id: <ndbbiakopkhfgplcodigaekcchaa.doug@example.com>
-mime-version: 1.0
-content-type: text/plain;
+  {`From: "Doug Sauder" <doug@example.com>
+To: "Jürgen Schmürgen" <schmuergen@example.com>
+Subject: Die Hasen und die Frösche (Microsoft Outlook 00)
+Date: Wed, 17 May 2000 19:11:50 -0400
+Message-ID: <NDBBIAKOPKHFGPLCODIGAEKCCHAA.doug@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
 	charset="iso-8859-1"
-content-transfer-encoding: base64
-x-priority: 3 (normal)
-x-msmail-priority: normal
-x-mailer: microsoft outlook imo, build 9.0.2416 (9.0.2910.0)
-importance: normal
-x-mimeole: produced by microsoft mimeole v5.00.2314.1300
+Content-Transfer-Encoding: base64
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 
-rglliehhc2vuihvuzcbkawugrnl2c2nozq0kdqpeawugsgfzzw4ga2xhz3rlbiblaw5zdcd8ymvy
-iglocmugbwnfbgljagugtgfnztsgindpcibszwjlbiisihnwcmfjacblaw4gumvkbmvylcaiaw4g
-c3rldgvyiez1cmnodcb2b3igtwvuc2nozw4gdw5kifrpzxjlbiwgzwluzsbczxv0zsbkzxigshvu
-zgusigrlcibbzgxlciwgamegzmfzdcbhbgxlcibsyxvidgllcmuhifvuc2vyzsbzdgv0zsbbbmdz
-dcbpc3qg5hjnzxigywxzigrlcibub2qgc2vsynn0libbdwysigxh33qgdw5zigvpbibm/higywxs
-zw1hbcbzdgvyymvuliigdqonckluigvpbmvtig5hagvuifrlawnoihdvbgx0zw4gc2llihnpy2gg
-bnvuigvyc+r1zmvuoybzawugzwlsdgvuiglobsb6dtsgywxszwluigrhcybhdd9lcm9yzgvudgxp
-y2hliedldpzzzsb1bmqgawhyzsb3dw5kzxjiyxjliedlc3rhbhqgzxjzy2hyzwnrdgugzwluzsbn
-zw5nzsbgcvzzy2hllcbkawugyw0gvwzlcibzyd9lbiwgc28gc2vociwgzghfihnpzsbhdwzzihnj
-ag5lbgxzdgugdw50zxj0yxvjahrlbi4gdqoncijiywx0iiwgcmllzibudw4gzwjlbibkawvzzxig
-u3byzwnozxisicj3axigd29sbgvuigrhcybfcnpkdwzlbibub2noigvpbib3zw5pzybhdwzzy2hp
-zwjlbiwgzgvubibhdwnoihvucybm/hjjahrlbiwgd2lliglocibzzwh0lcblaw5pz2ugvgllcmus
-ihdlbgnozsbhbhnvihdvagwgbm9jacb1bmds/gnrbgljagvyihnlaw4gbfxzc2vuigfscyb3axiu
-iiancg==`,
-  "die hasen und die frösche (microsoft outlook 00)", "schmuergen@example.com", "", "doug@example.com", "doug sauder",
-  "die hasen und die frösche\n\ndie hasen klagten einst über ihre mißliche lage; \"wir leben\", sprach ein redner, \"in steter furcht vor menschen und tieren, eine beute der hunde, der adler, ja fast aller raubtiere! unsere stete angst ist ärger als der tod selbst. auf, laßt uns ein für allemal sterben.\" \n\nin einem nahen teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche getöse und ihre wunderbare gestalt erschreckte eine menge frösche, die am ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"halt\", rief nun eben dieser sprecher, \"wir wollen das ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
+RGllIEhhc2VuIHVuZCBkaWUgRnL2c2NoZQ0KDQpEaWUgSGFzZW4ga2xhZ3RlbiBlaW5zdCD8YmVy
+IGlocmUgbWnfbGljaGUgTGFnZTsgIndpciBsZWJlbiIsIHNwcmFjaCBlaW4gUmVkbmVyLCAiaW4g
+c3RldGVyIEZ1cmNodCB2b3IgTWVuc2NoZW4gdW5kIFRpZXJlbiwgZWluZSBCZXV0ZSBkZXIgSHVu
+ZGUsIGRlciBBZGxlciwgamEgZmFzdCBhbGxlciBSYXVidGllcmUhIFVuc2VyZSBzdGV0ZSBBbmdz
+dCBpc3Qg5HJnZXIgYWxzIGRlciBUb2Qgc2VsYnN0LiBBdWYsIGxh33QgdW5zIGVpbiBm/HIgYWxs
+ZW1hbCBzdGVyYmVuLiIgDQoNCkluIGVpbmVtIG5haGVuIFRlaWNoIHdvbGx0ZW4gc2llIHNpY2gg
+bnVuIGVyc+R1ZmVuOyBzaWUgZWlsdGVuIGlobSB6dTsgYWxsZWluIGRhcyBhdd9lcm9yZGVudGxp
+Y2hlIEdldPZzZSB1bmQgaWhyZSB3dW5kZXJiYXJlIEdlc3RhbHQgZXJzY2hyZWNrdGUgZWluZSBN
+ZW5nZSBGcvZzY2hlLCBkaWUgYW0gVWZlciBzYd9lbiwgc28gc2VociwgZGHfIHNpZSBhdWZzIHNj
+aG5lbGxzdGUgdW50ZXJ0YXVjaHRlbi4gDQoNCiJIYWx0IiwgcmllZiBudW4gZWJlbiBkaWVzZXIg
+U3ByZWNoZXIsICJ3aXIgd29sbGVuIGRhcyBFcnPkdWZlbiBub2NoIGVpbiB3ZW5pZyBhdWZzY2hp
+ZWJlbiwgZGVubiBhdWNoIHVucyBm/HJjaHRlbiwgd2llIGlociBzZWh0LCBlaW5pZ2UgVGllcmUs
+IHdlbGNoZSBhbHNvIHdvaGwgbm9jaCB1bmds/GNrbGljaGVyIHNlaW4gbfxzc2VuIGFscyB3aXIu
+IiANCg==`,
+  "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "", "doug@example.com", "Doug Sauder",
+  "Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n", 
   "", []goodMailAttachments{}},
 
   {`From test@example.com  Mon Aug 22 09:45:15 2011
