@@ -91,6 +91,7 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
   } else {
     contentCharset = strings.ToLower(contentCharset)
   }
+  
   if contentCharset != "utf-8" {
     switch contentCharset {
     case "iso-8859-1":
@@ -99,8 +100,9 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
         b.WriteRune(rune(c))
       }
       return b.String()
+    case "7bit", "8bit":
+      return data
     default:
-      // eg. charset can be "ISO-2022-JP"
       convstr, err := iconv.Conv(data, "UTF-8", strings.ToUpper(fixCharset(contentCharset)))
       if err == nil {
         return convstr
