@@ -98,15 +98,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
       log.Errorf("ParseMail: %v", err)
     }
     // cleanup
-    db.Close()
-    // runtime
-    /*
-    memstats := new(runtime.MemStats)
-    runtime.ReadMemStats(memstats)
-    log.Debugf("Gorutines: %v", runtime.NumGoroutine())
-    log.Debugf("memstats before GC: bytes = %d footprint = %d", memstats.HeapAlloc, memstats.Sys)
-    log.Debugf("memstats before GC: HeapObjects = %d HeapSys = %d", memstats.HeapObjects, memstats.HeapSys)
-    */
+    db.Close() // force close the database, because pool is not under control
   }
 }
 

@@ -27,7 +27,6 @@ type Config struct {
     Ssl_Prv_Key     string
     Welcome_Msg     string
     Max_Mail_Size   int
-    Allow_Hosts     string
   }
   Storage struct {
     Adapter                   string
