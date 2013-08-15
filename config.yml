@@ -55,8 +55,8 @@ redis:
   namespace: development
   hook_username: adminadmin
   hook_password: monkey
-  sidekiq_queue: forward
-  sidekiq_class: ForwardEmailWorker
+  sidekiq_queue: server
+  sidekiq_class: SmtpServerWorker
 
 web_hooks:
   enabled: false

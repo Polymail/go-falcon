@@ -13,6 +13,10 @@ import (
 
 const CHUNK_SIZE = 1024
 
+var (
+  clamavRe = regexp.MustCompile(`(?i)^stream:([\s+]?)(.*)`)
+)
+
 type Clamav struct {
   config *config.Config
   RawEmail  []byte
@@ -112,11 +116,10 @@ func sendChunkOfData(conn net.Conn, data []byte) error {
 // parse clamav output
 
 func (ss *Clamav) parseOutput(output []string) string {
-  reg := regexp.MustCompile(`(?i)^stream:([\s+]?)(.*)`)
   result := strings.Join(output, ", ")
   result = strings.Trim(result, " \t\r\n")
-  if reg.MatchString(result) {
-    res := reg.FindStringSubmatch(result)
+  if clamavRe.MatchString(result) {
+    res := clamavRe.FindStringSubmatch(result)
     if len(res) >= 2 {
       if strings.ToLower(res[2]) == "ok" {
         return ""

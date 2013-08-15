@@ -32,9 +32,9 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
   }
 }
 
-// check username login
+// check username login and return with password
 
-func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, error) {
+func (db *DBConn) CheckUserWithPass(username, cramPassword, cramSecret string) (int, string, error) {
   var (
     id int
     password string
@@ -43,11 +43,21 @@ func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, err
   err := db.DB.QueryRow(db.config.Storage.Auth_Sql, username).Scan(&id, &password)
   if err != nil {
     log.Errorf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
-    return 0, err
+    return 0, "", err
   }
   if !utils.CheckSMTPAuthPass(password, cramPassword, cramSecret) {
     log.Errorf("User %s send invalid password", username)
-    return 0, errors.New("The user have invalid password")
+    return 0, "", errors.New("The user have invalid password")
+  }
+  return id, password, nil
+}
+
+// check username login
+
+func (db *DBConn) CheckUser(username, cramPassword, cramSecret string) (int, error) {
+  id, _, err := db.CheckUserWithPass(username, cramPassword, cramSecret)
+  if err != nil {
+    return 0, err
   }
   return id, nil
 }

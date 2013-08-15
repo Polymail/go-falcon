@@ -13,6 +13,12 @@ import (
   "github.com/le0pard/go-falcon/config"
 )
 
+var (
+  spamInfoRe = regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`)
+  spamMainRe = regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`)
+  spamDetailsRe = regexp.MustCompile(`^(-?[0-9]*[.][0-9])\s([a-zA-Z0-9_]*)(\W*)([\w:\s-]*)`)
+)
+
 type Spamassassin struct {
   config *config.Config
   RawEmail  []byte
@@ -107,11 +113,9 @@ func (ss *Spamassassin) checkEmail() ([]string, error) {
 
 func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
   response := &SpamassassinResponse{}
-  regInfo, regSpam := regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`), regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`)
-  regDetails := regexp.MustCompile(`^(-?[0-9]*[.][0-9])\s([a-zA-Z0-9_]*)(\W*)([\w:\s-]*)`)
   for _, row := range output {
-    if regInfo.MatchString(row) {
-      res := regInfo.FindStringSubmatch(row)
+    if spamInfoRe.MatchString(row) {
+      res := spamInfoRe.FindStringSubmatch(row)
       if len(res) == 5 {
         resCode, err := strconv.Atoi(res[3])
         if err == nil {
@@ -120,8 +124,8 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
         response.ResponseMessage = res[4]
       }
     }
-    if regSpam.MatchString(row) {
-      res := regSpam.FindStringSubmatch(row)
+    if spamMainRe.MatchString(row) {
+      res := spamMainRe.FindStringSubmatch(row)
       if len(res) == 4 {
         if strings.ToLower(res[1]) == "true" || strings.ToLower(res[1]) == "yes" {
           response.Spam = true
@@ -140,8 +144,8 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
     }
     // details
     row = strings.Trim(row, " \t\r\n")
-    if regDetails.MatchString(row) {
-      res := regDetails.FindStringSubmatch(row)
+    if spamDetailsRe.MatchString(row) {
+      res := spamDetailsRe.FindStringSubmatch(row)
       if len(res) == 5 {
         header := SpamassassinHeader{ Pts: res[1], RuleName: res[2], Description: res[4] }
         response.Details = append(response.Details, header)
