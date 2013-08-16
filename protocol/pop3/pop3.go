@@ -222,7 +222,7 @@ func (s *session) handleStat() {
     if err != nil {
       s.sendlinef("-ERR unable to lock maildrop")
     } else {
-      s.sendlinef("+OK %d messages (%d octets)", count, sum)
+      s.sendlinef("+OK %d %d", count, sum)
     }
   }
 }
@@ -271,7 +271,7 @@ func (s *session) handleRetr(line string) {
 func (s *session) handleDel(line string) {
   if !s.checkNeedAuth() {
     messageId := strings.TrimSpace(line)
-    msgSize, msgBody, err := s.srv.DBConn.Pop3Message(s.mailboxId, messageId)
+    _, _, err := s.srv.DBConn.Pop3Message(s.mailboxId, messageId)
     if err != nil {
       s.sendlinef("-ERR no such message")
     } else {
@@ -284,13 +284,13 @@ func (s *session) handleDel(line string) {
 
 func (s *session) handleTop(line string) {
   if !s.checkNeedAuth() {
-    var messageId, count string
+    var messageId string
     if idx := strings.Index(line, " "); idx != -1 {
       messageId = strings.TrimSpace(line[:idx])
-      count = strings.TrimRightFunc(line[idx+1:len(line)], unicode.IsSpace)
+      //count = strings.TrimRightFunc(line[idx+1:len(line)], unicode.IsSpace)
     } else {
       messageId = strings.TrimSpace(line)
-      count = 0
+      //count = 0
     }
     msgSize, msgBody, err := s.srv.DBConn.Pop3Message(s.mailboxId, messageId)
     if err != nil {
