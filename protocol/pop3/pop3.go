@@ -223,7 +223,9 @@ func (s *session) handleCapa() {
   s.sendlinef("TOP")
   s.sendlinef("UIDL")
   s.sendlinef("SASL LOGIN PLAIN CRAM-MD5")
-  s.sendlinef("STLS")
+  if s.srv.ServerConfig.Pop3.Tls {
+    s.sendlinef("STLS")
+  }
   s.sendlinef(".")
 }
 
