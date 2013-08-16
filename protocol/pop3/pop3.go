@@ -187,6 +187,8 @@ func (s *session) serve() {
       s.handleCapa()
     case "STAT":
       s.handleStat()
+    case "RSET":
+      s.handleRset()
     case "LIST":
       s.handleList(line.Arg())
     case "RETR", "UIDL":
@@ -206,6 +208,8 @@ func (s *session) serve() {
       s.sendlinef("+OK")
     case "STLS":
       s.handleStartTLS()
+    case "XTND":
+      s.sendlinef("-ERR command not supported")
     default:
       if s.checkSeveralSteps(line) {
         log.Errorf("Client: %q, verhb: %q", line, line.Verb())
@@ -238,6 +242,19 @@ func (s *session) handleStat() {
       s.sendlinef("-ERR unable to lock maildrop")
     } else {
       s.sendlinef("+OK %d %d", count, sum)
+    }
+  }
+}
+
+// handle RSET
+
+func (s *session) handleRset(){
+  if !s.checkNeedAuth() {
+    count, sum, err := s.srv.DBConn.Pop3MessagesCountAndSum(s.mailboxId)
+    if err != nil {
+      s.sendlinef("-ERR unable to lock maildrop")
+    } else {
+      s.sendlinef("+OK maildrop has %d messages (%d octets)", count, sum)
     }
   }
 }
