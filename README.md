@@ -158,7 +158,7 @@ CREATE INDEX index_attachments_1_on_attachment_type
 
     go test -v ./...
 
-Test telnet:
+Test telnet (smtp):
 
 ```bash
 telnet: > telnet localhost 2525
