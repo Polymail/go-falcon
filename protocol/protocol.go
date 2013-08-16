@@ -86,9 +86,10 @@ func goPop3Server(config *config.Config) {
   db.DB.SetMaxIdleConns(2)
   // config server
   s := &pop3.Server{
-    Addr:      bufferServer.String(),
+    Addr:         bufferServer.String(),
+    Hostname:     config.Pop3.Hostname,
     ServerConfig: config,
-    DBConn: db,
+    DBConn:       db,
   }
   // tls certs
   if config.Pop3.Tls {
@@ -137,10 +138,11 @@ func StartSmtpServer(config *config.Config) {
   db.DB.SetMaxIdleConns(2)
   // config server
   s := &smtpd.Server{
-    Addr:      bufferServer.String(),
-    OnNewMail: onNewMail,
+    Addr:         bufferServer.String(),
+    Hostname:     config.Adapter.Hostname,
+    OnNewMail:    onNewMail,
     ServerConfig: config,
-    DBConn: db,
+    DBConn:       db,
   }
   // tls certs
   if config.Adapter.Tls {

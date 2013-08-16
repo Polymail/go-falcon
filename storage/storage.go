@@ -231,6 +231,87 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
   return nil
 }
 
+// pop3 count and sum
+
+func (db *DBConn) Pop3MessagesCountAndSum(mailboxId int) (int, int, error) {
+  var (
+    sql     string
+    count   int
+    sum     int
+  )
+  sql = strings.Replace(db.config.Storage.Pop3_Count_And_Size_Messages, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  err := db.DB.QueryRow(sql, mailboxId).Scan(&count, &sum)
+  if err != nil {
+    log.Errorf("Pop3MessagesCountAndSum SQL error: %v", err)
+    return 0, 0, err
+  }
+  return count, sum, nil
+}
+
+// pop3 messages
+
+func (db *DBConn) Pop3MessagesList(mailboxId int, messageId string) ([][2]string, error) {
+  var (
+    sql     string
+    tmpId   int
+    tmpSize int
+    msgIds  [][2]string
+  )
+
+  if messageId != "" {
+    sql = strings.Replace(db.config.Storage.Pop3_Messages_List_One, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+    msgId, err := strconv.Atoi(messageId)
+    if err != nil {
+      return nil, err
+    }
+    err = db.DB.QueryRow(sql, mailboxId, msgId).Scan(&tmpId, &tmpSize)
+    if err != nil {
+      log.Errorf("Pop3MessagesList SQL error: %v", err)
+      return nil, err
+    }
+    msgIds = append(msgIds, [2]string{strconv.Itoa(tmpId), strconv.Itoa(tmpSize)})
+  } else {
+    sql = strings.Replace(db.config.Storage.Pop3_Messages_List, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+    rows, err := db.DB.Query(sql, mailboxId)
+    if err != nil {
+      log.Errorf("Pop3MessagesList SQL error: %v", err)
+      return nil, err
+    }
+    defer rows.Close()
+    for rows.Next() {
+      err := rows.Scan(&tmpId, &tmpSize)
+      if err != nil {
+        log.Errorf("Pop3MessagesList SQL error: %v", err)
+        return nil, err
+      }
+      msgIds = append(msgIds, [2]string{strconv.Itoa(tmpId), strconv.Itoa(tmpSize)})
+    }
+  }
+  return msgIds, nil
+}
+
+// pop3 message
+
+func (db *DBConn) Pop3Message(mailboxId int, messageId string) (int, string, error) {
+  var (
+    sql     string
+    msgSize int
+    msgBody string
+  )
+
+  sql = strings.Replace(db.config.Storage.Pop3_Message_One, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  msgId, err := strconv.Atoi(messageId)
+  if err != nil {
+    return 0, "", err
+  }
+  err = db.DB.QueryRow(sql, mailboxId, msgId).Scan(&msgSize, &msgBody)
+  if err != nil {
+    log.Errorf("Pop3Message SQL error: %v", err)
+    return 0, "", err
+  }
+  return msgSize, msgBody, nil
+}
+
 // close connection
 
 func (db *DBConn) Close() {

@@ -4,7 +4,6 @@ package pop3
 import (
   "bufio"
   "errors"
-  "regexp"
   "fmt"
   "net"
   "os/exec"
@@ -16,11 +15,6 @@ import (
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/utils"
-)
-
-var (
-  rcptToRE = regexp.MustCompile(`[Tt][Oo]:[\s*]?<(.+)>`)
-  mailFromRE = regexp.MustCompile(`[Ff][Rr][Oo][Mm]:[\s*]?<(.*)>`)
 )
 
 // Server is an SMTP server.
@@ -189,6 +183,16 @@ func (s *session) serve() {
       s.handleLoginUser(line.Arg())
     case "PASS":
       s.handleLoginPass(line.Arg())
+    case "STAT":
+      s.handleStat()
+    case "LIST":
+      s.handleList(line.Arg())
+    case "RETR", "UIDL":
+      s.handleRetr(line.Arg())
+    case "TOP":
+      s.handleTop(line.Arg())
+    case "DELE":
+      s.handleDel(line.Arg())
     case "QUIT":
       s.sendlinef("+OK Bye")
       return
@@ -196,6 +200,8 @@ func (s *session) serve() {
       s.handleAuth(line.Arg())
     case "APOP":
       s.handleApop(line.Arg())
+    case "NOOP":
+      s.sendlinef("+OK")
     case "STLS":
       s.handleStartTLS()
     default:
@@ -205,6 +211,95 @@ func (s *session) serve() {
       }
     }
 
+  }
+}
+
+// handle STAT
+
+func (s *session) handleStat() {
+  if !s.checkNeedAuth() {
+    count, sum, err := s.srv.DBConn.Pop3MessagesCountAndSum(s.mailboxId)
+    if err != nil {
+      s.sendlinef("-ERR unable to lock maildrop")
+    } else {
+      s.sendlinef("+OK %d messages (%d octets)", count, sum)
+    }
+  }
+}
+
+// handle LIST
+
+func (s *session) handleList(line string) {
+  if !s.checkNeedAuth() {
+    count, sum, err := s.srv.DBConn.Pop3MessagesCountAndSum(s.mailboxId)
+    if err != nil {
+      s.sendlinef("-ERR unable to lock maildrop")
+    } else {
+      s.sendlinef("+OK %d messages (%d octets)", count, sum)
+      if count > 0 {
+        messageId := strings.TrimSpace(line)
+        messages, err := s.srv.DBConn.Pop3MessagesList(s.mailboxId, messageId)
+        if err == nil {
+          for _, msg := range messages {
+            s.sendlinef("%s %s", msg[0], msg[1])
+          }
+        }
+      }
+      s.sendlinef(".")
+    }
+  }
+}
+
+// handle RETR
+
+func (s *session) handleRetr(line string) {
+  if !s.checkNeedAuth() {
+    messageId := strings.TrimSpace(line)
+    msgSize, msgBody, err := s.srv.DBConn.Pop3Message(s.mailboxId, messageId)
+    if err != nil {
+      s.sendlinef("-ERR no such message")
+    } else {
+      s.sendlinef("+OK %d octets", msgSize)
+      s.sendlinef("%s", msgBody)
+      s.sendlinef(".")
+    }
+  }
+}
+
+// handle DELE
+
+func (s *session) handleDel(line string) {
+  if !s.checkNeedAuth() {
+    messageId := strings.TrimSpace(line)
+    msgSize, msgBody, err := s.srv.DBConn.Pop3Message(s.mailboxId, messageId)
+    if err != nil {
+      s.sendlinef("-ERR no such message")
+    } else {
+      s.sendlinef("+OK message 1 deleted")
+    }
+  }
+}
+
+// handle TOP
+
+func (s *session) handleTop(line string) {
+  if !s.checkNeedAuth() {
+    var messageId, count string
+    if idx := strings.Index(line, " "); idx != -1 {
+      messageId = strings.TrimSpace(line[:idx])
+      count = strings.TrimRightFunc(line[idx+1:len(line)], unicode.IsSpace)
+    } else {
+      messageId = strings.TrimSpace(line)
+      count = 0
+    }
+    msgSize, msgBody, err := s.srv.DBConn.Pop3Message(s.mailboxId, messageId)
+    if err != nil {
+      s.sendlinef("-ERR no such message")
+    } else {
+      s.sendlinef("+OK %d octets", msgSize)
+      s.sendlinef("%s", msgBody)
+      s.sendlinef(".")
+    }
   }
 }
 

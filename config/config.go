@@ -20,6 +20,7 @@ type Config struct {
     Protocol        protocolType
     Host            string
     Port            int
+    Hostname        string
     Auth            bool
     Tls             bool
     Ssl_Hostname    string
@@ -52,11 +53,17 @@ type Config struct {
     Spamassassin_Sql          string
 
     Clamav_Sql                string
+
+    Pop3_Count_And_Size_Messages  string
+    Pop3_Messages_List            string
+    Pop3_Messages_List_One        string
+    Pop3_Message_One              string
   }
   Pop3 struct {
     Enabled         bool
     Host            string
     Port            int
+    Hostname        string
     Tls             bool
     Ssl_Hostname    string
     Ssl_Pub_Key     string
