@@ -303,7 +303,7 @@ func (s *session) serve() {
 
 // check several step command
 
-func (s *session) checkSeveralSteps (line cmdLine) bool {
+func (s *session) checkSeveralSteps(line cmdLine) bool {
   if s.authPlain {
     s.plainAuth(string(line))
     return false
@@ -566,7 +566,7 @@ func (s *session) tryLoginAuth() {
 // check cram md5 login
 
 func (s *session) cramMd5Auth(line string) {
-  s.authUsername, s.authPassword = utils.DecodeSMTPCramMd5(line)
+  s.authUsername, s.authPassword = utils.DecodeProtocolCramMd5(line)
   if s.authUsername != "" && s.authPassword != "" {
     s.authByDB(utils.AUTH_CRAM_MD5)
   } else {
@@ -579,7 +579,7 @@ func (s *session) cramMd5Auth(line string) {
 
 func (s *session) tryCramMd5Auth() {
   s.clearAuthData()
-  s.authCramMd5Login = utils.GenerateSMTPCramMd5(s.srv.hostname())
+  s.authCramMd5Login = utils.GenerateProtocolCramMd5(s.srv.hostname())
   s.sendlinef("334 " + utils.EncodeBase64(s.authCramMd5Login))
 }
 

@@ -1,6 +1,4 @@
-// Package pop3 implements an pop3 server. Hooks are provided to customize
-// its behavior.
-// TODO: NOT FINISHED
+// Package pop3 implements an pop3 server.
 package pop3
 
 import (
@@ -106,6 +104,7 @@ type session struct {
 
   authPlain bool // bool for 2 step plain auth
   authLogin bool // bool for 2 step login auth
+  authApopLogin string // bytes for apop login
   authCramMd5Login string // bytes for cram-md5 login
 
   mailboxId     int    // id of mailbox
@@ -166,8 +165,8 @@ func (s *session) serve() {
     }
   }
   s.clearAuthData()
-  s.authCramMd5Login = utils.GenerateSMTPCramMd5(s.srv.hostname())
-  s.sendf("+OK POP3 server ready %s\r\n", s.authCramMd5Login)
+  s.authApopLogin = utils.GenerateProtocolCramMd5(s.srv.hostname())
+  s.sendf("+OK POP3 server ready %s\r\n", s.authApopLogin)
   for {
     if s.srv.ReadTimeout != 0 {
       s.rwc.SetReadDeadline(time.Now().Add(s.srv.ReadTimeout))
@@ -193,14 +192,135 @@ func (s *session) serve() {
     case "QUIT":
       s.sendlinef("+OK Bye")
       return
-    case "STARTTLS":
+    case "AUTH":
+      s.handleAuth(line.Arg())
+    case "STLS":
       s.handleStartTLS()
     default:
-      log.Errorf("Client: %q, verhb: %q", line, line.Verb())
-      s.sendlinef("-ERR command not recognized")
+      if s.checkSeveralSteps(line) {
+        log.Errorf("Client: %q, verhb: %q", line, line.Verb())
+        s.sendlinef("-ERR command not recognized")
+      }
     }
 
   }
+}
+
+// handle AUTH
+
+func (s *session) handleAuth(auth string) {
+  var command, authToken string
+  if idx := strings.Index(auth, " "); idx != -1 {
+    command = strings.ToUpper(auth[:idx])
+    authToken = strings.TrimRightFunc(auth[idx+1:len(auth)], unicode.IsSpace)
+  } else {
+    command = strings.ToUpper(auth)
+    authToken = ""
+  }
+  switch command {
+    case "PLAIN":
+      s.tryPlainAuth(authToken)
+    case "LOGIN":
+      s.tryLoginAuth()
+    case "CRAM-MD5":
+      s.tryCramMd5Auth()
+    default:
+      s.sendlinef("-ERR Unrecognized authentication type")
+  }
+}
+
+// check several step command
+
+func (s *session) checkSeveralSteps(line cmdLine) bool {
+  if s.authPlain {
+    s.plainAuth(string(line))
+    return false
+  }
+  if s.authLogin {
+    s.loginAuth(string(line))
+    return false
+  }
+  if s.authCramMd5Login != "" {
+    s.cramMd5Auth(string(line))
+    return false
+  }
+  return true
+}
+
+// plain auth
+
+func (s *session) plainAuth(line string) {
+  _, s.authUsername, s.authPassword = utils.DecodeProtocolAuthPlain(line)
+  if s.authUsername != "" && s.authPassword != "" {
+    s.authByDB(utils.AUTH_PLAIN)
+  } else {
+    s.sendlinef("-ERR authentication failed")
+  }
+  s.clearAuthData()
+}
+
+// check if plain auth 2 step or one
+
+func (s *session) tryPlainAuth(authToken string) {
+  if strings.Trim(authToken, " ") != "" {
+    s.plainAuth(authToken)
+  } else {
+    s.clearAuthData()
+    s.authPlain = true
+    s.sendlinef("+ ")
+  }
+}
+
+// login auth
+
+func (s *session) loginAuth(line string) {
+  if s.authUsername == "" {
+    s.authUsername = utils.DecodeBase64(line)
+    if s.authUsername != "" {
+      s.sendlinef("+ ")
+    } else {
+      s.clearAuthData()
+      s.sendlinef("-ERR authentication failed")
+    }
+    return
+  }
+  if s.authPassword == "" {
+    s.authPassword = utils.DecodeBase64(line)
+    if s.authPassword != "" {
+      s.authByDB(utils.AUTH_PLAIN)
+    } else {
+      s.sendlinef("-ERR authentication failed")
+    }
+    s.clearAuthData()
+  }
+}
+
+// check if login auth 2 step
+
+func (s *session) tryLoginAuth() {
+  s.clearAuthData()
+  s.authLogin = true
+  s.sendlinef("+ ")
+}
+
+// check cram md5 login
+
+func (s *session) cramMd5Auth(line string) {
+  s.authUsername, s.authPassword = utils.DecodeProtocolCramMd5(line)
+  if s.authUsername != "" && s.authPassword != "" {
+    s.authByDB(utils.AUTH_CRAM_MD5)
+  } else {
+    s.sendlinef("-ERR authentication failed")
+  }
+  s.clearAuthData()
+}
+
+// check try cram-md5 login
+
+func (s *session) tryCramMd5Auth() {
+  s.clearAuthData()
+  s.authCramMd5Login = utils.GenerateProtocolCramMd5(s.srv.hostname())
+  s.sendlinef("+ " + utils.EncodeBase64(s.authCramMd5Login))
 }
 
 // handle login user
@@ -239,6 +359,7 @@ func (s *session) authByDB(authMethod string) {
 func (s *session) clearAuthData() {
   s.authPlain = false
   s.authLogin = false
+  s.authApopLogin = ""
   s.authCramMd5Login = ""
   s.authUsername = ""
   s.authPassword = ""
@@ -247,8 +368,8 @@ func (s *session) clearAuthData() {
 // handle StartTLS
 
 func (s *session) handleStartTLS() {
-  if s.srv.ServerConfig.Adapter.Tls {
-    s.sendlinef("+OK Ready to start TLS")
+  if s.srv.ServerConfig.Pop3.Tls {
+    s.sendlinef("+OK Begin TLS negotiation")
     var tlsConn *tls.Conn
     tlsConn = tls.Server(s.rwc, s.srv.TLSconfig)
     err := tlsConn.Handshake()

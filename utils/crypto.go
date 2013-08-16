@@ -32,14 +32,14 @@ func GenerateRandString(l int) string {
 
 // generate challenge for cram-md5
 
-func GenerateSMTPCramMd5(hostname string) string {
+func GenerateProtocolCramMd5(hostname string) string {
   randStr := strconv.Itoa(os.Getppid()) + "." + strconv.Itoa(int(time.Now().UTC().UnixNano()))
   return "<" + randStr + "@" + hostname + ">"
 }
 
 // decode cram-md5
 
-func DecodeSMTPCramMd5(b64 string) (string, string) {
+func DecodeProtocolCramMd5(b64 string) (string, string) {
   f := strings.Split(DecodeBase64(b64), " ")
   if len(f) == 2 {
     return f[0], f[1]

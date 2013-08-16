@@ -14,7 +14,7 @@ import (
 
 const (
   MAX_AUTH_RETRY = 10
-  INVALID_AUTH_TIMEOUT = "3"
+  INVALID_AUTH_WAIT_TIME = "3"
 )
 
 // If running Nginx as a proxy, give Nginx the IP address and port for the SMTP server
@@ -52,11 +52,6 @@ func nginxHTTPAuth(config *config.Config) {
 
 func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config.Config) {
   //log.Debugf("Nginx proxy get request: %v", r)
-
-  if !config.Adapter.Auth {
-    nginxResponseSuccess(config, w, "", "", "")
-    return
-  }
 
   protocol := strings.ToLower(r.Header.Get("Auth-Protocol"))
 
@@ -117,7 +112,7 @@ func nginxResponseFail(w http.ResponseWriter, r *http.Request) {
     loginAttemptInt, err := strconv.Atoi(loginAttempt)
     if err == nil {
       if loginAttemptInt < MAX_AUTH_RETRY {
-        w.Header().Add("Auth-Wait", INVALID_AUTH_TIMEOUT)
+        w.Header().Add("Auth-Wait", INVALID_AUTH_WAIT_TIME)
       }
     }
   }
