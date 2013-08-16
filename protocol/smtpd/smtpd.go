@@ -497,9 +497,9 @@ func (s *session) checkNeedAuth() bool {
 
 // auth by DB
 
-func (s *session) authByDB() {
+func (s *session) authByDB(authMethod string) {
   var err error
-  s.mailboxId, err = s.srv.DBConn.CheckUser(s.authUsername, s.authPassword, s.authCramMd5Login)
+  s.mailboxId, err = s.srv.DBConn.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
   if err != nil {
     s.sendlinef("535 5.7.1 authentication failed")
     return
@@ -510,9 +510,9 @@ func (s *session) authByDB() {
 // plain auth
 
 func (s *session) plainAuth(line string) {
-  _, s.authUsername, s.authPassword = utils.DecodeSMTPAuthPlain(line)
+  _, s.authUsername, s.authPassword = utils.DecodeProtocolAuthPlain(line)
   if s.authUsername != "" && s.authPassword != "" {
-    s.authByDB()
+    s.authByDB(utils.AUTH_PLAIN)
   } else {
     s.sendlinef("535 5.7.1 authentication failed")
   }
@@ -547,7 +547,7 @@ func (s *session) loginAuth(line string) {
   if s.authPassword == "" {
     s.authPassword = utils.DecodeBase64(line)
     if s.authPassword != "" {
-      s.authByDB()
+      s.authByDB(utils.AUTH_PLAIN)
     } else {
       s.sendlinef("535 5.7.1 authentication failed")
     }
@@ -568,7 +568,7 @@ func (s *session) tryLoginAuth() {
 func (s *session) cramMd5Auth(line string) {
   s.authUsername, s.authPassword = utils.DecodeSMTPCramMd5(line)
   if s.authUsername != "" && s.authPassword != "" {
-    s.authByDB()
+    s.authByDB(utils.AUTH_CRAM_MD5)
   } else {
     s.sendlinef("535 5.7.1 authentication failed")
   }

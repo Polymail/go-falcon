@@ -35,6 +35,14 @@ storage:
   # clamav sql if clamav is enabled
   clamav_sql: "UPDATE messages_[[inbox_id]] SET viruses_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
 
+pop3:
+  enabled: true
+  host: 127.0.0.1
+  port: 1110
+  tls: false
+  ssl_hostname: localhost
+  ssl_pub_key: examples/test.pem
+  ssl_prv_key: examples/test.key
 
 spamassassin:
   enabled: false

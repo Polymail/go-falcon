@@ -9,6 +9,12 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/storage"
+  "github.com/le0pard/go-falcon/utils"
+)
+
+const (
+  MAX_AUTH_RETRY = 10
+  INVALID_AUTH_TIMEOUT = "3"
 )
 
 // If running Nginx as a proxy, give Nginx the IP address and port for the SMTP server
@@ -48,18 +54,18 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
   //log.Debugf("Nginx proxy get request: %v", r)
 
   if !config.Adapter.Auth {
-    nginxResponseSuccess(config, w, "")
+    nginxResponseSuccess(config, w, "", "", "")
     return
   }
 
-  protocol := r.Header.Get("Auth-Protocol")
+  protocol := strings.ToLower(r.Header.Get("Auth-Protocol"))
 
-  if strings.ToLower(protocol) == "smtp" {
-    authMethod := r.Header.Get("Auth-Method")
+  if protocol == "smtp" || protocol == "pop3" {
+    authMethod := strings.ToLower(r.Header.Get("Auth-Method"))
     username := r.Header.Get("Auth-User")
     password := r.Header.Get("Auth-Pass")
     secret := ""
-    if strings.ToLower(authMethod) == "cram-md5" {
+    if authMethod == utils.AUTH_CRAM_MD5 || authMethod == utils.AUTH_APOP {
       secret = r.Header.Get("Auth-Salt")
     }
     // db connect
@@ -71,12 +77,12 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
     }
     defer db.Close()
     db.DB.SetMaxIdleConns(-1)
-    id, err := db.CheckUser(username, password, secret)
+    id, pass, err := db.CheckUserWithPass(authMethod, username, password, secret)
     if err != nil {
       nginxResponseFail(w, r)
       return
     }
-    nginxResponseSuccess(config, w, strconv.Itoa(id))
+    nginxResponseSuccess(config, w, protocol, strconv.Itoa(id), pass)
   } else {
     nginxResponseFail(w, r)
   }
@@ -84,13 +90,18 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
 
 // success auth response
 
-func nginxResponseSuccess(config *config.Config, w http.ResponseWriter, userId string) {
+func nginxResponseSuccess(config *config.Config, w http.ResponseWriter, protocol, userId, password string) {
   w.Header().Add("Auth-Status", "OK")
-  w.Header().Add("Auth-Server", config.Adapter.Host)
-  w.Header().Add("Auth-Port", strconv.Itoa(config.Adapter.Port))
-  // return mailbox id
-  if userId != "" {
+  if protocol == "smtp" {
+    w.Header().Add("Auth-Server", config.Adapter.Host)
+    w.Header().Add("Auth-Port", strconv.Itoa(config.Adapter.Port))
+    // return mailbox id
     w.Header().Add("Auth-User", userId)
+  } else if protocol == "pop3" {
+    w.Header().Add("Auth-Server", config.Pop3.Host)
+    w.Header().Add("Auth-Port", strconv.Itoa(config.Pop3.Port))
+    // return password
+    w.Header().Add("Auth-Pass", password)
   }
   // empty body
   fmt.Fprint(w, "")
@@ -105,8 +116,8 @@ func nginxResponseFail(w http.ResponseWriter, r *http.Request) {
   if loginAttempt != "" {
     loginAttemptInt, err := strconv.Atoi(loginAttempt)
     if err == nil {
-      if loginAttemptInt < 10 {
-        w.Header().Add("Auth-Wait", "3")
+      if loginAttemptInt < MAX_AUTH_RETRY {
+        w.Header().Add("Auth-Wait", INVALID_AUTH_TIMEOUT)
       }
     }
   }

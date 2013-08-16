@@ -53,6 +53,15 @@ type Config struct {
 
     Clamav_Sql                string
   }
+  Pop3 struct {
+    Enabled         bool
+    Host            string
+    Port            int
+    Tls             bool
+    Ssl_Hostname    string
+    Ssl_Pub_Key     string
+    Ssl_Prv_Key     string
+  }
   Spamassassin struct {
     Enabled       bool
     Ip            string

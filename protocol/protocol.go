@@ -9,6 +9,7 @@ import (
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/worker"
   "github.com/le0pard/go-falcon/storage"
+  "github.com/le0pard/go-falcon/protocol/pop3"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
@@ -40,10 +41,25 @@ func onNewMail(c smtpd.Connection, from smtpd.MailAddress) (smtpd.Envelope, erro
   return &env{new(smtpd.BasicEnvelope)}, nil
 }
 
-func loadTLSCerts(config *config.Config) (*tls.Config, error) {
+// load POP3 TLS certs
+
+func loadPop3TLSCerts(config *config.Config) (*tls.Config, error) {
+  cert, err := tls.LoadX509KeyPair(config.Pop3.Ssl_Pub_Key, config.Pop3.Ssl_Prv_Key)
+  if err != nil {
+    log.Errorf("POP3: There was a problem with loading the certificate: %s", err)
+    return nil, err
+  }
+  TLSconfig := &tls.Config{Certificates: []tls.Certificate{cert}, ClientAuth: tls.VerifyClientCertIfGiven, ServerName: config.Pop3.Ssl_Hostname, InsecureSkipVerify: true}
+  TLSconfig.Rand = rand.Reader
+  return TLSconfig, nil
+}
+
+// load SMTP TLS certs
+
+func loadSmtpTLSCerts(config *config.Config) (*tls.Config, error) {
   cert, err := tls.LoadX509KeyPair(config.Adapter.Ssl_Pub_Key, config.Adapter.Ssl_Prv_Key)
   if err != nil {
-    log.Errorf("There was a problem with loading the certificate: %s", err)
+    log.Errorf("SMTPD: There was a problem with loading the certificate: %s", err)
     return nil, err
   }
   TLSconfig := &tls.Config{Certificates: []tls.Certificate{cert}, ClientAuth: tls.VerifyClientCertIfGiven, ServerName: config.Adapter.Ssl_Hostname, InsecureSkipVerify: true}
@@ -51,8 +67,56 @@ func loadTLSCerts(config *config.Config) (*tls.Config, error) {
   return TLSconfig, nil
 }
 
+// start pop3 in goroot
 
-func StartMailServer(config *config.Config) {
+func goPop3Server(config *config.Config) {
+  // buffer
+  var bufferServer bytes.Buffer
+  bufferServer.WriteString(config.Pop3.Host)
+  bufferServer.WriteString(":")
+  bufferServer.WriteString(strconv.Itoa(config.Pop3.Port))
+  // debug info
+  log.Debugf("POP3 working on %s", bufferServer.String())
+  // config database
+  db, err := storage.InitDatabase(config)
+  if err != nil {
+    log.Errorf("Problem with connection to storage: %s", err)
+    return
+  }
+  db.DB.SetMaxIdleConns(2)
+  // config server
+  s := &pop3.Server{
+    Addr:      bufferServer.String(),
+    ServerConfig: config,
+    DBConn: db,
+  }
+  // tls certs
+  if config.Pop3.Tls {
+    cert, err := loadPop3TLSCerts(config)
+    if err != nil {
+      config.Pop3.Tls = false
+    } else {
+      s.TLSconfig = cert
+    }
+  }
+  // server
+  error := s.ListenAndServe()
+  if error != nil {
+    log.Errorf("POP3 server: %v", error)
+  }
+}
+
+// start pop3 server
+
+func StartPop3Server(config *config.Config) {
+  if config.Pop3.Enabled {
+    go goPop3Server(config)
+  }
+}
+
+// start smtp server
+
+func StartSmtpServer(config *config.Config) {
   // create queue for emails (1024 max)
   SaveMailChan = make(chan *smtpd.BasicEnvelope, 1024)
   // start parser and storage workers
@@ -63,7 +127,7 @@ func StartMailServer(config *config.Config) {
   bufferServer.WriteString(":")
   bufferServer.WriteString(strconv.Itoa(config.Adapter.Port))
   // debug info
-  log.Debugf("Mail working on %s", bufferServer.String())
+  log.Debugf("SMPTD working on %s", bufferServer.String())
   // config database
   db, err := storage.InitDatabase(config)
   if err != nil {
@@ -80,7 +144,7 @@ func StartMailServer(config *config.Config) {
   }
   // tls certs
   if config.Adapter.Tls {
-    cert, err := loadTLSCerts(config)
+    cert, err := loadSmtpTLSCerts(config)
     if err != nil {
       config.Adapter.Tls = false
     } else {
@@ -90,6 +154,6 @@ func StartMailServer(config *config.Config) {
   // server
   error := s.ListenAndServe()
   if error != nil {
-    log.Errorf("Mail server: %v", error)
+    log.Errorf("SMPTD server: %v", error)
   }
 }

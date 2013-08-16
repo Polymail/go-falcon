@@ -49,22 +49,23 @@ func DecodeSMTPCramMd5(b64 string) (string, string) {
 
 // check passwords
 
-func CheckSMTPAuthPass(rawPassword, cramPassword, cramSecret string) bool {
-  if cramSecret != "" {
+func CheckProtocolAuthPass(authMethod, rawPassword, cramPassword, cramSecret string) bool {
+  switch authMethod {
+  case "cram-md5":
     d := hmac.New(md5.New, []byte(rawPassword))
     d.Write([]byte(cramSecret))
     s := make([]byte, 0, d.Size())
     expectedMAC := d.Sum(s)
     macIn16bit := []byte(fmt.Sprintf("%x", expectedMAC))
     return hmac.Equal([]byte(cramPassword), macIn16bit)
-  } else {
+  default:
     return (cramPassword == rawPassword)
   }
 }
 
-// Decode smtp plain auth
+// Decode protocol plain auth
 
-func DecodeSMTPAuthPlain(b64 string) (string, string, string) {
+func DecodeProtocolAuthPlain(b64 string) (string, string, string) {
   f := bytes.Split([]byte(DecodeBase64(b64)), []byte{ 0 })
 
   if ((len(f) == 4) || (len(f) == 3)) {

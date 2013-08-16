@@ -26,6 +26,8 @@ func main() {
   log.Debugf("Loaded config: %v", gConfig)
   // start nginx proxy
   proxy.StartNginxHTTPProxy(gConfig)
-  // start protocol listeners
-  protocol.StartMailServer(gConfig)
+  // start pop3 server
+  protocol.StartPop3Server(gConfig)
+  // start smtp server
+  protocol.StartSmtpServer(gConfig)
 }
