@@ -183,6 +183,8 @@ func (s *session) serve() {
       s.handleLoginUser(line.Arg())
     case "PASS":
       s.handleLoginPass(line.Arg())
+    case "CAPA":
+      s.handleCapa()
     case "STAT":
       s.handleStat()
     case "LIST":
@@ -212,6 +214,17 @@ func (s *session) serve() {
     }
 
   }
+}
+
+// handle CAPA
+
+func (s *session) handleCapa() {
+  s.sendlinef("+OK Capability list follows")
+  s.sendlinef("TOP")
+  s.sendlinef("UIDL")
+  s.sendlinef("SASL LOGIN PLAIN CRAM-MD5")
+  s.sendlinef("STLS")
+  s.sendlinef(".")
 }
 
 // handle STAT
