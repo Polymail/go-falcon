@@ -40,6 +40,7 @@ storage:
   pop3_messages_list: "SELECT id, email_size FROM messages_[[inbox_id]] WHERE inbox_id = $1 ORDER BY id DESC LIMIT 1000"
   pop3_messages_list_one: "SELECT id, email_size FROM messages_[[inbox_id]] WHERE inbox_id = $1 AND id = $2"
   pop3_message_one: "SELECT email_size, raw_body FROM messages_[[inbox_id]] WHERE inbox_id = $1 AND id = $2"
+  pop3_message_delete: "DELETE FROM messages_[[inbox_id]] WHERE inbox_id = $1 AND id = $2 RETURNING id"
 
 pop3:
   enabled: true

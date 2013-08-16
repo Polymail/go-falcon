@@ -58,6 +58,7 @@ type Config struct {
     Pop3_Messages_List            string
     Pop3_Messages_List_One        string
     Pop3_Message_One              string
+    Pop3_Message_Delete           string
   }
   Pop3 struct {
     Enabled         bool
