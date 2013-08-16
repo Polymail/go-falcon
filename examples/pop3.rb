@@ -1,7 +1,7 @@
 require 'net/pop'
 
-pop = Net::POP3.new('localhost', 1110)
-pop.start('187950561efb4', '2fde0a47e988ef')             # (1)
+pop = Net::POP3.new('falcon.rw.rw', 1110)
+pop.start('1ca5d2bea8f8c', 'a26d0a622ceefc')             # (1)
 if pop.mails.empty?
   puts 'No mail.'
 else
