@@ -22,6 +22,7 @@ type DBConn struct {
 }
 
 // init database conn
+
 func InitDatabase(config *config.Config) (*DBConn, error) {
   switch strings.ToLower(config.Storage.Adapter) {
   case "postgresql":
@@ -30,6 +31,20 @@ func InitDatabase(config *config.Config) (*DBConn, error) {
   default:
     return nil, errors.New("invalid database adapter")
   }
+}
+
+// check if user exist
+
+func (db *DBConn) IfUserExist(username string) (bool) {
+  var (
+    id int
+    password string
+  )
+  err := db.DB.QueryRow(db.config.Storage.Auth_Sql, username).Scan(&id, &password)
+  if err != nil {
+    return false
+  }
+  return true
 }
 
 // check username login and return with password

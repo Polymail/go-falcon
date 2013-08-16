@@ -51,13 +51,21 @@ func DecodeProtocolCramMd5(b64 string) (string, string) {
 
 func CheckProtocolAuthPass(authMethod, rawPassword, cramPassword, cramSecret string) bool {
   switch authMethod {
-  case "cram-md5":
+  case AUTH_CRAM_MD5:
     d := hmac.New(md5.New, []byte(rawPassword))
     d.Write([]byte(cramSecret))
     s := make([]byte, 0, d.Size())
     expectedMAC := d.Sum(s)
     macIn16bit := []byte(fmt.Sprintf("%x", expectedMAC))
     return hmac.Equal([]byte(cramPassword), macIn16bit)
+  case AUTH_APOP:
+    var buffer bytes.Buffer
+    buffer.WriteString(cramSecret)
+    buffer.WriteString(rawPassword)
+    h := md5.New()
+    h.Write([]byte(buffer.String()))
+    macIn16bit := []byte(fmt.Sprintf("%x", h.Sum(nil)))
+    return bytes.Equal([]byte(cramPassword), macIn16bit)
   default:
     return (cramPassword == rawPassword)
   }

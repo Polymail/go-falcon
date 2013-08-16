@@ -194,6 +194,8 @@ func (s *session) serve() {
       return
     case "AUTH":
       s.handleAuth(line.Arg())
+    case "APOP":
+      s.handleApop(line.Arg())
     case "STLS":
       s.handleStartTLS()
     default:
@@ -327,7 +329,11 @@ func (s *session) tryCramMd5Auth() {
 
 func (s *session) handleLoginUser(line string) {
   s.authUsername = line
-  s.sendlinef("+OK %s is a real", s.authUsername)
+  if s.srv.DBConn.IfUserExist(s.authUsername) {
+    s.sendlinef("+OK %s is a valid mailbox", s.authUsername)
+  } else {
+    s.sendlinef("-ERR never heard of mailbox name")
+  }
 }
 
 // handle pass user
@@ -359,10 +365,29 @@ func (s *session) authByDB(authMethod string) {
 func (s *session) clearAuthData() {
   s.authPlain = false
   s.authLogin = false
-  s.authApopLogin = ""
   s.authCramMd5Login = ""
   s.authUsername = ""
   s.authPassword = ""
+}
+
+// handle apop
+
+func (s *session) handleApop(line string) {
+  s.clearAuthData()
+  if idx := strings.Index(line, " "); idx != -1 {
+    s.authUsername = line[:idx]
+    s.authPassword = strings.TrimRightFunc(line[idx+1:len(line)], unicode.IsSpace)
+  } else {
+    s.authUsername = line
+    s.authPassword = ""
+  }
+  if s.authUsername != "" && s.authPassword != "" {
+    s.authCramMd5Login = s.authApopLogin
+    s.authByDB(utils.AUTH_APOP)
+  } else {
+    s.sendlinef("-ERR invalid username or password")
+  }
+  s.clearAuthData()
 }
 
 // handle StartTLS
