@@ -51,7 +51,7 @@ Net::SMTP.start('falcon.rw.rw',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
 =end
-=begin
+#=begin
 10000.times do |i|
   Net::SMTP.start('falcon.rw.rw',
                   2525,
@@ -60,10 +60,24 @@ end
       smtp.send_message message, "me#{rand(10)}@fromdomain.com",
                                 ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
   end
+  Net::SMTP.start('falcon.rw.rw',
+                  2525,
+                  'falcon.rw.rw',
+                  username, password, :plain) do |smtp|
+      smtp.send_message message, "me#{rand(10)}@fromdomain.com",
+                                ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
+  end
+  Net::SMTP.start('falcon.rw.rw',
+                  2525,
+                  'falcon.rw.rw',
+                  username, password, :login) do |smtp|
+      smtp.send_message message, "me#{rand(10)}@fromdomain.com",
+                                ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
+  end
   puts "#{i} sent"
 end
-=end
-#=begin
+#=end
+=begin
 
   Net::SMTP.start('localhost',
                   2525,
@@ -88,4 +102,4 @@ end
                                 ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
   end
 
-#=end
+=end
