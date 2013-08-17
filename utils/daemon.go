@@ -55,7 +55,7 @@ func setLoggerOutput() {
 }
 
 // InitShellParser return config var
-func InitShellParser() (*config.Config, error) {
+func InitDaemon() (*config.Config, error) {
   flag.Parse()
   // signals
   listenSignals()

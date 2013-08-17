@@ -14,7 +14,7 @@ var (
 
 func main() {
   // parse shell and config
-  gConfig, err := utils.InitShellParser()
+  gConfig, err := utils.InitDaemon()
   if err != nil {
     return
   }
