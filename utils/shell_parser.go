@@ -34,7 +34,7 @@ func listenSignals() {
         setLoggerOutput()
       }
     }
-	}()
+  }()
 }
 
 // setLoggerOutput
