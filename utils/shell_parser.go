@@ -24,16 +24,16 @@ var (
 
 func listenSignals() {
   go func() {
-		sig := make(chan os.Signal, 2)
-		signal.Notify(sig, syscall.SIGUSR1)
-		defer signal.Stop(sig)
-		for {
+    sig := make(chan os.Signal, 2)
+    signal.Notify(sig, syscall.SIGUSR1)
+    defer signal.Stop(sig)
+    for {
       <-sig
       if *logFile != "" {
         loggerFileDescr.Close()
-		    setLoggerOutput()
+        setLoggerOutput()
       }
-		}
+    }
 	}()
 }
 
