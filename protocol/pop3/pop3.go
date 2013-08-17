@@ -303,7 +303,7 @@ func (s *session) handleRetr(line string) {
 func (s *session) handleDel(line string) {
   if !s.checkNeedAuth() {
     messageId := strings.TrimSpace(line)
-    _, err := s.srv.DBConn.Pop3DeleteMessage(s.mailboxId, messageId)
+    err := s.srv.DBConn.Pop3DeleteMessage(s.mailboxId, messageId)
     if err != nil {
       s.sendlinef("-ERR no such message")
     } else {

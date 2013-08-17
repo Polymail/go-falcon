@@ -314,7 +314,7 @@ func (db *DBConn) Pop3Message(mailboxId int, messageId string) (int, string, err
 
 // pop3 delete message
 
-func (db *DBConn) Pop3DeleteMessage(mailboxId int, messageId string) (bool, error) {
+func (db *DBConn) Pop3DeleteMessage(mailboxId int, messageId string) error {
   var (
     sql     string
     retId   int
@@ -323,14 +323,14 @@ func (db *DBConn) Pop3DeleteMessage(mailboxId int, messageId string) (bool, erro
   sql = strings.Replace(db.config.Storage.Pop3_Message_Delete, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   msgId, err := strconv.Atoi(messageId)
   if err != nil {
-    return false, err
+    return err
   }
   err = db.DB.QueryRow(sql, mailboxId, msgId).Scan(&retId)
   if err != nil {
     log.Errorf("Pop3DeleteMessage SQL error: %v", err)
-    return false, err
+    return err
   }
-  return true, nil
+  return nil
 }
 
 // close connection
