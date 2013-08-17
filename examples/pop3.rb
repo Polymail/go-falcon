@@ -1,6 +1,6 @@
 require 'net/pop'
 
-Net::POP3.start('falcon.rw.rw', 1110, '1ca5d2bea8f8c', 'a26d0a622ceefc', true) do |pop|
+Net::POP3.start('falcon.rw.rw', 110, '90681fe5f57d5', '3e526ed313d8dc', true) do |pop|
   if pop.mails.empty?
     puts 'No mail.'
   else
