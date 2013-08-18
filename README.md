@@ -1,6 +1,6 @@
 # Go-Falcon [![Build Status](https://travis-ci.org/le0pard/go-falcon.png?branch=master)](https://travis-ci.org/le0pard/go-falcon)
 
-storage of mail messages in a relational database
+SMTP server with POP3 and nginx proxy support, which store of mail messages in a relational database (PostgreSQL) and some hooks with redis and http.
 
 ## Used libs
 
