@@ -70,7 +70,9 @@ func InitDaemon() (*config.Config, error) {
     return nil, err
   }
   // verbose
-  yamlConfig.Log.Debug = *verbose
+  if *verbose == true {
+    yamlConfig.Log.Debug = *verbose
+  }
   log.Debug = yamlConfig.Log.Debug
   // write pid
   if *pidFile != "" {
