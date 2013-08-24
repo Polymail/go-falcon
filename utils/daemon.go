@@ -24,14 +24,19 @@ var (
 
 func listenSignals() {
   go func() {
-    sig := make(chan os.Signal, 2)
-    signal.Notify(sig, syscall.SIGUSR1)
-    defer signal.Stop(sig)
+    signals := make(chan os.Signal, 2)
+    signal.Notify(signals, syscall.SIGUSR1, syscall.SIGUSR2)
+    defer signal.Stop(signals)
     for {
-      <-sig
-      if *logFile != "" {
-        loggerFileDescr.Close()
-        setLoggerOutput()
+      sig := <-signals
+      switch sig {
+      case syscall.SIGUSR1:
+        if *logFile != "" {
+          loggerFileDescr.Close()
+          setLoggerOutput()
+        }
+      case syscall.SIGUSR2:
+        // TODO: reload config
       }
     }
   }()
@@ -73,10 +78,10 @@ func setLoggerOutput() {
 // InitShellParser return config var
 func InitDaemon() (*config.Config, error) {
   flag.Parse()
-  // signals
-  listenSignals()
   // set logger
   setLoggerOutput()
+  // signals
+  listenSignals()
   // info
   log.StartupInfo()
   // config
