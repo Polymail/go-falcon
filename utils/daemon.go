@@ -37,6 +37,22 @@ func listenSignals() {
   }()
 }
 
+// write pid in file
+
+func writePidInFile(pidFile string) {
+  pid := strconv.Itoa(os.Getpid())
+  f, err := os.OpenFile(pidFile, os.O_WRONLY | os.O_TRUNC | os.O_CREATE, 0666)
+  if err == nil {
+    defer f.Close()
+    _, err = f.WriteString(pid)
+    if err != nil {
+      log.Errorf("Error write pid to file: %v", err)
+    }
+  } else {
+    log.Errorf("Open file for pid: %v", err)
+  }
+}
+
 // setLoggerOutput
 
 func setLoggerOutput() {
@@ -76,17 +92,7 @@ func InitDaemon() (*config.Config, error) {
   log.Debug = yamlConfig.Log.Debug
   // write pid
   if *pidFile != "" {
-    pid := strconv.Itoa(os.Getpid())
-    f, err := os.OpenFile(*pidFile, os.O_RDWR | os.O_CREATE, 0666)
-    if err == nil {
-      defer f.Close()
-      _, err = f.WriteString(pid)
-      if err != nil {
-        log.Errorf("Error write pid to file: %v", err)
-      }
-    } else {
-      log.Errorf("Open file for pid: %v", err)
-    }
+    writePidInFile(*pidFile)
   }
   // retrun config
   return yamlConfig, nil
