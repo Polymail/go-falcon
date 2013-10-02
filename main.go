@@ -1,6 +1,7 @@
 package main
 
 import (
+  "runtime"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/utils"
@@ -13,6 +14,7 @@ var (
 )
 
 func main() {
+  runtime.GOMAXPROCS(runtime.NumCPU())
   // parse shell and config
   gConfig, err := utils.InitDaemon()
   if err != nil {
