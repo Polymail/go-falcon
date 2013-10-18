@@ -2,7 +2,10 @@ ifndef GOBIN
   GOBIN=go
 endif
 
-all:
+all: deps
+		$(GOBIN) install
+
+deps:
 		$(GOBIN) get launchpad.net/goyaml
 		$(GOBIN) get github.com/bmizerany/pq
 		$(GOBIN) get code.google.com/p/mahonia
@@ -10,6 +13,5 @@ all:
 		$(GOBIN) get github.com/sloonz/go-qprintable
 		$(GOBIN) get github.com/sloonz/go-iconv
 		$(GOBIN) get launchpad.net/gocheck
-		$(GOBIN) install
 test:
 		$(GOBIN) test -v ./...
