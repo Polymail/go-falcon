@@ -1,17 +1,17 @@
-ifndef GOBIN
-  GOBIN=go
+ifndef FALCONGOBIN
+  FALCONGOBIN=go
 endif
 
 all: deps
-		$(GOBIN) install
+		$(FALCONGOBIN) install
 
 deps:
-		$(GOBIN) get launchpad.net/goyaml
-		$(GOBIN) get github.com/bmizerany/pq
-		$(GOBIN) get code.google.com/p/mahonia
-		$(GOBIN) get github.com/garyburd/redigo/redis
-		$(GOBIN) get github.com/sloonz/go-qprintable
-		$(GOBIN) get github.com/sloonz/go-iconv
-		$(GOBIN) get launchpad.net/gocheck
+		$(FALCONGOBIN) get launchpad.net/goyaml
+		$(FALCONGOBIN) get github.com/bmizerany/pq
+		$(FALCONGOBIN) get code.google.com/p/mahonia
+		$(FALCONGOBIN) get github.com/garyburd/redigo/redis
+		$(FALCONGOBIN) get github.com/sloonz/go-qprintable
+		$(FALCONGOBIN) get github.com/sloonz/go-iconv
+		$(FALCONGOBIN) get launchpad.net/gocheck
 test:
-		$(GOBIN) test -v ./...
+		$(FALCONGOBIN) test -v ./...
