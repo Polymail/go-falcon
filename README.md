@@ -2,15 +2,9 @@
 
 SMTP server with POP3 and nginx proxy support, which store of mail messages in a relational database (PostgreSQL). Have hooks with redis and http.
 
-## Used libs
+## Install
 
-    go get launchpad.net/goyaml
-    go get github.com/bmizerany/pq
-    go get code.google.com/p/mahonia
-    go get github.com/garyburd/redigo/redis
-    go get github.com/sloonz/go-qprintable
-    go get github.com/sloonz/go-iconv
-    go get launchpad.net/gocheck
+    make all
 
 ## Database SQL
 
