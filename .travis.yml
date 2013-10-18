@@ -6,6 +6,7 @@ install:
   - gvm use go1.1.2 --default
   - export GOPATH=$HOME/gopath
   - make deps
+script: make test
 notifications:
   email: false
 branches:
