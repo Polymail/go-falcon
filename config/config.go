@@ -1,6 +1,7 @@
 package config
 
 import (
+  "runtime"
   "io/ioutil"
   "github.com/le0pard/go-falcon/log"
   "launchpad.net/goyaml"
@@ -103,6 +104,9 @@ type Config struct {
     Password      string
     Urls          []string
   }
+  Daemon struct {
+    Max_Procs     int
+  }
   Log struct {
     Debug         bool
   }
@@ -165,6 +169,9 @@ func (config *Config) setDefaultValues() {
   }
   if config.Proxy.Port <= 0 {
     config.Proxy.Port = 2525
+  }
+  if config.Daemon.Max_Procs <= 0 {
+    config.Daemon.Max_Procs = runtime.NumCPU()
   }
 }
 

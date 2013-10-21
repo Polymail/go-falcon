@@ -85,3 +85,6 @@ proxy:
   enabled: true
   host: localhost
   port: 2526
+
+daemon:
+  max_procs: 4

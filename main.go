@@ -14,7 +14,6 @@ var (
 )
 
 func main() {
-  runtime.GOMAXPROCS(runtime.NumCPU())
   // parse shell and config
   gConfig, err := utils.InitDaemon()
   if err != nil {
@@ -22,6 +21,8 @@ func main() {
   }
   // conf
   log.Debugf("Loaded config: %v", gConfig)
+  // set runtime
+  runtime.GOMAXPROCS(gConfig.Daemon.Max_Procs)
   // start nginx proxy
   proxy.StartNginxHTTPProxy(gConfig)
   // start pop3 server
