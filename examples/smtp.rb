@@ -52,30 +52,37 @@ Net::SMTP.start('falcon.rw.rw',
 end
 =end
 #=begin
-10000.times do |i|
-  Net::SMTP.start('falcon.rw.rw',
-                  2525,
-                  'falcon.rw.rw',
-                  username, password, :cram_md5) do |smtp|
-      smtp.send_message message, "me#{rand(10)}@fromdomain.com",
-                                ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
+arr = []
+5.times do
+  arr << Thread.new do
+    20.times do |i|
+      Net::SMTP.start('falcon.rw.rw',
+                      2525,
+                      'falcon.rw.rw',
+                      username, password, :cram_md5) do |smtp|
+          smtp.send_message message, "me#{rand(10)}@fromdomain.com",
+                                    ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
+      end
+      Net::SMTP.start('falcon.rw.rw',
+                      2525,
+                      'falcon.rw.rw',
+                      username, password, :plain) do |smtp|
+          smtp.send_message message, "me#{rand(10)}@fromdomain.com",
+                                    ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
+      end
+      Net::SMTP.start('falcon.rw.rw',
+                      2525,
+                      'falcon.rw.rw',
+                      username, password, :login) do |smtp|
+          smtp.send_message message, "me#{rand(10)}@fromdomain.com",
+                                    ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
+      end
+      puts "#{i} sent"
+    end
   end
-  Net::SMTP.start('falcon.rw.rw',
-                  2525,
-                  'falcon.rw.rw',
-                  username, password, :plain) do |smtp|
-      smtp.send_message message, "me#{rand(10)}@fromdomain.com",
-                                ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
-  end
-  Net::SMTP.start('falcon.rw.rw',
-                  2525,
-                  'falcon.rw.rw',
-                  username, password, :login) do |smtp|
-      smtp.send_message message, "me#{rand(10)}@fromdomain.com",
-                                ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
-  end
-  puts "#{i} sent"
 end
+
+arr.each {|t| t.join }
 #=end
 =begin
 
