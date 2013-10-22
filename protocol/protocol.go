@@ -13,6 +13,10 @@ import (
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
+const (
+  EMAIL_CHANNEL_SIZE = 1024
+)
+
 type env struct {
   *smtpd.BasicEnvelope
 }
@@ -118,8 +122,8 @@ func StartPop3Server(config *config.Config) {
 // start smtp server
 
 func StartSmtpServer(config *config.Config) {
-  // create queue for emails (1024 max)
-  SaveMailChan = make(chan *smtpd.BasicEnvelope, 1024)
+  // create queue for emails
+  SaveMailChan = make(chan *smtpd.BasicEnvelope, EMAIL_CHANNEL_SIZE)
   // start parser and storage workers
   worker.StartWorkers(config, SaveMailChan)
   // buffer
