@@ -6,6 +6,10 @@ SMTP server with POP3 and nginx proxy support, which store of mail messages in a
 
     make all
 
+### Tests
+
+    make test
+
 ## Database SQL
 
 ```sql
