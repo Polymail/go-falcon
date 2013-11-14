@@ -4,10 +4,10 @@ package clamav
 import (
   "net"
   "bufio"
-  "strconv"
   "io"
   "strings"
   "regexp"
+  "fmt"
   "github.com/le0pard/go-falcon/config"
 )
 
@@ -40,7 +40,7 @@ func CheckEmailForViruses(config *config.Config, email []byte) (string, error) {
 
 func (ss *Clamav) checkEmail() ([]string, error) {
   var dataArrays []string
-  conn, err := net.Dial("tcp", ss.config.Clamav.Host + ":" + strconv.Itoa(ss.config.Clamav.Port))
+  conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", ss.config.Clamav.Host, ss.config.Clamav.Port))
   if err != nil {
     return dataArrays, err
   }

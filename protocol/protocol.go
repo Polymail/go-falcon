@@ -1,10 +1,9 @@
 package protocol
 
 import (
-  "bytes"
-  "strconv"
   "crypto/tls"
   "crypto/rand"
+  "fmt"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/worker"
@@ -74,13 +73,10 @@ func loadSmtpTLSCerts(config *config.Config) (*tls.Config, error) {
 // start pop3 in goroot
 
 func goPop3Server(config *config.Config) {
-  // buffer
-  var bufferServer bytes.Buffer
-  bufferServer.WriteString(config.Pop3.Host)
-  bufferServer.WriteString(":")
-  bufferServer.WriteString(strconv.Itoa(config.Pop3.Port))
+  // server ip:port
+  serverBind := fmt.Sprintf("%s:%d", config.Pop3.Host, config.Pop3.Port)
   // debug info
-  log.Debugf("POP3 working on %s", bufferServer.String())
+  log.Debugf("POP3 working on %s", serverBind)
   // config database
   db, err := storage.InitDatabase(config)
   if err != nil {
@@ -90,7 +86,7 @@ func goPop3Server(config *config.Config) {
   db.DB.SetMaxIdleConns(2)
   // config server
   s := &pop3.Server{
-    Addr:         bufferServer.String(),
+    Addr:         serverBind,
     Hostname:     config.Pop3.Hostname,
     ServerConfig: config,
     DBConn:       db,
@@ -126,13 +122,10 @@ func StartSmtpServer(config *config.Config) {
   SaveMailChan = make(chan *smtpd.BasicEnvelope, EMAIL_CHANNEL_SIZE)
   // start parser and storage workers
   worker.StartWorkers(config, SaveMailChan)
-  // buffer
-  var bufferServer bytes.Buffer
-  bufferServer.WriteString(config.Adapter.Host)
-  bufferServer.WriteString(":")
-  bufferServer.WriteString(strconv.Itoa(config.Adapter.Port))
+  // server ip:port
+  serverBind := fmt.Sprintf("%s:%d", config.Adapter.Host, config.Adapter.Port)
   // debug info
-  log.Debugf("SMPTD working on %s", bufferServer.String())
+  log.Debugf("SMPTD working on %s", serverBind)
   // config database
   db, err := storage.InitDatabase(config)
   if err != nil {
@@ -142,7 +135,7 @@ func StartSmtpServer(config *config.Config) {
   db.DB.SetMaxIdleConns(2)
   // config server
   s := &smtpd.Server{
-    Addr:         bufferServer.String(),
+    Addr:         serverBind,
     Hostname:     config.Adapter.Hostname,
     OnNewMail:    onNewMail,
     ServerConfig: config,

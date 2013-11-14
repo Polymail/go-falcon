@@ -3,7 +3,6 @@ package proxy
 import (
   "fmt"
   "strconv"
-  "bytes"
   "net/http"
   "strings"
   "github.com/le0pard/go-falcon/log"
@@ -36,15 +35,12 @@ func nginxHTTPAuth(config *config.Config) {
   http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
     nginxHTTPAuthHandler(w, r, config)
   })
-  // listener
-  var buffer bytes.Buffer
-  buffer.WriteString(config.Proxy.Host)
-  buffer.WriteString(":")
-  buffer.WriteString(strconv.Itoa(config.Proxy.Port))
+  // server ip:port
+  serverBind := fmt.Sprintf("%s:%d", config.Proxy.Host, config.Proxy.Port)
   //
-  log.Debugf("Nginx proxy working on %s", buffer.String())
+  log.Debugf("Nginx proxy working on %s", serverBind)
   //
-  err := http.ListenAndServe(buffer.String(), nil)
+  err := http.ListenAndServe(serverBind, nil)
   if err != nil {
     log.Errorf("Nginx proxy: %v", err)
   }

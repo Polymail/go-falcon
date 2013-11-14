@@ -1,12 +1,12 @@
 package redishook
 
 import (
-  "bytes"
   "strconv"
   "crypto/md5"
   "encoding/hex"
   "io"
   "time"
+  "fmt"
   "github.com/garyburd/redigo/redis"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
@@ -20,12 +20,7 @@ const (
 
 
 func SendNotifications(config *config.Config, mailboxID, messageID int, subject string) (bool, error) {
-  var buffer bytes.Buffer
-  buffer.WriteString(config.Redis.Host)
-  buffer.WriteString(":")
-  buffer.WriteString(strconv.Itoa(config.Redis.Port))
-
-  redisCon, err := redis.Dial("tcp", buffer.String())
+  redisCon, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", config.Redis.Host, config.Redis.Port))
   if err != nil {
     log.Errorf("Error connect to redis: %v", err)
     return false, err
@@ -43,7 +38,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 
     if config.Redis.Hook_Username != "" && config.Redis.Hook_Password != "" {
       // Faye begin
-      clients, err := redis.Strings(redisCon.Do("SUNION", config.Redis.Namespace + "/channels/inboxes/" + mailboxStr))
+      clients, err := redis.Strings(redisCon.Do("SUNION", fmt.Sprintf("%s/channels/inboxes/%s", config.Redis.Namespace, mailboxStr)))
       if err != nil {
         log.Errorf("redis SUNION command error: %v", err)
         return false, err
@@ -51,21 +46,21 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 
       if clients != nil {
         for _, clientId := range clients {
-          queue := config.Redis.Namespace + "/clients/" + string(clientId) + "/messages"
+          queue := fmt.Sprintf("%s/clients/%d/messages", config.Redis.Namespace, clientId)
 
           _, err := redisCon.Do("RPUSH", queue, data)
           if err != nil {
             log.Errorf("redis RPUSH command error: %v", err)
             continue
           }
-          _, err = redisCon.Do("PUBLISH", config.Redis.Namespace + "/notifications", clientId)
+          _, err = redisCon.Do("PUBLISH", fmt.Sprintf("%s/notifications", config.Redis.Namespace), clientId)
           if err != nil {
             log.Errorf("redis PUBLISH command error: %v", err)
             continue
           }
           //cleanup
           cutoff := time.Now().UTC().UnixNano() - 16000
-          score, err := redis.Int64(redisCon.Do("ZSCORE", config.Redis.Namespace + "/clients", clientId))
+          score, err := redis.Int64(redisCon.Do("ZSCORE", fmt.Sprintf("%s/clients", config.Redis.Namespace), clientId))
           if err != nil {
             log.Errorf("redis ZSCORE command error: %v", err)
             continue
@@ -90,8 +85,8 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
       data = "{\"retry\":true,\"queue\":\"" + config.Redis.Sidekiq_Queue + "\",\"class\":\"" + config.Redis.Sidekiq_Class + "\",\"args\":[" + messageStr + "],\"jid\":\"" + utils.GenerateRandString(20) + "\",\"enqueued_at\":" + strconv.FormatInt(time.Now().UTC().Unix(), 10) + "}"
 
       redisCon.Send("MULTI")
-      redisCon.Send("SADD", config.Redis.Namespace + ":queues", config.Redis.Sidekiq_Queue)
-      redisCon.Send("LPUSH", config.Redis.Namespace + ":queue:" + config.Redis.Sidekiq_Queue, data)
+      redisCon.Send("SADD", fmt.Sprintf("%s:queues", config.Redis.Namespace), config.Redis.Sidekiq_Queue)
+      redisCon.Send("LPUSH", fmt.Sprintf("%s:queue:%s", config.Redis.Namespace, config.Redis.Sidekiq_Queue), data)
       _, err = redisCon.Do("EXEC")
       if err != nil {
         log.Errorf("redis sidekiq command error: %v", err)
@@ -110,7 +105,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 func checkIsSpamAtack(redisCon redis.Conn, mailboxId, subject string) bool {
   h := md5.New()
   io.WriteString(h, subject)
-  redisKey := "mailbox_last_msg_" + mailboxId + "_" + hex.EncodeToString(h.Sum(nil))
+  redisKey := fmt.Sprintf("mailbox_last_msg_%s_%s", mailboxId, hex.EncodeToString(h.Sum(nil)))
   res, err := redis.Int(redisCon.Do("EXISTS", redisKey))
   if err != nil {
     log.Errorf("redis checkIsSpamAtack EXISTS key %s: %v", redisKey, err)
