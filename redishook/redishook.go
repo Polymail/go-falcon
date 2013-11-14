@@ -46,21 +46,21 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 
       if clients != nil {
         for _, clientId := range clients {
-          queue := fmt.Sprintf("%s/clients/%d/messages", config.Redis.Namespace, clientId)
+          queue := fmt.Sprintf("%s/clients/%s/messages", config.Redis.Namespace, string(clientId))
 
           _, err := redisCon.Do("RPUSH", queue, data)
           if err != nil {
             log.Errorf("redis RPUSH command error: %v", err)
             continue
           }
-          _, err = redisCon.Do("PUBLISH", fmt.Sprintf("%s/notifications", config.Redis.Namespace), clientId)
+          _, err = redisCon.Do("PUBLISH", fmt.Sprintf("%s/notifications", config.Redis.Namespace))
           if err != nil {
             log.Errorf("redis PUBLISH command error: %v", err)
             continue
           }
           //cleanup
           cutoff := time.Now().UTC().UnixNano() - 16000
-          score, err := redis.Int64(redisCon.Do("ZSCORE", fmt.Sprintf("%s/clients", config.Redis.Namespace), clientId))
+          score, err := redis.Int64(redisCon.Do("ZSCORE", fmt.Sprintf("%s/clients", config.Redis.Namespace)))
           if err != nil {
             log.Errorf("redis ZSCORE command error: %v", err)
             continue
