@@ -20,16 +20,11 @@ const (
 
 
 func SendNotifications(config *config.Config, mailboxID, messageID int, subject string) (bool, error) {
-  redisCon, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", config.Redis.Host, config.Redis.Port))
-  if err != nil {
-    log.Errorf("Error connect to redis: %v", err)
-    return false, err
-  }
+  redisCon := config.RedisPool.Get()
   defer redisCon.Close()
 
   mailboxStr := strconv.Itoa(mailboxID)
   messageStr := strconv.Itoa(messageID)
-
 
   if checkIsSpamAtack(redisCon, mailboxStr, subject) {
 
@@ -87,7 +82,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
       redisCon.Send("MULTI")
       redisCon.Send("SADD", fmt.Sprintf("%s:queues", config.Redis.Namespace), config.Redis.Sidekiq_Queue)
       redisCon.Send("LPUSH", fmt.Sprintf("%s:queue:%s", config.Redis.Namespace, config.Redis.Sidekiq_Queue), data)
-      _, err = redisCon.Do("EXEC")
+      _, err := redisCon.Do("EXEC")
       if err != nil {
         log.Errorf("redis sidekiq command error: %v", err)
         return false, err

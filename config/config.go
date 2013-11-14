@@ -3,8 +3,11 @@ package config
 import (
   "runtime"
   "io/ioutil"
-  "github.com/le0pard/go-falcon/log"
+  "time"
+  "fmt"
   "launchpad.net/goyaml"
+  "github.com/garyburd/redigo/redis"
+  "github.com/le0pard/go-falcon/log"
 )
 
 // Config represents the supported configuration options for a falcon,
@@ -92,6 +95,8 @@ type Config struct {
     Enabled       bool
     Host          string
     Port          int
+    Pool          int
+    Timeout       int
     Namespace     string
     Hook_Username string
     Hook_Password string
@@ -110,6 +115,7 @@ type Config struct {
   Log struct {
     Debug         bool
   }
+  RedisPool       *redis.Pool
 }
 
 // NewConfig returns a new Config without any options.
@@ -132,6 +138,9 @@ func ReadConfig(filename string) (*Config, error) {
     return nil, err
   }
   e.setDefaultValues()
+  if e.Redis.Enabled {
+    e.initRedisPool()
+  }
   return e, nil
 }
 
@@ -172,6 +181,31 @@ func (config *Config) setDefaultValues() {
   }
   if config.Daemon.Max_Procs <= 0 {
     config.Daemon.Max_Procs = runtime.NumCPU()
+  }
+}
+
+func (config *Config) initRedisPool() {
+  // pool
+  config.RedisPool = &redis.Pool{
+    MaxIdle: config.Redis.Pool,
+    IdleTimeout: time.Duration(config.Redis.Timeout) * time.Second,
+    Dial: func () (redis.Conn, error) {
+      c, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", config.Redis.Host, config.Redis.Port))
+      if err != nil {
+        return nil, err
+      }
+      /*
+      if _, err := c.Do("AUTH", password); err != nil {
+        c.Close()
+        return nil, err
+      }
+      */
+      return c, err
+    },
+    TestOnBorrow: func(c redis.Conn, t time.Time) error {
+      _, err := c.Do("PING")
+      return err
+    },
   }
 }
 

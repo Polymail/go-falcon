@@ -68,6 +68,8 @@ redis:
   enabled: true
   host: 127.0.0.1
   port: 6379
+  pool: 20
+  timeout: 5
   namespace: development
   hook_username: adminadmin
   hook_password: monkey
