@@ -1,7 +1,7 @@
 package postgresql
 
 import (
-  "strconv"
+  "fmt"
   _ "github.com/bmizerany/pq"
   "database/sql"
   "github.com/le0pard/go-falcon/config"
@@ -9,5 +9,5 @@ import (
 
 
 func InitDatabase(config *config.Config) (*sql.DB, error) {
-  return sql.Open("postgres", "host="+config.Storage.Host+" port="+strconv.Itoa(config.Storage.Port)+" user="+config.Storage.Username+" password="+config.Storage.Password+" dbname="+config.Storage.Database+" sslmode=disable")
+  return sql.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.Storage.Host, config.Storage.Port, config.Storage.Username, config.Storage.Password, config.Storage.Database))
 }
