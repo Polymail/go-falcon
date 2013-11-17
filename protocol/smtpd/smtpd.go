@@ -332,15 +332,11 @@ func (s *session) handleHello(greeting, host string) {
   if s.srv.ServerConfig.Adapter.Tls {
     extensions = append(extensions, "250-STARTTLS")
   }
-  // size begin
-  var bufferForSize bytes.Buffer
-  bufferForSize.WriteString("250-SIZE ")
-  bufferForSize.WriteString(strconv.Itoa(s.srv.ServerConfig.Adapter.Max_Mail_Size))
   // size end
   extensions = append(extensions,
     "250-DSN",
     "250-PIPELINING",
-    bufferForSize.String(),
+    fmt.Sprintf("250-SIZE %d", s.srv.ServerConfig.Adapter.Max_Mail_Size),
     "250-ENHANCEDSTATUSCODES",
     "250-8BITMIME",
     "250 HELP",
