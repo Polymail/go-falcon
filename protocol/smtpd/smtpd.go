@@ -284,6 +284,11 @@ func (s *session) serve() {
       s.handleRcpt(line)
     case "DATA":
       s.handleData()
+    case "VRFY", "EXPN":
+      s.sendlinef("252 send some mail, i'll try my best")
+    case "HELP":
+      s.sendlinef("214-This server supports the following commands:")
+      s.sendlinef("214 HELO EHLO STARTTLS RCPT DATA RSET MAIL QUIT HELP AUTH VRFY NOOP")
     case "XCLIENT":
       // Nginx sends this
       s.handleNginx(line.Arg())
