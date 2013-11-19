@@ -49,7 +49,7 @@ func nginxHTTPAuth(config *config.Config) {
 // nginx auth by nginx headers
 
 func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config.Config) {
-  //log.Debugf("Nginx proxy get request: %v", r)
+  log.Debugf("Nginx proxy get request: %v", r)
 
   protocol := strings.ToLower(r.Header.Get("Auth-Protocol"))
 
@@ -84,18 +84,17 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
 // success auth response
 
 func nginxResponseSuccess(config *config.Config, w http.ResponseWriter, protocol, userId, password string) {
-  w.Header().Add("Auth-Status", "OK")
+  serverHost, serverPort := config.Adapter.Host, strconv.Itoa(config.Adapter.Port)
+
   if protocol == PROTOCOL_SMTP {
-    w.Header().Add("Auth-Server", config.Adapter.Host)
-    w.Header().Add("Auth-Port", strconv.Itoa(config.Adapter.Port))
-    // return mailbox id
-    w.Header().Add("Auth-User", userId)
+    w.Header().Add("Auth-User", userId) // return mailbox id instead username
   } else if protocol == PROTOCOL_POP3 {
-    w.Header().Add("Auth-Server", config.Pop3.Host)
-    w.Header().Add("Auth-Port", strconv.Itoa(config.Pop3.Port))
-    // return password
-    w.Header().Add("Auth-Pass", password)
+    serverHost, serverPort = config.Pop3.Host, strconv.Itoa(config.Pop3.Port) // revrite server options
+    w.Header().Add("Auth-Pass", password) // return password for pop3
   }
+  w.Header().Add("Auth-Status", "OK")
+  w.Header().Add("Auth-Server", serverHost)
+  w.Header().Add("Auth-Port", serverPort)
   // empty body
   fmt.Fprint(w, "")
 }
