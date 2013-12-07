@@ -20,7 +20,7 @@ func (s *session) redisIsSessionBlocked() bool {
 
   emailsCount, err := redis.Int(redisCon.Do("GET", s.redisRateLimitKey()))
 
-  if err != nil || emailsCount < s.srv.ServerConfig.Adapter.Rate_Limit {
+  if err != nil || emailsCount <= s.srv.ServerConfig.Adapter.Rate_Limit {
     return false
   }
 
