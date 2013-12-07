@@ -53,7 +53,7 @@ end
 =end
 #=begin
 arr = []
-10.times do
+1.times do
   arr << Thread.new do
     10.times do |i|
       Net::SMTP.start('falcon.rw.rw',
