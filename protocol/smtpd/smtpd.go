@@ -188,6 +188,8 @@ type session struct {
   maxMessages   int    // max messages
   authUsername  string // auth login
   authPassword  string // auth password
+
+  isBlocked     bool // is session blocked
 }
 
 func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
@@ -200,6 +202,7 @@ func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
     authLogin: false,
     authCramMd5Login: "",
     mailboxId: 0,
+    isBlocked: false,
   }
   return
 }
@@ -396,7 +399,7 @@ func (s *session) handleRcpt(line cmdLine) {
     s.sendlinef("503 5.5.1 Error: need MAIL command")
     return
   }
-  if s.checkNeedAuth() {
+  if s.checkNeedAuthOrBlocked() {
     return
   } else {
     // store mailbox id in envelop
@@ -430,7 +433,7 @@ func (s *session) handleNginx(line string) {
         if len(res) == 4 {
           mailboxId, err := strconv.Atoi(res[2])
           if err == nil {
-            s.mailboxId = mailboxId
+            s.setMailboxIdHook(mailboxId)
             s.sendlinef("250 2.0.0 OK")
             return
           }
@@ -449,7 +452,7 @@ func (s *session) handleData() {
     s.sendlinef("503 5.5.1 Error: need RCPT command")
     return
   }
-  if s.checkNeedAuth() {
+  if s.checkNeedAuthOrBlocked() {
     return
   } else {
     // store mailbox id in envelop
@@ -486,11 +489,16 @@ func (s *session) handleData() {
   s.env = nil
 }
 
-// check auth if need
+// check auth if need and not blocked
 
-func (s *session) checkNeedAuth() bool {
+func (s *session) checkNeedAuthOrBlocked() bool {
   if s.srv.ServerConfig.Adapter.Auth && s.mailboxId == 0 {
     s.sendlinef("530 5.7.0 Authentication required")
+    return true
+  }
+  if s.isBlocked == true || s.redisIsSessionBlocked() == true {
+    s.isBlocked = true
+    s.sendlinef("550 5.7.0 Requested action not taken: too many emails per second")
     return true
   }
   return false
@@ -499,13 +507,20 @@ func (s *session) checkNeedAuth() bool {
 // auth by DB
 
 func (s *session) authByDB(authMethod string) {
-  var err error
-  s.mailboxId, err = s.srv.DBConn.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
+  mailboxId, err := s.srv.DBConn.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
   if err != nil {
     s.sendlinef("535 5.7.1 authentication failed")
     return
   }
+  s.setMailboxIdHook(mailboxId)
   s.sendlinef("235 2.0.0 OK, go ahead")
+}
+
+// sucess set mailbox id
+
+func (s *session) setMailboxIdHook(mailboxId int) {
+  s.mailboxId = mailboxId
+  s.redisRateLimits()
 }
 
 // plain auth

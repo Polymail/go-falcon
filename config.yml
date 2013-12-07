@@ -10,6 +10,7 @@ adapter:
   ssl_prv_key: examples/test.key
   welcome_msg: Falcon Mail Server
   max_mail_size: 5242880
+  rate_limit: 2
 
 storage:
   adapter: postgresql

@@ -32,6 +32,7 @@ type Config struct {
     Ssl_Prv_Key     string
     Welcome_Msg     string
     Max_Mail_Size   int
+    Rate_Limit      int
   }
   Storage struct {
     Adapter                   string
@@ -161,6 +162,9 @@ func (config *Config) setDefaultValues() {
   }
   if config.Adapter.Max_Mail_Size <= 0 || config.Adapter.Max_Mail_Size > 99999999 {
     config.Adapter.Max_Mail_Size = 10240000
+  }
+  if config.Adapter.Rate_Limit <= 0 {
+    config.Adapter.Rate_Limit = 2
   }
   // default for Storage
   if config.Storage.Host == "" {
