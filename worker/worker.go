@@ -3,7 +3,7 @@ package worker
 import (
   "net/http"
   "strings"
-  "strconv"
+  "fmt"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/parser"
@@ -113,11 +113,11 @@ func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
 
 func webHookSender(config *config.Config, mailboxID, messageId int) {
   if len(config.Web_Hooks.Urls) > 0 {
-    mailboxStr := strconv.Itoa(mailboxID)
     client := &http.Client{}
     for _, url := range config.Web_Hooks.Urls {
       r, err := http.NewRequest("POST", url,
-        strings.NewReader("{\"channel\": \"/inboxes/" + mailboxStr + "\", \"ext\": {\"username\": \"" + config.Web_Hooks.Username + "\", \"password\": \"" + config.Web_Hooks.Password + "\"}, \"data\": {\"mailbox_id\": \"" + mailboxStr + "\", \"message_id\": \"" + strconv.Itoa(messageId) + "\"}}"))
+        strings.NewReader(fmt.Sprintf("{\"channel\": \"/inboxes/%d\", \"ext\": {\"username\": \"%s\", \"password\": \"%s\"}, \"data\": {\"mailbox_id\": \"%d\", \"message_id\": \"%d\"}}", mailboxID, config.Web_Hooks.Username, config.Web_Hooks.Password, mailboxID, messageId)))
+
       if err != nil {
         log.Errorf("error init web hook: %v", err)
         continue
