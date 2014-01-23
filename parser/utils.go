@@ -6,7 +6,12 @@ import (
   "io/ioutil"
   "strings"
   "regexp"
-  "code.google.com/p/mahonia"
+  "code.google.com/p/go.text/encoding/charmap"
+  "code.google.com/p/go.text/encoding/japanese"
+  "code.google.com/p/go.text/encoding/traditionalchinese"
+  "code.google.com/p/go.text/encoding/simplifiedchinese"
+  "code.google.com/p/go.text/encoding/korean"
+  "code.google.com/p/go.text/transform"
   "github.com/sloonz/go-iconv"
   "github.com/sloonz/go-qprintable"
   "github.com/le0pard/go-falcon/utils"
@@ -16,7 +21,6 @@ var (
   invalidUnquotedRE = regexp.MustCompile(`(.)*\s(filename|name)=[^"](.+\s)+[^"]`)
   invalidUnquotedResRE = regexp.MustCompile(`[^=]+$`)
   invalidEscapedRE = regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
-  mahoniaEnc = mahonia.NewEncoder("iso2022jp")
   mimeHeaderRE = regexp.MustCompile(`=\?(.+?)\?([QBqp])\?(.+?)\?=`)
   fixCharsetRE = regexp.MustCompile(`[_:.\/\\]`)
   invalidContentIdRE = regexp.MustCompile(`<(.*)>`)
@@ -46,7 +50,11 @@ func fixInvalidEscapedAttachmentName(str string) string {
     if invalidEscapedRE.MatchString(word) {
       unescapedStr, err := url.QueryUnescape(word)
       if err == nil {
-        unescapedStr = mahoniaEnc.ConvertString(unescapedStr)
+        sr := strings.NewReader(unescapedStr)
+        tr, err := ioutil.ReadAll(transform.NewReader(sr, japanese.ISO2022JP.NewDecoder()))
+        if err == nil {
+          unescapedStr = string(tr)
+        }
         unescapedStr = invalidEscapedRE.ReplaceAllString(unescapedStr, "name=\"$1\"")
         word = unescapedStr
       }
@@ -91,7 +99,7 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
   } else {
     contentCharset = strings.ToLower(contentCharset)
   }
-  
+
   if contentCharset != "utf-8" {
     switch contentCharset {
     case "iso-8859-1":
@@ -102,8 +110,43 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
       return b.String()
     case "7bit", "8bit":
       return data
+    case "shift-jis", "iso-2022-jp", "big5", "gb2312", "iso-8859-2", "iso-8859-6", "iso-8859-8", "koi8-r", "koi8-u", "windows-1251", "euc-kr":
+      decoder := japanese.ShiftJIS.NewDecoder()
+      switch contentCharset {
+      case "iso-2022-jp":
+        decoder = japanese.ISO2022JP.NewDecoder()
+      case "big5":
+        decoder = traditionalchinese.Big5.NewDecoder()
+      case "gb2312":
+        decoder = simplifiedchinese.HZGB2312.NewDecoder()
+      case "iso-8859-2":
+        decoder = charmap.ISO8859_2.NewDecoder()
+      case "iso-8859-6":
+        decoder = charmap.ISO8859_6.NewDecoder()
+      case "iso-8859-8":
+        decoder = charmap.ISO8859_8.NewDecoder()
+      case "koi8-r":
+        decoder = charmap.KOI8R.NewDecoder()
+      case "koi8-u":
+        decoder = charmap.KOI8U.NewDecoder()
+      case "windows-1251":
+        decoder = charmap.Windows1251.NewDecoder()
+      case "euc-kr":
+        decoder = korean.EUCKR.NewDecoder()
+      default:
+        decoder = japanese.ShiftJIS.NewDecoder()
+      }
+      tr, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(data), decoder))
+      if err == nil {
+        return string(tr)
+      } else {
+        convstr, err := convertByIconv(data, contentCharset)
+        if err == nil {
+          return convstr
+        }
+      }
     default:
-      convstr, err := iconv.Conv(data, "UTF-8", strings.ToUpper(fixCharset(contentCharset)))
+      convstr, err := convertByIconv(data, contentCharset)
       if err == nil {
         return convstr
       }
@@ -111,6 +154,10 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
   }
   // result
   return data
+}
+
+func convertByIconv(data, contentCharset string) (string, error) {
+  return iconv.Conv(data, "UTF-8", strings.ToUpper(fixCharset(contentCharset)))
 }
 
 // quoted-printable

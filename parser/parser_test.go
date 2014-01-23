@@ -873,7 +873,7 @@ ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMR8wHQYJKoZIhvcNAQkBFhBzbWhhdW5jaEBtYWMuY29t
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn90dPsYS3LjfMY211OSYrDQLzwNYPlAL
 7+/0XA+kdy8/rRnyEHFGwhNCDmg0B6pxC7z3xxJD/8GfCd+IYUUNUQV5m9MkxfP9pTVXZVIYLaBw
 ------=_Part_5028_7368284.1115579351471--`,
-  "Fwd: Signed email causes file attachments", "xxxxx@xxxxxxxxx.com", "xxxxx xxxx", "xxxxxxxxx.xxxxxxx@gmail.com", "xxxxxxxxx xxxxxxx", 
+  "Fwd: Signed email causes file attachments", "xxxxx@xxxxxxxxx.com", "xxxxx xxxx", "xxxxxxxxx.xxxxxxx@gmail.com", "xxxxxxxxx xxxxxxx",
   `We should not include these files or vcards as attachments.
 
 ---------- Forwarded message ----------
@@ -888,7 +888,7 @@ Hi,
 Test attachments oddly encoded with japanese charset.
 
 `, "", []goodMailAttachments{
-    {"01 Quien Te Dijat. Pitbull.mp3"},
+    {"01 Quien Te Dij\ufffdat. Pitbull.mp3"},
   }},
 
   {`Date: Thu, 16 May 2013 10:21:11 +0200
@@ -1201,7 +1201,7 @@ ZWJlbiwgZGVubiBhdWNoIHVucyBm/HJjaHRlbiwgd2llIGlociBzZWh0LCBlaW5pZ2UgVGllcmUs
 IHdlbGNoZSBhbHNvIHdvaGwgbm9jaCB1bmds/GNrbGljaGVyIHNlaW4gbfxzc2VuIGFscyB3aXIu
 IiANCg==`,
   "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "", "doug@example.com", "Doug Sauder",
-  "Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n", 
+  "Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
   "", []goodMailAttachments{}},
 
   {`From test@example.com  Mon Aug 22 09:45:15 2011
