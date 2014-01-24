@@ -48,7 +48,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
             log.Errorf("redis RPUSH command error: %v", err)
             continue
           }
-          _, err = redisCon.Do("PUBLISH", fmt.Sprintf("%s/notifications", config.Redis.Namespace))
+          _, err = redisCon.Do("PUBLISH", fmt.Sprintf("%s/notifications", config.Redis.Namespace), string(clientId))
           if err != nil {
             log.Errorf("redis PUBLISH command error: %v", err)
             continue
