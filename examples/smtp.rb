@@ -51,7 +51,7 @@ Net::SMTP.start('falcon.rw.rw',
                               ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
 end
 =end
-#=begin
+=begin
 arr = []
 1.times do
   arr << Thread.new do
@@ -69,8 +69,8 @@ arr = []
 end
 
 arr.each {|t| t.join }
-#=end
-=begin
+=end
+#=begin
 
   Net::SMTP.start('localhost',
                   2525,
@@ -95,4 +95,4 @@ arr.each {|t| t.join }
                                 ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
   end
 
-=end
+#=end

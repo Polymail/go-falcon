@@ -55,7 +55,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
           }
           //cleanup
           cutoff := time.Now().UTC().UnixNano() - 16000
-          score, err := redis.Int64(redisCon.Do("ZSCORE", fmt.Sprintf("%s/clients", config.Redis.Namespace)))
+          score, err := redis.Int64(redisCon.Do("ZSCORE", fmt.Sprintf("%s/clients", config.Redis.Namespace), string(clientId)))
           if err != nil {
             log.Errorf("redis ZSCORE command error: %v", err)
             continue
