@@ -37,22 +37,18 @@ func (s *session) redisRateLimits() {
 
   redisKey := s.redisRateLimitKey()
 
-  keyExist, err := redis.Bool(redisCon.Do("EXISTS", redisKey))
-  if err != nil {
-    log.Errorf("Redis EXISTS error: %v", err)
-    return
+  emailsKeyCount, err := redis.Int(redisCon.Do("INCR", redisKey))
+  if err == nil {
+    if emailsKeyCount == 1 {
+      _, err = redisCon.Do("EXPIRE", redisKey, 1) // expire 1 sec
+      if err != nil {
+        log.Errorf("redisRateLimits EXPIRE error: %v", err)
+      }
+    }
+  } else {
+    log.Errorf("redisRateLimits INCR error: %v", err)
   }
-
-  redisCon.Send("MULTI")
-  redisCon.Send("INCR", redisKey)
-  if keyExist != true {
-    redisCon.Send("EXPIRE", redisKey, 1) // expire 1 sec
-  }
-  _, err = redisCon.Do("EXEC")
-  if err != nil {
-    log.Errorf("redisRateLimits error: %v", err)
-    return
-  }
+  return
 }
 
 
