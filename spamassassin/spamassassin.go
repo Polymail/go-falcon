@@ -11,6 +11,7 @@ import (
   "regexp"
   "encoding/json"
   "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/log"
 )
 
 var (
@@ -113,6 +114,7 @@ func (ss *Spamassassin) checkEmail() ([]string, error) {
 
 func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
   response := &SpamassassinResponse{}
+  log.Errorf("SpamassassinResponse parseOutput: %v", output)
   for _, row := range output {
     if spamInfoRe.MatchString(row) {
       res := spamInfoRe.FindStringSubmatch(row)

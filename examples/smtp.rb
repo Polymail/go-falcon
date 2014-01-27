@@ -13,7 +13,6 @@ Subject: SMTP e-mail test
 This is a test e-mail message.
 END
 
-=begin
 message = <<-END.split("\n").map!(&:strip).join("\n")
 Subject: Test spam mail (GTUBE)
 Message-ID: <GTUBE1.1010101@example.net>
@@ -41,6 +40,9 @@ XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X
 
 You should send this test mail from an account outside of your network.
 END
+
+=begin
+
 
 
 message = <<-END.split("\n").map!(&:strip).join("\n")
@@ -84,7 +86,7 @@ end
 arr = []
 1.times do
   arr << Thread.new do
-    10.times do |i|
+    1.times do |i|
       Net::SMTP.start('falcon.rw.rw',
                       2525,
                       'falcon.rw.rw',
