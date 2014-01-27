@@ -114,8 +114,8 @@ func (ss *Spamassassin) checkEmail() ([]string, error) {
 
 func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
   response := &SpamassassinResponse{}
-  log.Errorf("SpamassassinResponse parseOutput: %v", output)
   for _, row := range output {
+    log.Errorf("SpamassassinResponse parseOutput: %v", row)
     if spamInfoRe.MatchString(row) {
       res := spamInfoRe.FindStringSubmatch(row)
       if len(res) == 5 {
