@@ -16,7 +16,7 @@ import (
 var (
   spamInfoRe = regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`)
   spamMainRe = regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`)
-  spamDetailsRe = regexp.MustCompile(`^(-?[0-9]*[[.][0-9]]?)\s([a-zA-Z0-9_]*)(\W*)([\w:\s-]*)`)
+  spamDetailsRe = regexp.MustCompile(`^(-?[0-9\.]*)\s([a-zA-Z0-9_]*)(\W*)([\w:\s-]*)`)
 )
 
 type Spamassassin struct {
