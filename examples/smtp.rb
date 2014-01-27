@@ -13,7 +13,7 @@ Subject: SMTP e-mail test
 This is a test e-mail message.
 END
 
-message = File.read('examples/test.eml')
+# message = File.read('examples/test.eml')
 
 =begin
 
