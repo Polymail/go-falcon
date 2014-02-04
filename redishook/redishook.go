@@ -16,6 +16,7 @@ import (
 const (
   REDIS_KEY_TTL = 60
   REDIS_KEY_MAX_COUNT = 15
+  NOTIFICATION_TIMEOUT = 30
 )
 
 
@@ -48,13 +49,13 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
             log.Errorf("redis RPUSH command error: %v", err)
             continue
           }
-          _, err = redisCon.Do("PUBLISH", fmt.Sprintf("%s/notifications", config.Redis.Namespace), string(clientId))
+          _, err = redisCon.Do("PUBLISH", fmt.Sprintf("%s/notifications/messages", config.Redis.Namespace), string(clientId))
           if err != nil {
             log.Errorf("redis PUBLISH command error: %v", err)
             continue
           }
           //cleanup
-          cutoff := time.Now().UTC().UnixNano() - 16000
+          cutoff := time.Now().UTC().UnixNano() - (1600 * NOTIFICATION_TIMEOUT)
           score, err := redis.Int64(redisCon.Do("ZSCORE", fmt.Sprintf("%s/clients", config.Redis.Namespace), string(clientId)))
           if err != nil {
             log.Errorf("redis ZSCORE command error: %v", err)
