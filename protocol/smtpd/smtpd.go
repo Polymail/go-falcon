@@ -471,7 +471,7 @@ func (s *session) handleData() {
   }
   s.sendlinef("354 Go ahead")
   for {
-    sl, err := s.br.ReadSlice('\n')
+    sl, err := s.br.ReadBytes('\n')
     if err != nil {
       s.errorf("read error: %v", err)
       return
