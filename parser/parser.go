@@ -245,7 +245,7 @@ func (email *ParsedEmail) parseMimeEmail(pbody []byte, boundary string) {
     p, err := reader.NextPart()
 
     if err != nil {
-      if err != io.EOF {
+      if io.EOF != err {
         log.Errorf("Mime Part error: %v", err)
       }
       break
