@@ -219,6 +219,7 @@ func (email *ParsedEmail) parseEmailPart(part *multipart.Part) {
   pbody, err := ioutil.ReadAll(part)
   if err != nil {
     log.Errorf("Read part: %v", err)
+    ioutil.WriteFile("/tmp/email", email.EmailBody, 0644)
     return
   }
   email.parseEmailByType(part.Header, pbody)
