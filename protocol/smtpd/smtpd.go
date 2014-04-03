@@ -18,6 +18,7 @@ import (
   "strconv"
   "strings"
   "time"
+  "io"
   "unicode"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
@@ -250,9 +251,12 @@ func (s *session) serve() {
     if s.srv.ReadTimeout != 0 {
       s.rwc.SetReadDeadline(time.Now().Add(s.srv.ReadTimeout))
     }
-    sl, err := s.br.ReadSlice('\n')
+    sl, err := s.br.ReadString('\n')
     if err != nil {
-      s.errorf("read error: %v", err)
+      // client close connection
+      if io.EOF != err {
+        s.errorf("read error: %v", err)
+      }
       return
     }
     line := cmdLine(string(sl))
