@@ -25,23 +25,23 @@ storage:
 
   settings_sql: "SELECT max_size FROM inboxes WHERE id = $1" # $1 - inbox_id
 
-  messages_sql: "INSERT INTO messages_[[inbox_id]](inbox_id, subject, sent_at, from_email, from_name, to_email, to_name, html_body, text_body, raw_body, email_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING id" # returning id is MUST
-  attachments_sql: "INSERT INTO attachments_[[inbox_id]](inbox_id, message_id, filename, attachment_type, content_type, content_id, transfer_encoding, attachment_body, attachment_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) RETURNING id"
+  messages_sql: "INSERT INTO messages(inbox_id, subject, sent_at, from_email, from_name, to_email, to_name, html_body, text_body, raw_body, email_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING id" # returning id is MUST
+  attachments_sql: "INSERT INTO attachments(inbox_id, message_id, filename, attachment_type, content_type, content_id, transfer_encoding, attachment_body, attachment_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) RETURNING id"
 
   max_messages_enabled: true
-  max_messages_sql: "SELECT count(*) FROM messages_[[inbox_id]] WHERE inbox_id = $1" # $1 - mailbox_id
-  max_messages_cleanup_sql: "DELETE FROM messages_[[inbox_id]] WHERE inbox_id = $1 AND id IN (SELECT id FROM messages WHERE inbox_id = $1 ORDER BY id LIMIT $2) RETURNING id" # $1 - mailbox_id, $2 - how much delete
-  max_attachments_cleanup_sql: "DELETE FROM attachments_[[inbox_id]] WHERE inbox_id = $1 AND message_id = $2 RETURNING id" # $1 - inbox_id, $2 - message id
+  max_messages_sql: "SELECT count(*) FROM messages WHERE inbox_id = $1" # $1 - mailbox_id
+  max_messages_cleanup_sql: "DELETE FROM messages WHERE inbox_id = $1 AND id IN (SELECT id FROM messages WHERE inbox_id = $1 ORDER BY id LIMIT $2) RETURNING id" # $1 - mailbox_id, $2 - how much delete
+  max_attachments_cleanup_sql: "DELETE FROM attachments WHERE inbox_id = $1 AND message_id = $2 RETURNING id" # $1 - inbox_id, $2 - message id
   # spamassassin sql if spamassassin is enabled
-  spamassassin_sql: "UPDATE messages_[[inbox_id]] SET spam_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
+  spamassassin_sql: "UPDATE messages SET spam_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
   # clamav sql if clamav is enabled
-  clamav_sql: "UPDATE messages_[[inbox_id]] SET viruses_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
+  clamav_sql: "UPDATE messages SET viruses_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
   # pop3 sql if enabled
   pop3_count_and_size_messages: "WITH limited_messages AS (SELECT id, email_size FROM messages_[[inbox_id]] WHERE inbox_id = $1 ORDER BY id DESC LIMIT 1000) SELECT count(id), COALESCE(SUM(email_size), 0) FROM limited_messages GROUP BY email_size"
-  pop3_messages_list: "SELECT id, email_size FROM messages_[[inbox_id]] WHERE inbox_id = $1 ORDER BY id DESC LIMIT 1000"
-  pop3_messages_list_one: "SELECT id, email_size FROM messages_[[inbox_id]] WHERE inbox_id = $1 AND id = $2"
-  pop3_message_one: "SELECT email_size, raw_body FROM messages_[[inbox_id]] WHERE inbox_id = $1 AND id = $2"
-  pop3_message_delete: "DELETE FROM messages_[[inbox_id]] WHERE inbox_id = $1 AND id = $2 RETURNING id"
+  pop3_messages_list: "SELECT id, email_size FROM messages WHERE inbox_id = $1 ORDER BY id DESC LIMIT 1000"
+  pop3_messages_list_one: "SELECT id, email_size FROM messages WHERE inbox_id = $1 AND id = $2"
+  pop3_message_one: "SELECT email_size, raw_body FROM messages WHERE inbox_id = $1 AND id = $2"
+  pop3_message_delete: "DELETE FROM messages WHERE inbox_id = $1 AND id = $2 RETURNING id"
 
 pop3:
   enabled: true
