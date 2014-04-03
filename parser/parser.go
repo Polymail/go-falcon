@@ -243,11 +243,11 @@ func (email *ParsedEmail) parseMimeEmail(pbody []byte, boundary string) {
 
   for {
     p, err := reader.NextPart()
-    if err == io.EOF {
-      break
-    }
+
     if err != nil {
-      log.Errorf("Mime Part error: %v", err)
+      if err != io.EOF {
+        log.Errorf("Mime Part error: %v", err)
+      }
       break
     } else {
       email.parseEmailPart(p)
