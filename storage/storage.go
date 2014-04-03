@@ -57,11 +57,11 @@ func (db *DBConn) CheckUserWithPass(authMethod, username, cramPassword, cramSecr
   log.Debugf("AUTH by %s / %s", username, cramPassword)
   err := db.DB.QueryRow(db.config.Storage.Auth_Sql, username).Scan(&id, &password)
   if err != nil {
-    log.Errorf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
+    log.Debugf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
     return 0, "", err
   }
   if !utils.CheckProtocolAuthPass(authMethod, password, cramPassword, cramSecret) {
-    log.Errorf("User %s send invalid password", username)
+    log.Debugf("User %s send invalid password", username)
     return 0, "", errors.New("The user have invalid password")
   }
   return id, password, nil
