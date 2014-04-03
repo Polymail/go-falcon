@@ -151,6 +151,7 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
   var (
     id int
   )
+  log.Errorf("Attachments TEST: %v", strBody)
   sql := strings.Replace(db.config.Storage.Attachments_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
