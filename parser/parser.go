@@ -181,6 +181,7 @@ func (email *ParsedEmail) parseAttachment(headers textproto.MIMEHeader, contentT
           attachmentContentID = getInvalidContentId(attachmentContentID)
         }
       }
+      log.Errorf("Attachments TEST 1: %v", string(pbody))
       attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
       email.Attachments = append(email.Attachments, attachment)
     default:
