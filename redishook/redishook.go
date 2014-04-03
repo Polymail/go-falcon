@@ -78,7 +78,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 
     if config.Redis.Sidekiq_Queue != "" && config.Redis.Sidekiq_Class != "" {
       // Sidekiq begin
-      data = "{\"retry\":true,\"queue\":\"" + config.Redis.Sidekiq_Queue + "\",\"class\":\"" + config.Redis.Sidekiq_Class + "\",\"args\":[" + messageStr + "],\"jid\":\"" + utils.GenerateRandString(20) + "\",\"enqueued_at\":" + strconv.FormatInt(time.Now().UTC().Unix(), 10) + "}"
+      data = "{\"retry\":true,\"queue\":\"" + config.Redis.Sidekiq_Queue + "\",\"class\":\"" + config.Redis.Sidekiq_Class + "\",\"args\":[" + mailboxStr + ", " + messageStr + "],\"jid\":\"" + utils.GenerateRandString(20) + "\",\"enqueued_at\":" + strconv.FormatInt(time.Now().UTC().Unix(), 10) + "}"
 
       redisCon.Send("MULTI")
       redisCon.Send("SADD", fmt.Sprintf("%s:queues", config.Redis.Namespace), config.Redis.Sidekiq_Queue)
