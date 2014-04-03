@@ -95,7 +95,7 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
     to_name,
     html,
     text,
-    strBody,
+    utils.EncodeBase64(strBody),
     len(strBody)).Scan(&id)
   if err != nil {
     log.Errorf("Messages SQL error: %v", err)

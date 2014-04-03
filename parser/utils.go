@@ -15,7 +15,6 @@ import (
   "github.com/sloonz/go-iconv"
   "github.com/sloonz/go-qprintable"
   "github.com/le0pard/go-falcon/utils"
-  "github.com/le0pard/go-falcon/log"
 )
 
 var (
@@ -102,9 +101,6 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
     contentCharset = strings.ToLower(contentCharset)
   }
 
-  log.Errorf("FixEncodingAndCharsetOfPart: %v", data)
-  log.Errorf("FixEncodingAndCharsetOfPart: %v", contentCharset)
-
   if contentCharset != "utf-8" {
     switch contentCharset {
     case "iso-8859-1":
@@ -157,9 +153,6 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
       }
     }
   }
-
-  log.Errorf("FixEncodingAndCharsetOfPart 2: %v", data)
-  log.Errorf("FixEncodingAndCharsetOfPart 2: %v", contentCharset)
   // result
   return data
 }
