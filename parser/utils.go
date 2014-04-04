@@ -74,9 +74,9 @@ func MimeHeaderDecode(str string) string {
       if len(word) > 2 {
         switch strings.ToUpper(word[2]) {
           case "B":
-            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1]), 1)
+            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1], true), 1)
           case "Q":
-            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "quoted-printable", word[1]), 1)
+            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "quoted-printable", word[1], true), 1)
         }
       }
     }
@@ -87,7 +87,7 @@ func MimeHeaderDecode(str string) string {
 
 // fix email body
 
-func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) string {
+func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, checkOnInvalidUtf bool) string {
   // encoding
   if contentEncoding == "quoted-printable" {
     data = strings.Replace(fromQuotedP(data), "_", " ", -1)
@@ -140,22 +140,22 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
       }
       tr, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(data), decoder))
       if err == nil {
-        return string(tr)
+        data = string(tr)
       } else {
         convstr, err := convertByIconv(data, contentCharset)
         if err == nil {
-          return convstr
+          data = convstr
         }
       }
     default:
       convstr, err := convertByIconv(data, contentCharset)
       if err == nil {
-        return convstr
+        data = convstr
       }
     }
   }
   // check invalid utf-8 symbols
-  if !utf8.Valid([]byte(data)) {
+  if checkOnInvalidUtf && !utf8.Valid([]byte(data)) {
     v := make([]rune, 0, len(data))
     for i, r := range data {
       if r == utf8.RuneError {

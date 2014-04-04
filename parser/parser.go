@@ -129,11 +129,11 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   switch contentTypeVal {
   case "text/html":
     if email.HtmlPart == "" && email.isRFC == false {
-      email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+      email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
     }
   case "text/plain":
     if email.TextPart == "" && email.isRFC == false {
-      email.TextPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"])
+      email.TextPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
     }
   case "message/rfc822":
     msg, err := mail.ReadMessage(bytes.NewBuffer(pbody))
@@ -181,7 +181,7 @@ func (email *ParsedEmail) parseAttachment(headers textproto.MIMEHeader, contentT
           attachmentContentID = getInvalidContentId(attachmentContentID)
         }
       }
-      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"]), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
+      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], false), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
       email.Attachments = append(email.Attachments, attachment)
     default:
       log.Errorf("Unknown content disposition: %s", contentDispositionVal)
