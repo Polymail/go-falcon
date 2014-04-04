@@ -430,7 +430,7 @@ func (s *session) handleRcpt(line cmdLine) {
 // Handle nginx
 
 func (s *session) handleNginx(line string) {
-  if s.srv.ServerConfig.Proxy.Enabled {
+  if s.srv.ServerConfig.Proxy.Enabled || s.srv.ServerConfig.Proxy.Proxy_Mode {
     if s.srv.ServerConfig.Adapter.Auth {
       if nginxRE.MatchString(line) {
         res := nginxRE.FindStringSubmatch(line)

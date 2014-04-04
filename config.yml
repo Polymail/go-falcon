@@ -86,8 +86,12 @@ web_hooks:
 
 proxy:
   enabled: true
+  proxy_mode: true
   host: localhost
   port: 2526
+  client_ports:
+    smtp: []
+    pop3: []
 
 daemon:
   max_procs: 4

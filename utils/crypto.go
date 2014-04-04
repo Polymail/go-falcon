@@ -30,6 +30,11 @@ func GenerateRandString(l int) string {
   return randomString(l)
 }
 
+func GetRandFromArray(arr []int) int {
+  rand.Seed(time.Now().UTC().UnixNano())
+  return arr[rand.Intn(len(arr))]
+}
+
 // generate challenge for cram-md5
 
 func GenerateProtocolCramMd5(hostname string) string {

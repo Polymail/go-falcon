@@ -84,12 +84,12 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
 // success auth response
 
 func nginxResponseSuccess(config *config.Config, w http.ResponseWriter, protocol, userId, password string) {
-  serverHost, serverPort := config.Adapter.Host, strconv.Itoa(config.Adapter.Port)
+  serverHost, serverPort := config.Adapter.Host, strconv.Itoa(utils.GetRandFromArray(config.SmtpPortRanges))
 
   if protocol == PROTOCOL_SMTP {
     w.Header().Add("Auth-User", userId) // return mailbox id instead username
   } else if protocol == PROTOCOL_POP3 {
-    serverHost, serverPort = config.Pop3.Host, strconv.Itoa(config.Pop3.Port) // revrite server options
+    serverHost, serverPort = config.Pop3.Host, strconv.Itoa(utils.GetRandFromArray(config.Pop3PortRanges)) // revrite server options
     w.Header().Add("Auth-Pass", password) // return password for pop3
   }
   w.Header().Add("Auth-Status", "OK")

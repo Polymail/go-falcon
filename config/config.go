@@ -89,8 +89,13 @@ type Config struct {
   }
   Proxy struct {
     Enabled       bool
+    Proxy_Mode    bool
     Host          string
     Port          int
+    Client_Ports struct {
+      Smtp        []int
+      Pop3        []int
+    }
   }
   Redis struct {
     Enabled       bool
@@ -117,6 +122,8 @@ type Config struct {
     Debug         bool
   }
   RedisPool       *redis.Pool
+  SmtpPortRanges  []int
+  Pop3PortRanges  []int
 }
 
 // NewConfig returns a new Config without any options.
@@ -185,6 +192,15 @@ func (config *Config) setDefaultValues() {
   }
   if config.Daemon.Max_Procs <= 0 {
     config.Daemon.Max_Procs = runtime.NumCPU()
+  }
+  // ports
+  config.SmtpPortRanges = []int{config.Adapter.Port}
+  if len(config.Proxy.Client_Ports.Smtp) > 0 {
+    config.SmtpPortRanges = append(config.SmtpPortRanges, config.Proxy.Client_Ports.Smtp...)
+  }
+  config.Pop3PortRanges = []int{config.Pop3.Port}
+  if len(config.Proxy.Client_Ports.Pop3) > 0 {
+    config.Pop3PortRanges = append(config.Pop3PortRanges, config.Proxy.Client_Ports.Pop3...)
   }
 }
 
