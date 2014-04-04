@@ -771,8 +771,8 @@ R6tg7y9/D7Hdsd38F3i919j777WwNy5e/o7B/lPy9P058p7R/D/5nvNWwS0OxH3/ABcTd/VXs/b9
 GwB9/g/9S/t/s9g//9k=
 
 --Apple-Mail-6--218366681--`,
-  "Eelanalüüsi päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", []goodMailAttachments{
-    {"Eelanalüüsi päring.jpg"},
+  "Eelanalüüsi_päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", []goodMailAttachments{
+    {"Eelanalüüsi_päring.jpg"},
   }},
 
   {`Subject: this message JUST contains an attachment

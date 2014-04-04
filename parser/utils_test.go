@@ -32,15 +32,16 @@ type mimeHeaderTest struct {
 }
 
 var mimeHeaderTests = []mimeHeaderTest{
-  {"=?iso-8859-1?q?J=F6rg_Doe?=", "Jörg Doe"},
-  {"=?utf-8?q?J=C3=B6rg_Doe?=", "Jörg Doe"},
+  {"=?iso-8859-1?q?J=F6rg_Doe?=", "Jörg_Doe"},
+  {"=?utf-8?q?J=C3=B6rg_Doe?=", "Jörg_Doe"},
   {"=?ISO-8859-1?Q?Andr=E9?=", "André"},
   {"=?ISO-8859-1?B?SvZyZw==?=", "Jörg"},
   {"=?UTF-8?B?SsO2cmc=?=", "Jörg"},
   {"illness notification =?8bit?Q?ALPH=C3=89E?=", "illness notification ALPHÉE"},
   {"=?UTF-8?B?44G+44G/44KA44KB44KC?=", "まみむめも"},
-  {"=?utf-8?q?J=C3=B6rg_Doe?=. =?utf-8?q?J=C3=B6rg_Doe?=", "Jörg Doe. Jörg Doe"},
-  {"=?iso-8859-1?Q?=A1Hola,_se=F1or!?=", "¡Hola, señor!"},
+  {"=?utf-8?q?J=C3=B6rg_Doe?=. =?utf-8?q?J=C3=B6rg_Doe?=", "Jörg_Doe. Jörg_Doe"},
+  {"=?iso-8859-1?Q?=A1Hola,_se=F1or!?=", "¡Hola,_señor!"},
+  {"=?UTF-8?B?0L/RgNC40LLQtdGCINCy0YHQtdC8?=", "привет всем"},
 }
 
 func TestMimeHeaderDecode(t *testing.T) {

@@ -90,7 +90,7 @@ func MimeHeaderDecode(str string) string {
 func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, checkOnInvalidUtf bool) string {
   // encoding
   if contentEncoding == "quoted-printable" {
-    data = strings.Replace(fromQuotedP(data), "_", " ", -1)
+    data = fromQuotedP(data)
   } else if contentEncoding == "base64" {
     data = utils.DecodeBase64(data)
   }
