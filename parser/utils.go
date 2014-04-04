@@ -140,17 +140,17 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string) s
       }
       tr, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(data), decoder))
       if err == nil {
-        return string(tr)
+        data = string(tr)
       } else {
         convstr, err := convertByIconv(data, contentCharset)
         if err == nil {
-          return convstr
+          data = convstr
         }
       }
     default:
       convstr, err := convertByIconv(data, contentCharset)
       if err == nil {
-        return convstr
+        data = convstr
       }
     }
   }
