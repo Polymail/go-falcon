@@ -259,7 +259,7 @@ func (s *session) serve() {
       }
       return
     }
-    line := cmdLine(string(sl))
+    line := cmdLine(sl)
     if err := line.checkValid(); err != nil {
       s.sendlinef("500 %v", err)
       continue

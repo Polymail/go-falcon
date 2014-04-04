@@ -10,7 +10,6 @@ import (
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/utils"
   "github.com/le0pard/go-falcon/storage/postgresql"
-  "io/ioutil"
 )
 
 type AccountSettings struct {
@@ -100,7 +99,6 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
     len(strBody)).Scan(&id)
   if err != nil {
     log.Errorf("Messages SQL error: %v", err)
-    ioutil.WriteFile("/tmp/email", rawEmail, 0644)
     return 0, err
   }
   if id == 0 {
