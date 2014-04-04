@@ -244,7 +244,7 @@ func (db *DBConn) Pop3MessagesCountAndSum(mailboxId int) (int, int, error) {
   sql = strings.Replace(db.config.Storage.Pop3_Count_And_Size_Messages, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql, mailboxId).Scan(&count, &sum)
   if err != nil {
-    log.Errorf("Pop3MessagesCountAndSum SQL error: %v", err)
+    log.Debugf("Pop3MessagesCountAndSum SQL error: %v", err) //empty results will be error
     return 0, 0, err
   }
   return count, sum, nil
