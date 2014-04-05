@@ -496,12 +496,11 @@ func (s *session) handleData() {
 // check auth if need and not blocked
 
 func (s *session) checkNeedAuthOrBlocked() bool {
-  if s.srv.ServerConfig.Adapter.Auth && s.mailboxId == 0 {
+  if s.srv.ServerConfig.Adapter.Auth && 0 == s.mailboxId {
     s.sendlinef("530 5.7.0 Authentication required")
     return true
   }
-  if s.isBlocked == true || s.redisIsSessionBlocked() == true {
-    s.isBlocked = true
+  if s.isBlocked {
     s.sendlinef("550 5.7.0 Requested action not taken: too many emails per second")
     return true
   }
@@ -524,7 +523,7 @@ func (s *session) authByDB(authMethod string) {
 
 func (s *session) setMailboxIdHook(mailboxId int) {
   s.mailboxId = mailboxId
-  s.redisRateLimits()
+  s.isBlocked = s.redisIsSessionBlocked()
 }
 
 // plain auth

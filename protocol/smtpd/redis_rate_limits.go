@@ -11,35 +11,17 @@ import (
 
 
 func (s *session) redisIsSessionBlocked() bool {
-  if s.srv.ServerConfig.Redis.Enabled == false {
+  if !s.srv.ServerConfig.Redis.Enabled {
     return false
-  }
-
-  redisCon := s.srv.ServerConfig.RedisPool.Get()
-  defer redisCon.Close()
-
-  emailsCount, err := redis.Int(redisCon.Do("GET", s.redisRateLimitKey()))
-
-  if err != nil || emailsCount <= s.srv.ServerConfig.Adapter.Rate_Limit {
-    return false
-  }
-
-  return true
-}
-
-func (s *session) redisRateLimits() {
-  if s.srv.ServerConfig.Redis.Enabled == false {
-    return
   }
 
   redisCon := s.srv.ServerConfig.RedisPool.Get()
   defer redisCon.Close()
 
   redisKey := s.redisRateLimitKey()
-
   emailsKeyCount, err := redis.Int(redisCon.Do("INCR", redisKey))
   if err == nil {
-    if emailsKeyCount == 1 {
+    if 1 == emailsKeyCount {
       _, err = redisCon.Do("EXPIRE", redisKey, 1) // expire 1 sec
       if err != nil {
         log.Errorf("redisRateLimits EXPIRE error: %v", err)
@@ -48,7 +30,12 @@ func (s *session) redisRateLimits() {
   } else {
     log.Errorf("redisRateLimits INCR error: %v", err)
   }
-  return
+
+  if err != nil || emailsKeyCount <= s.srv.ServerConfig.Adapter.Rate_Limit {
+    return false
+  }
+
+  return true
 }
 
 
