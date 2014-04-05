@@ -57,7 +57,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
         //cleanup messages
         db.CleanupMessages(email.MailboxID, settings.MaxMessages)
         // redis counter
-        if messageId > 0 && redishook.IsNotSpamAttackCampaign(config, messageId) {
+        if messageId > 0 && redishook.IsNotSpamAttackCampaign(config, envelop.MailboxID) {
           // spamassassin
           if config.Spamassassin.Enabled {
             report, err = spamassassin.CheckSpamEmail(config, email.RawMail)
