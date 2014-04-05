@@ -40,5 +40,5 @@ func (s *session) redisIsSessionBlocked() bool {
 
 
 func (s *session) redisRateLimitKey() string {
-  return fmt.Sprintf("%s:rate-inbox-limits-%d", s.srv.ServerConfig.Redis.Namespace, s.mailboxId);
+  return fmt.Sprintf("%s:rate-inbox-limits-%d", s.srv.ServerConfig.Redis.Namespace, s.mailboxId)
 }

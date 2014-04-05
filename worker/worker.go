@@ -56,41 +56,44 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
 
         //cleanup messages
         db.CleanupMessages(email.MailboxID, settings.MaxMessages)
-        // spamassassin
-        if config.Spamassassin.Enabled && messageId > 0 {
-          report, err = spamassassin.CheckSpamEmail(config, email.RawMail)
-          if err == nil {
-            // update spam info
-            _, err = db.UpdateSpamReport(email.MailboxID, messageId, report)
-            if err != nil {
-              log.Errorf("UpdateSpamReport: %v", err)
-            }
-          } else {
-            log.Errorf("CheckSpamEmail: %v", err)
-          }
-        }
-        // clamav
-        if config.Clamav.Enabled && messageId > 0 {
-          report, err = clamav.CheckEmailForViruses(config, email.RawMail)
-          if err == nil {
-            if len(report) > 0 {
-              // update viruses info
-              _, err = db.UpdateVirusesReport(email.MailboxID, messageId, report)
+        // redis counter
+        if messageId > 0 && !redishook.IsNotSpamAttackCampaign(config, messageId) {
+          // spamassassin
+          if config.Spamassassin.Enabled {
+            report, err = spamassassin.CheckSpamEmail(config, email.RawMail)
+            if err == nil {
+              // update spam info
+              _, err = db.UpdateSpamReport(email.MailboxID, messageId, report)
               if err != nil {
-                log.Errorf("UpdateVirusesReport: %v", err)
+                log.Errorf("UpdateSpamReport: %v", err)
               }
+            } else {
+              log.Errorf("CheckSpamEmail: %v", err)
             }
-          } else {
-            log.Errorf("CheckEmailForViruses: %v", err)
           }
-        }
-        // redis hooks
-        if config.Redis.Enabled && messageId > 0 {
-          redishook.SendNotifications(config, email.MailboxID, messageId, email.Subject)
-        }
-        // web hooks
-        if config.Web_Hooks.Enabled && messageId > 0 {
-          go webHookSender(config, email.MailboxID, messageId)
+          // clamav
+          if config.Clamav.Enabled {
+            report, err = clamav.CheckEmailForViruses(config, email.RawMail)
+            if err == nil {
+              if len(report) > 0 {
+                // update viruses info
+                _, err = db.UpdateVirusesReport(email.MailboxID, messageId, report)
+                if err != nil {
+                  log.Errorf("UpdateVirusesReport: %v", err)
+                }
+              }
+            } else {
+              log.Errorf("CheckEmailForViruses: %v", err)
+            }
+          }
+          // redis hooks
+          if config.Redis.Enabled {
+            redishook.SendNotifications(config, email.MailboxID, messageId, email.Subject)
+          }
+          // web hooks
+          if config.Web_Hooks.Enabled {
+            go webHookSender(config, email.MailboxID, messageId)
+          }
         }
 
       } else {
