@@ -42,6 +42,7 @@ var mimeHeaderTests = []mimeHeaderTest{
   {"=?utf-8?q?J=C3=B6rg_Doe?=. =?utf-8?q?J=C3=B6rg_Doe?=", "Jörg_Doe. Jörg_Doe"},
   {"=?iso-8859-1?Q?=A1Hola,_se=F1or!?=", "¡Hola,_señor!"},
   {"=?UTF-8?B?0L/RgNC40LLQtdGCINCy0YHQtdC8?=", "привет всем"},
+  {"=?UTF-8?q?=D0=BF=D1=80=D0=B8=D0=B2=D0=B5=D1=82=20=D0=BC=D0=B8=D1=80?=", "привет мир"},
 }
 
 func TestMimeHeaderDecode(t *testing.T) {
