@@ -6,7 +6,6 @@ import (
   "io/ioutil"
   "strings"
   "regexp"
-  "unicode/utf8"
   "code.google.com/p/go.text/encoding/charmap"
   "code.google.com/p/go.text/encoding/japanese"
   "code.google.com/p/go.text/encoding/traditionalchinese"
@@ -156,27 +155,9 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
   }
   // valid utf
   if checkOnInvalidUtf {
-    data = CheckAndFixUtf8(data)
+    data = utils.CheckAndFixUtf8(data)
   }
   // result
-  return data
-}
-
-// check invalid utf-8 symbols
-func CheckAndFixUtf8(data string) string {
-  if !utf8.Valid([]byte(data)) {
-    v := make([]rune, 0, len(data))
-    for i, r := range data {
-      if r == utf8.RuneError {
-        _, size := utf8.DecodeRuneInString(data[i:])
-        if size == 1 {
-          continue
-        }
-      }
-      v = append(v, r)
-    }
-    data = string(v)
-  }
   return data
 }
 
