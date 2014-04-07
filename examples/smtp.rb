@@ -86,7 +86,7 @@ end
 arr = []
 1.times do
   arr << Thread.new do
-    300.times do |i|
+    1.times do |i|
       Net::SMTP.start('falcon.rw.rw',
                       2525,
                       'falcon.rw.rw',
@@ -95,7 +95,6 @@ arr = []
                                     ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
       end
       puts "#{i} sent"
-      sleep 0.5
     end
   end
 end
