@@ -111,7 +111,7 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
       for _, c := range []byte(data) {
         b.WriteRune(rune(c))
       }
-      data = b.String()
+      return b.String()
     case "shift-jis", "iso-2022-jp", "big5", "gb2312", "iso-8859-2", "iso-8859-6", "iso-8859-8", "koi8-r", "koi8-u", "windows-1251", "euc-kr":
       decoder := japanese.ShiftJIS.NewDecoder()
       switch contentCharset {
@@ -154,8 +154,17 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
       }
     }
   }
-  // check invalid utf-8 symbols
-  if checkOnInvalidUtf && !utf8.Valid([]byte(data)) {
+  // valid utf
+  if checkOnInvalidUtf {
+    data = CheckAndFixUtf8(data)
+  }
+  // result
+  return data
+}
+
+// check invalid utf-8 symbols
+func CheckAndFixUtf8(data string) string {
+  if !utf8.Valid([]byte(data)) {
     v := make([]rune, 0, len(data))
     for i, r := range data {
       if r == utf8.RuneError {
@@ -168,7 +177,6 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
     }
     data = string(v)
   }
-  // result
   return data
 }
 

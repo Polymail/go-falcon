@@ -5,6 +5,7 @@ import (
   "errors"
   "database/sql"
   "strconv"
+  "unicode/utf8"
   "time"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
@@ -77,13 +78,31 @@ func (db *DBConn) CheckUser(authMethod, username, cramPassword, cramSecret strin
   return id, nil
 }
 
+// check invalid utf-8 symbols
+func checkAndFixUtf8(data string) string {
+  if !utf8.Valid([]byte(data)) {
+    v := make([]rune, 0, len(data))
+    for i, r := range data {
+      if r == utf8.RuneError {
+        _, size := utf8.DecodeRuneInString(data[i:])
+        if size == 1 {
+          continue
+        }
+      }
+      v = append(v, r)
+    }
+    data = string(v)
+  }
+  return data
+}
+
 // save email
 
 func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from, from_name, to, to_name, html, text string, rawEmail []byte) (int, error) {
   var (
     id int
   )
-  strBody := string(rawEmail)
+  strBody := checkAndFixUtf8(string(rawEmail))
   sql := strings.Replace(db.config.Storage.Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
@@ -101,7 +120,7 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
     log.Errorf("Messages SQL error: %v", err)
     return 0, err
   }
-  if id == 0 {
+  if 0 == id {
     log.Errorf("Messages Not return last ID: %v", id)
     return 0, errors.New("Messages Not return last ID")
   }
