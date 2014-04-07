@@ -74,7 +74,7 @@ func MimeHeaderDecode(str string) string {
           case "B":
             str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1], true), 1)
           case "Q":
-            str = strings.Replace(str, word[0], strings.Replace(FixEncodingAndCharsetOfPart(word[3], "quoted-printable", word[1], true), "_", " ", -1), 1)
+            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(strings.Replace(word[3], "_", " ", -1), "quoted-printable", word[1], true), 1)
         }
       }
     }
