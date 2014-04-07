@@ -13,7 +13,6 @@ import (
   "code.google.com/p/go.text/encoding/korean"
   "code.google.com/p/go.text/transform"
   "github.com/sloonz/go-iconv"
-  "github.com/sloonz/go-qprintable"
   "github.com/le0pard/go-falcon/utils"
 )
 
@@ -75,7 +74,7 @@ func MimeHeaderDecode(str string) string {
           case "B":
             str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1], true), 1)
           case "Q":
-            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "quoted-printable", word[1], true), 1)
+            str = strings.Replace(str, word[0], strings.Replace(FixEncodingAndCharsetOfPart(word[3], "quoted-printable", word[1], true), "_", " ", -1), 1)
         }
       }
     }
@@ -169,7 +168,7 @@ func convertByIconv(data, contentCharset string) (string, error) {
 
 func fromQuotedP(data string) string {
   buf := bytes.NewBufferString(data)
-  decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
+  decoder := utils.NewQuotedPrintableReader(buf)
   res, _ := ioutil.ReadAll(decoder)
   return string(res)
 }
