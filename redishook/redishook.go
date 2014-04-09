@@ -14,8 +14,8 @@ const (
   REDIS_KEY_TTL = 60
   REDIS_KEY_MAX_COUNT = 15
   NOTIFICATION_TIMEOUT = 30
-  MAX_TTL_FOR_SPAM = 360
-  MAX_EMAILS_FOR_SPAM = 180
+  MAX_TTL_FOR_SPAM = 10
+  MAX_EMAILS_FOR_SPAM = 10
 )
 
 
@@ -98,7 +98,7 @@ func IsNotSpamAttackCampaign(config *config.Config, mailboxID int) bool {
   redisKey := fmt.Sprintf("%s:mailbox_msg_count_%d", config.Redis.Namespace, mailboxID)
   emailsKeyCount, err := redis.Int(redisCon.Do("INCR", redisKey))
   if err == nil {
-    if 1 == emailsKeyCount {
+    if emailsKeyCount > 1 {
       _, err = redisCon.Do("EXPIRE", redisKey, MAX_TTL_FOR_SPAM) // expire 5 min
       if err != nil {
         log.Errorf("CheckIfSendingCampaign EXPIRE error: %v", err)
