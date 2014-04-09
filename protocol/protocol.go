@@ -83,7 +83,8 @@ func goPop3Server(config *config.Config) {
     log.Errorf("Problem with connection to storage: %s", err)
     return
   }
-  db.DB.SetMaxIdleConns(2)
+  db.DB.SetMaxIdleConns(5)
+  db.DB.SetMaxOpenConns(10)
   // config server
   s := &pop3.Server{
     Addr:         serverBind,
@@ -132,7 +133,8 @@ func StartSmtpServer(config *config.Config) {
     log.Errorf("Problem with connection to storage: %s", err)
     return
   }
-  db.DB.SetMaxIdleConns(2)
+  db.DB.SetMaxIdleConns(5)
+  db.DB.SetMaxOpenConns(10)
   // config server
   s := &smtpd.Server{
     Addr:         serverBind,

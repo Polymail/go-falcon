@@ -16,6 +16,9 @@ const (
   INVALID_AUTH_WAIT_TIME = "3"
   PROTOCOL_SMTP = "smtp"
   PROTOCOL_POP3 = "pop3"
+
+  MAX_IDLE_CONN = 5
+  MAX_OPEN_CONN = 30
 )
 
 // If running Nginx as a proxy, give Nginx the IP address and port for the SMTP server
@@ -31,24 +34,33 @@ func StartNginxHTTPProxy(config *config.Config) {
 // nginx auth server
 
 func nginxHTTPAuth(config *config.Config) {
+  // db connect
+  db, err := storage.InitDatabase(config)
+  if err != nil {
+    log.Errorf("Couldn't connect to database: %v", err)
+    return
+  }
+  defer db.Close()
+  db.DB.SetMaxOpenConns(MAX_OPEN_CONN)
+  db.DB.SetMaxIdleConns(MAX_IDLE_CONN)
   // handle
   http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-    nginxHTTPAuthHandler(w, r, config)
+    nginxHTTPAuthHandler(w, r, config, db)
   })
   // server ip:port
   serverBind := fmt.Sprintf("%s:%d", config.Proxy.Host, config.Proxy.Port)
   //
   log.Debugf("Nginx proxy working on %s", serverBind)
   //
-  err := http.ListenAndServe(serverBind, nil)
-  if err != nil {
-    log.Errorf("Nginx proxy: %v", err)
+  errServer := http.ListenAndServe(serverBind, nil)
+  if errServer != nil {
+    log.Errorf("Nginx proxy: %v", errServer)
   }
 }
 
 // nginx auth by nginx headers
 
-func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config.Config) {
+func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config.Config, db *storage.DBConn) {
   log.Debugf("Nginx proxy get request: %v", r)
 
   protocol := strings.ToLower(r.Header.Get("Auth-Protocol"))
@@ -61,15 +73,6 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
     if authMethod == utils.AUTH_CRAM_MD5 || authMethod == utils.AUTH_APOP {
       secret = r.Header.Get("Auth-Salt")
     }
-    // db connect
-    db, err := storage.InitDatabase(config)
-    if err != nil {
-      log.Errorf("Couldn't connect to database: %v", err)
-      nginxResponseFail(w, r)
-      return
-    }
-    defer db.Close()
-    db.DB.SetMaxIdleConns(-1)
     id, pass, err := db.CheckUserWithPass(authMethod, username, password, secret)
     if err != nil {
       nginxResponseFail(w, r)

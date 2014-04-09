@@ -2,7 +2,7 @@ package postgresql
 
 import (
   "fmt"
-  _ "github.com/bmizerany/pq"
+  _ "github.com/lib/pq"
   "database/sql"
   "github.com/le0pard/go-falcon/config"
 )

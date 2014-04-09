@@ -24,17 +24,18 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     err         error
   )
   settings := new(storage.AccountSettings)
+  // db connect
+  db, err = storage.InitDatabase(config)
+  if err != nil {
+    log.Errorf("Couldn't connect to database: %v", err)
+    continue
+  } else {
+    db.DB.SetMaxIdleConns(1)
+    db.DB.SetMaxOpenConns(2)
+  }
   log.Debugf("Starting storage worker")
   for {
     envelop := <- channel
-    // db connect
-    db, err = storage.InitDatabase(config)
-    if err != nil {
-      log.Errorf("Couldn't connect to database: %v", err)
-      continue
-    } else {
-      db.DB.SetMaxIdleConns(-1)
-    }
     // get settings
     err = db.GetSettings(envelop.MailboxID, settings)
     if err != nil {
@@ -103,8 +104,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     } else {
       log.Errorf("ParseMail: %v", err)
     }
-    // cleanup
-    db.Close() // force close the database, because pool is not under control
   }
 }
 
