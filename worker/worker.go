@@ -15,7 +15,7 @@ import (
 )
 
 // start worker
-func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
+func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, channel chan *smtpd.BasicEnvelope) {
   var (
     db          *storage.DBConn
     email       *parser.ParsedEmail
@@ -24,15 +24,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     err         error
   )
   settings := new(storage.AccountSettings)
-  // db connect
-  db, err = storage.InitDatabase(config)
-  if err != nil {
-    log.Errorf("Couldn't connect to database: %v", err)
-    continue
-  } else {
-    db.DB.SetMaxIdleConns(1)
-    db.DB.SetMaxOpenConns(2)
-  }
   log.Debugf("Starting storage worker")
   for {
     envelop := <- channel
@@ -109,8 +100,17 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
 
 // workers
 func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
+  // db connect
+  db, err = storage.InitDatabase(config)
+  if err != nil {
+    log.Errorf("Couldn't connect to database: %v", err)
+    return
+  } else {
+    db.DB.SetMaxIdleConns(config.Storage.Pool)
+    db.DB.SetMaxOpenConns(config.Storage.Pool + 5)
+  }
   for i := 0; i < config.Storage.Pool; i++ {
-    go startParserAndStorageWorker(config, channel)
+    go startParserAndStorageWorker(db, config, channel)
   }
 }
 
