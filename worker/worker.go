@@ -17,7 +17,6 @@ import (
 // start worker
 func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, channel chan *smtpd.BasicEnvelope) {
   var (
-    db          *storage.DBConn
     email       *parser.ParsedEmail
     report      string
     messageId   int
@@ -100,6 +99,10 @@ func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, chan
 
 // workers
 func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
+  var (
+    db          *storage.DBConn
+    err         error
+  )
   // db connect
   db, err = storage.InitDatabase(config)
   if err != nil {
