@@ -30,7 +30,6 @@ storage:
 
   max_messages_enabled: true
   max_messages_cleanup_sql: "DELETE FROM messages WHERE inbox_id = $1 AND (SELECT count(*) FROM messages where inbox_id = $1) > $2 AND id = (SELECT MIN(id) FROM messages WHERE inbox_id = $1) RETURNING id" # $1 - inbox_id, $2 - max messages
-  #max_messages_cleanup_sql: "DELETE FROM messages WHERE inbox_id = $1 AND id IN (SELECT id FROM messages WHERE inbox_id = $1 ORDER BY id LIMIT $2) RETURNING id" # $1 - mailbox_id, $2 - how much delete
   max_attachments_cleanup_sql: "DELETE FROM attachments WHERE inbox_id = $1 AND message_id = $2 RETURNING id" # $1 - inbox_id, $2 - message id
   # spamassassin sql if spamassassin is enabled
   spamassassin_sql: "UPDATE messages SET spam_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
