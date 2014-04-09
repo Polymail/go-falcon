@@ -29,7 +29,6 @@ storage:
   attachments_sql: "INSERT INTO attachments(inbox_id, message_id, filename, attachment_type, content_type, content_id, transfer_encoding, attachment_body, attachment_size, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) RETURNING id"
 
   max_messages_enabled: true
-  max_messages_sql: "SELECT count(*) FROM messages WHERE inbox_id = $1" # $1 - mailbox_id
   max_messages_cleanup_sql: "DELETE FROM messages WHERE inbox_id = $1 AND (SELECT COUNT(*) FROM messages WHERE inbox_id = $1) >= $2 AND id IN (SELECT id FROM messages WHERE inbox_id = $1 ORDER BY id DESC LIMIT 3 OFFSET $2) RETURNING id" # $1 - inbox_id, $2 - max messages
   max_attachments_cleanup_sql: "DELETE FROM attachments WHERE inbox_id = $1 AND message_id = $2 RETURNING id" # $1 - inbox_id, $2 - message id
   # spamassassin sql if spamassassin is enabled

@@ -189,41 +189,31 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
   if db.config.Storage.Max_Messages_Enabled && maxMessages > 0 {
     var (
       sql     string
-      count   int
       tmpId   int
       msgIds  []string
     )
-    sql = strings.Replace(db.config.Storage.Max_Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
-    err := db.DB.QueryRow(sql, mailboxId).Scan(&count)
+    sql = strings.Replace(db.config.Storage.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+    rows, err := db.DB.Query(sql, mailboxId, maxMessages)
     if err != nil {
       log.Errorf("CleanupMessages SQL error: %v", err)
       return err
     }
-    cleanupCount := count - maxMessages
-    if cleanupCount > 0 {
-      sql = strings.Replace(db.config.Storage.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
-      rows, err := db.DB.Query(sql, mailboxId, cleanupCount)
+    defer rows.Close()
+    for rows.Next() {
+      err := rows.Scan(&tmpId)
       if err != nil {
         log.Errorf("CleanupMessages SQL error: %v", err)
         return err
       }
-      defer rows.Close()
-      for rows.Next() {
-        err := rows.Scan(&tmpId)
+      msgIds = append(msgIds, strconv.Itoa(tmpId))
+    }
+    if len(msgIds) > 0 {
+      sql = strings.Replace(db.config.Storage.Max_Attachments_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+      for _, msgId := range msgIds {
+        _, err := db.DB.Query(sql, mailboxId, msgId)
         if err != nil {
           log.Errorf("CleanupMessages SQL error: %v", err)
           return err
-        }
-        msgIds = append(msgIds, strconv.Itoa(tmpId))
-      }
-      if len(msgIds) > 0 {
-        sql = strings.Replace(db.config.Storage.Max_Attachments_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
-        for _, msgId := range msgIds {
-          _, err := db.DB.Query(sql, mailboxId, msgId)
-          if err != nil {
-            log.Errorf("CleanupMessages SQL error: %v", err)
-            return err
-          }
         }
       }
     }

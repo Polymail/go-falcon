@@ -13,7 +13,7 @@ import (
 )
 
 const (
-  EMAIL_CHANNEL_SIZE = 50
+  EMAIL_CHANNEL_SIZE = 30
 )
 
 type env struct {

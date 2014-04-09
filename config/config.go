@@ -51,7 +51,6 @@ type Config struct {
     Attachments_Sql           string
 
     Max_Messages_Enabled      bool
-    Max_Messages_Sql          string
     Max_Messages_Cleanup_Sql  string
     Max_Attachments_Cleanup_Sql string
 
