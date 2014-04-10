@@ -69,7 +69,7 @@ func InitDatabase(config *StorageConfig) (*DBConn, error) {
 
 // check if user exist
 
-func (db *DBConn) IfUserExist(username string) (bool) {
+func (db *DBConn) IfUserExist(username string) bool {
   var (
     id int
     password string
