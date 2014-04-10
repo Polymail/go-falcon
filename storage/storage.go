@@ -242,7 +242,7 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
     if len(msgIds) > 0 {
       sql = strings.Replace(db.config.Max_Attachments_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
       for _, msgId := range msgIds {
-        _, err := db.DB.Query(sql, mailboxId, msgId)
+        _, err := db.DB.Exec(sql, mailboxId, msgId)
         if err != nil {
           log.Errorf("CleanupMessages SQL error: %v", err)
           return err
