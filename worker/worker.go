@@ -7,7 +7,6 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/parser"
-  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/spamassassin"
   "github.com/le0pard/go-falcon/clamav"
   "github.com/le0pard/go-falcon/redishook"
@@ -20,14 +19,12 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     email       *parser.ParsedEmail
     report      string
     messageId   int
-    err         error
   )
-  settings := new(storage.AccountSettings)
   log.Debugf("Starting storage worker")
   for {
     envelop := <- channel
     // get settings
-    err = config.DbPool.GetSettings(envelop.MailboxID, settings)
+    maxMessages, err := config.DbPool.GetMaxMessages(envelop.MailboxID)
     if err != nil {
       // invalid settings
       continue
@@ -46,7 +43,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
         }
 
         //cleanup messages
-        config.DbPool.CleanupMessages(email.MailboxID, settings.MaxMessages)
+        config.DbPool.CleanupMessages(email.MailboxID, maxMessages)
         // redis counter
         if messageId > 0 && redishook.IsNotSpamAttackCampaign(config, envelop.MailboxID) {
           // spamassassin

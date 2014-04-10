@@ -12,10 +12,6 @@ import (
   "github.com/le0pard/go-falcon/utils"
 )
 
-type AccountSettings struct {
-  MaxMessages int
-}
-
 type StorageConfig struct {
   Adapter                   string
   Host                      string
@@ -209,13 +205,15 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
 
 // get settings
 
-func (db *DBConn) GetSettings(mailboxId int, settings *AccountSettings) error {
-  settings.MaxMessages = 0
-  err := db.DB.QueryRow(db.config.Settings_Sql, mailboxId).Scan(&settings.MaxMessages)
+func (db *DBConn) GetMaxMessages(mailboxId int) (int, error) {
+  var(
+    maxMessages int
+  )
+  err := db.DB.QueryRow(db.config.Settings_Sql, mailboxId).Scan(&maxMessages)
   if err != nil {
     log.Errorf("Settings SQL error: %v", err)
   }
-  return err
+  return maxMessages, err
 }
 
 // cleanup messages
