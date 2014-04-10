@@ -1,33 +1,68 @@
 package storage
 
 import (
+  _ "github.com/lib/pq"
+  "database/sql"
   "strings"
   "errors"
-  "database/sql"
+  "fmt"
   "strconv"
   "time"
   "github.com/le0pard/go-falcon/log"
-  "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/utils"
-  "github.com/le0pard/go-falcon/storage/postgresql"
 )
 
 type AccountSettings struct {
   MaxMessages int
 }
 
-type DBConn struct {
-  DB *sql.DB
-  config *config.Config
+type StorageConfig struct {
+  Adapter                   string
+  Host                      string
+  Port                      int
+  Username                  string
+  Password                  string
+  Database                  string
+  Pool                      int
+
+  Auth_Sql                  string
+
+  Settings_Sql              string
+
+  Messages_Sql              string
+  Attachments_Sql           string
+
+  Max_Messages_Enabled      bool
+  Max_Messages_Cleanup_Sql  string
+  Max_Attachments_Cleanup_Sql string
+
+  Spamassassin_Sql          string
+
+  Clamav_Sql                string
+
+  Pop3_Count_And_Size_Messages  string
+  Pop3_Messages_List            string
+  Pop3_Messages_List_One        string
+  Pop3_Message_One              string
+  Pop3_Message_Delete           string
 }
 
-// init database conn
+type DBConn struct {
+  DB *sql.DB
+  config *StorageConfig
+}
 
-func InitDatabase(config *config.Config) (*DBConn, error) {
-  switch strings.ToLower(config.Storage.Adapter) {
+func InitDatabase(config *StorageConfig) (*DBConn, error) {
+  switch strings.ToLower(config.Adapter) {
   case "postgresql":
-    db, err := postgresql.InitDatabase(config)
-    return &DBConn{ DB: db, config: config }, err
+    db, err := sql.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.Host, config.Port, config.Username, config.Password, config.Database))
+    if err != nil {
+      return nil, err
+    }
+    dbPool := &DBConn{ DB: db, config: config }
+    dbPool.DB.SetMaxOpenConns(config.Pool)
+    dbPool.DB.SetMaxIdleConns(10)
+    return dbPool, err
   default:
     return nil, errors.New("invalid database adapter")
   }
@@ -40,7 +75,7 @@ func (db *DBConn) IfUserExist(username string) (bool) {
     id int
     password string
   )
-  err := db.DB.QueryRow(db.config.Storage.Auth_Sql, username).Scan(&id, &password)
+  err := db.DB.QueryRow(db.config.Auth_Sql, username).Scan(&id, &password)
   if err != nil {
     return false
   }
@@ -55,7 +90,7 @@ func (db *DBConn) CheckUserWithPass(authMethod, username, cramPassword, cramSecr
     password string
   )
   log.Debugf("AUTH by %s / %s", username, cramPassword)
-  err := db.DB.QueryRow(db.config.Storage.Auth_Sql, username).Scan(&id, &password)
+  err := db.DB.QueryRow(db.config.Auth_Sql, username).Scan(&id, &password)
   if err != nil {
     log.Debugf("User %s doesn't found (sql should return 'id' and 'password' fields): %v", username, err)
     return 0, "", err
@@ -84,7 +119,7 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
     id int
   )
   strBody := utils.CheckAndFixUtf8(string(rawEmail))
-  sql := strings.Replace(db.config.Storage.Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql := strings.Replace(db.config.Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
     subject,
@@ -114,7 +149,7 @@ func(db *DBConn) UpdateSpamReport(mailboxId int, messageId int, spamReport strin
   var (
     id int
   )
-  sql := strings.Replace(db.config.Storage.Spamassassin_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql := strings.Replace(db.config.Spamassassin_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
     messageId,
@@ -132,7 +167,7 @@ func(db *DBConn) UpdateVirusesReport(mailboxId int, messageId int, virusesReport
   var (
     id int
   )
-  sql := strings.Replace(db.config.Storage.Clamav_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql := strings.Replace(db.config.Clamav_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
     messageId,
@@ -151,7 +186,7 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
   var (
     id int
   )
-  sql := strings.Replace(db.config.Storage.Attachments_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql := strings.Replace(db.config.Attachments_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql,
     mailboxId,
     messageId,
@@ -177,7 +212,7 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
 
 func (db *DBConn) GetSettings(mailboxId int, settings *AccountSettings) error {
   settings.MaxMessages = 0
-  err := db.DB.QueryRow(db.config.Storage.Settings_Sql, mailboxId).Scan(&settings.MaxMessages)
+  err := db.DB.QueryRow(db.config.Settings_Sql, mailboxId).Scan(&settings.MaxMessages)
   if err != nil {
     log.Errorf("Settings SQL error: %v", err)
   }
@@ -186,13 +221,13 @@ func (db *DBConn) GetSettings(mailboxId int, settings *AccountSettings) error {
 
 // cleanup messages
 func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
-  if db.config.Storage.Max_Messages_Enabled && maxMessages > 0 {
+  if db.config.Max_Messages_Enabled && maxMessages > 0 {
     var (
       sql     string
       tmpId   int
       msgIds  []string
     )
-    sql = strings.Replace(db.config.Storage.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+    sql = strings.Replace(db.config.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
     rows, err := db.DB.Query(sql, mailboxId, maxMessages)
     if err != nil {
       log.Errorf("CleanupMessages SQL error: %v", err)
@@ -208,7 +243,7 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
       msgIds = append(msgIds, strconv.Itoa(tmpId))
     }
     if len(msgIds) > 0 {
-      sql = strings.Replace(db.config.Storage.Max_Attachments_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+      sql = strings.Replace(db.config.Max_Attachments_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
       for _, msgId := range msgIds {
         _, err := db.DB.Query(sql, mailboxId, msgId)
         if err != nil {
@@ -229,7 +264,7 @@ func (db *DBConn) Pop3MessagesCountAndSum(mailboxId int) (int, int, error) {
     count   int
     sum     int
   )
-  sql = strings.Replace(db.config.Storage.Pop3_Count_And_Size_Messages, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql = strings.Replace(db.config.Pop3_Count_And_Size_Messages, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql, mailboxId).Scan(&count, &sum)
   if err != nil {
     log.Debugf("Pop3MessagesCountAndSum SQL error: %v", err) //empty results will be error
@@ -249,7 +284,7 @@ func (db *DBConn) Pop3MessagesList(mailboxId int, messageId string) ([][2]string
   )
 
   if messageId != "" {
-    sql = strings.Replace(db.config.Storage.Pop3_Messages_List_One, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+    sql = strings.Replace(db.config.Pop3_Messages_List_One, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
     msgId, err := strconv.Atoi(messageId)
     if err != nil {
       return nil, err
@@ -261,7 +296,7 @@ func (db *DBConn) Pop3MessagesList(mailboxId int, messageId string) ([][2]string
     }
     msgIds = append(msgIds, [2]string{strconv.Itoa(tmpId), strconv.Itoa(tmpSize)})
   } else {
-    sql = strings.Replace(db.config.Storage.Pop3_Messages_List, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+    sql = strings.Replace(db.config.Pop3_Messages_List, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
     rows, err := db.DB.Query(sql, mailboxId)
     if err != nil {
       log.Errorf("Pop3MessagesList SQL error: %v", err)
@@ -289,7 +324,7 @@ func (db *DBConn) Pop3Message(mailboxId int, messageId string) (int, string, err
     msgBody string
   )
 
-  sql = strings.Replace(db.config.Storage.Pop3_Message_One, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql = strings.Replace(db.config.Pop3_Message_One, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   msgId, err := strconv.Atoi(messageId)
   if err != nil {
     return 0, "", err
@@ -310,7 +345,7 @@ func (db *DBConn) Pop3DeleteMessage(mailboxId int, messageId string) error {
     retId   int
   )
 
-  sql = strings.Replace(db.config.Storage.Pop3_Message_Delete, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
+  sql = strings.Replace(db.config.Pop3_Message_Delete, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   msgId, err := strconv.Atoi(messageId)
   if err != nil {
     return err

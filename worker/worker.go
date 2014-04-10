@@ -15,7 +15,7 @@ import (
 )
 
 // start worker
-func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, channel chan *smtpd.BasicEnvelope) {
+func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   var (
     email       *parser.ParsedEmail
     report      string
@@ -27,7 +27,7 @@ func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, chan
   for {
     envelop := <- channel
     // get settings
-    err = db.GetSettings(envelop.MailboxID, settings)
+    err = config.DbPool.GetSettings(envelop.MailboxID, settings)
     if err != nil {
       // invalid settings
       continue
@@ -35,18 +35,18 @@ func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, chan
     // parse email
     email, err = parser.ParseMail(envelop)
     if err == nil {
-      messageId, err = db.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
+      messageId, err = config.DbPool.StoreMail(email.MailboxID, email.Subject, email.Date, email.From.Address, email.From.Name, email.To.Address, email.To.Name, email.HtmlPart, email.TextPart, email.RawMail)
       // store attachments
       if err == nil {
         for _, attachment := range email.Attachments {
-          _, err := db.StoreAttachment(email.MailboxID, messageId, attachment.AttachmentFileName, attachment.AttachmentType, attachment.AttachmentContentType, attachment.AttachmentContentID, attachment.AttachmentTransferEncoding, attachment.AttachmentBody)
+          _, err := config.DbPool.StoreAttachment(email.MailboxID, messageId, attachment.AttachmentFileName, attachment.AttachmentType, attachment.AttachmentContentType, attachment.AttachmentContentID, attachment.AttachmentTransferEncoding, attachment.AttachmentBody)
           if err != nil {
             log.Errorf("StoreAttachment: %v", err)
           }
         }
 
         //cleanup messages
-        db.CleanupMessages(email.MailboxID, settings.MaxMessages)
+        config.DbPool.CleanupMessages(email.MailboxID, settings.MaxMessages)
         // redis counter
         if messageId > 0 && redishook.IsNotSpamAttackCampaign(config, envelop.MailboxID) {
           // spamassassin
@@ -54,7 +54,7 @@ func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, chan
             report, err = spamassassin.CheckSpamEmail(config, email.RawMail)
             if err == nil {
               // update spam info
-              _, err = db.UpdateSpamReport(email.MailboxID, messageId, report)
+              _, err = config.DbPool.UpdateSpamReport(email.MailboxID, messageId, report)
               if err != nil {
                 log.Errorf("UpdateSpamReport: %v", err)
               }
@@ -68,7 +68,7 @@ func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, chan
             if err == nil {
               if len(report) > 0 {
                 // update viruses info
-                _, err = db.UpdateVirusesReport(email.MailboxID, messageId, report)
+                _, err = config.DbPool.UpdateVirusesReport(email.MailboxID, messageId, report)
                 if err != nil {
                   log.Errorf("UpdateVirusesReport: %v", err)
                 }
@@ -99,21 +99,8 @@ func startParserAndStorageWorker(db *storage.DBConn, config *config.Config, chan
 
 // workers
 func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
-  var (
-    db          *storage.DBConn
-    err         error
-  )
-  // db connect
-  db, err = storage.InitDatabase(config)
-  if err != nil {
-    log.Errorf("Couldn't connect to database: %v", err)
-    return
-  } else {
-    db.DB.SetMaxIdleConns(config.Storage.Pool)
-    db.DB.SetMaxOpenConns(config.Storage.Pool + 5)
-  }
-  for i := 0; i < config.Storage.Pool; i++ {
-    go startParserAndStorageWorker(db, config, channel)
+  for i := 0; i < config.Adapter.Workers_Size; i++ {
+    go startParserAndStorageWorker(config, channel)
   }
 }
 

@@ -11,6 +11,7 @@ adapter:
   welcome_msg: Falcon Mail Server
   max_mail_size: 5242880
   rate_limit: 2
+  workers_size: 20
 
 storage:
   adapter: postgresql
@@ -19,7 +20,7 @@ storage:
   username: leo
   password:
   database: falcon_dev
-  pool: 1
+  pool: 10
 
   auth_sql: "SELECT id, password FROM inboxes WHERE username = $1 OR (username || '@' || domain) = $1" # $1 - username, should return id and password
 

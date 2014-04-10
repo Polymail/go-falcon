@@ -22,7 +22,6 @@ import (
   "unicode"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/utils"
 )
 
@@ -42,7 +41,6 @@ type Server struct {
   TLSconfig *tls.Config // tls config
 
   ServerConfig *config.Config
-  DBConn       *storage.DBConn
 
   // OnNewConnection, if non-nil, is called on new connections.
   // If it returns non-nil, the connection is closed.
@@ -510,7 +508,7 @@ func (s *session) checkNeedAuthOrBlocked() bool {
 // auth by DB
 
 func (s *session) authByDB(authMethod string) {
-  mailboxId, err := s.srv.DBConn.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
+  mailboxId, err := s.srv.ServerConfig.DbPool.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
   if err != nil {
     s.sendlinef("535 5.7.1 authentication failed")
     return

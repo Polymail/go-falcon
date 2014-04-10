@@ -8,6 +8,7 @@ import (
   "launchpad.net/goyaml"
   "github.com/garyburd/redigo/redis"
   "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/storage"
 )
 
 // Config represents the supported configuration options for a falcon,
@@ -33,37 +34,9 @@ type Config struct {
     Welcome_Msg     string
     Max_Mail_Size   int
     Rate_Limit      int
+    Workers_Size    int
   }
-  Storage struct {
-    Adapter                   string
-    Host                      string
-    Port                      int
-    Username                  string
-    Password                  string
-    Database                  string
-    Pool                      int
-
-    Auth_Sql                  string
-
-    Settings_Sql              string
-
-    Messages_Sql              string
-    Attachments_Sql           string
-
-    Max_Messages_Enabled      bool
-    Max_Messages_Cleanup_Sql  string
-    Max_Attachments_Cleanup_Sql string
-
-    Spamassassin_Sql          string
-
-    Clamav_Sql                string
-
-    Pop3_Count_And_Size_Messages  string
-    Pop3_Messages_List            string
-    Pop3_Messages_List_One        string
-    Pop3_Message_One              string
-    Pop3_Message_Delete           string
-  }
+  Storage           *storage.StorageConfig
   Pop3 struct {
     Enabled         bool
     Host            string
@@ -120,6 +93,7 @@ type Config struct {
   Log struct {
     Debug         bool
   }
+  DbPool          *storage.DBConn
   RedisPool       *redis.Pool
   SmtpPortRanges  []int
   Pop3PortRanges  []int
@@ -145,6 +119,10 @@ func ReadConfig(filename string) (*Config, error) {
     return nil, err
   }
   e.setDefaultValues()
+  err = e.initDbPool()
+  if err != nil {
+    return nil, err
+  }
   if e.Redis.Enabled {
     e.initRedisPool()
   }
@@ -171,6 +149,9 @@ func (config *Config) setDefaultValues() {
   }
   if config.Adapter.Rate_Limit <= 0 {
     config.Adapter.Rate_Limit = 2
+  }
+  if config.Adapter.Workers_Size <= 0 {
+    config.Adapter.Workers_Size = 5
   }
   // default for Storage
   if config.Storage.Host == "" {
@@ -201,6 +182,18 @@ func (config *Config) setDefaultValues() {
   if len(config.Proxy.Client_Ports.Pop3) > 0 {
     config.Pop3PortRanges = append(config.Pop3PortRanges, config.Proxy.Client_Ports.Pop3...)
   }
+}
+
+func (config *Config) initDbPool() error {
+  var (
+    err error
+  )
+  config.DbPool, err = storage.InitDatabase(config.Storage)
+  if err != nil {
+    log.Errorf("Problem with connection to storage: %s", err)
+    return err
+  }
+  return nil
 }
 
 func (config *Config) initRedisPool() {

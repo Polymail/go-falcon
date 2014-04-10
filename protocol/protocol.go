@@ -7,13 +7,12 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/worker"
-  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/protocol/pop3"
   "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
 const (
-  EMAIL_CHANNEL_SIZE = 20
+  EMAIL_CHANNEL_SIZE = 100
 )
 
 type env struct {
@@ -77,20 +76,11 @@ func goPop3Server(config *config.Config) {
   serverBind := fmt.Sprintf("%s:%d", config.Pop3.Host, config.Pop3.Port)
   // debug info
   log.Debugf("POP3 working on %s", serverBind)
-  // config database
-  db, err := storage.InitDatabase(config)
-  if err != nil {
-    log.Errorf("Problem with connection to storage: %s", err)
-    return
-  }
-  db.DB.SetMaxIdleConns(5)
-  db.DB.SetMaxOpenConns(10)
   // config server
   s := &pop3.Server{
     Addr:         serverBind,
     Hostname:     config.Pop3.Hostname,
     ServerConfig: config,
-    DBConn:       db,
   }
   // tls certs
   if config.Pop3.Tls {
@@ -127,21 +117,12 @@ func StartSmtpServer(config *config.Config) {
   serverBind := fmt.Sprintf("%s:%d", config.Adapter.Host, config.Adapter.Port)
   // debug info
   log.Debugf("SMPTD working on %s", serverBind)
-  // config database
-  db, err := storage.InitDatabase(config)
-  if err != nil {
-    log.Errorf("Problem with connection to storage: %s", err)
-    return
-  }
-  db.DB.SetMaxIdleConns(5)
-  db.DB.SetMaxOpenConns(10)
   // config server
   s := &smtpd.Server{
     Addr:         serverBind,
     Hostname:     config.Adapter.Hostname,
     OnNewMail:    onNewMail,
     ServerConfig: config,
-    DBConn:       db,
   }
   // tls certs
   if config.Adapter.Tls {

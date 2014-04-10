@@ -14,7 +14,6 @@ import (
   "unicode"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/utils"
 )
 
@@ -28,7 +27,6 @@ type Server struct {
   TLSconfig *tls.Config // tls config
 
   ServerConfig *config.Config
-  DBConn       *storage.DBConn
 
   // OnNewConnection, if non-nil, is called on new connections.
   // If it returns non-nil, the connection is closed.
@@ -241,7 +239,7 @@ func (s *session) handleCapa() {
 
 func (s *session) handleStat() {
   if !s.checkNeedAuth() {
-    count, sum, err := s.srv.DBConn.Pop3MessagesCountAndSum(s.mailboxId)
+    count, sum, err := s.srv.ServerConfig.DbPool.Pop3MessagesCountAndSum(s.mailboxId)
     if err != nil {
       s.sendlinef("-ERR unable to lock maildrop")
     } else {
@@ -254,7 +252,7 @@ func (s *session) handleStat() {
 
 func (s *session) handleRset(){
   if !s.checkNeedAuth() {
-    count, sum, err := s.srv.DBConn.Pop3MessagesCountAndSum(s.mailboxId)
+    count, sum, err := s.srv.ServerConfig.DbPool.Pop3MessagesCountAndSum(s.mailboxId)
     if err != nil {
       s.sendlinef("-ERR unable to lock maildrop")
     } else {
@@ -267,14 +265,14 @@ func (s *session) handleRset(){
 
 func (s *session) handleList(line string) {
   if !s.checkNeedAuth() {
-    count, sum, err := s.srv.DBConn.Pop3MessagesCountAndSum(s.mailboxId)
+    count, sum, err := s.srv.ServerConfig.DbPool.Pop3MessagesCountAndSum(s.mailboxId)
     if err != nil {
       s.sendlinef("-ERR unable to lock maildrop")
     } else {
       s.sendlinef("+OK %d messages (%d octets)", count, sum)
       if count > 0 {
         messageId := strings.TrimSpace(line)
-        messages, err := s.srv.DBConn.Pop3MessagesList(s.mailboxId, messageId)
+        messages, err := s.srv.ServerConfig.DbPool.Pop3MessagesList(s.mailboxId, messageId)
         if err == nil {
           for _, msg := range messages {
             s.sendlinef("%s %s", msg[0], msg[1])
@@ -291,7 +289,7 @@ func (s *session) handleList(line string) {
 func (s *session) handleRetr(line string) {
   if !s.checkNeedAuth() {
     messageId := strings.TrimSpace(line)
-    msgSize, msgBody, err := s.srv.DBConn.Pop3Message(s.mailboxId, messageId)
+    msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, messageId)
     if err != nil {
       s.sendlinef("-ERR no such message")
     } else {
@@ -307,7 +305,7 @@ func (s *session) handleRetr(line string) {
 func (s *session) handleDel(line string) {
   if !s.checkNeedAuth() {
     messageId := strings.TrimSpace(line)
-    err := s.srv.DBConn.Pop3DeleteMessage(s.mailboxId, messageId)
+    err := s.srv.ServerConfig.DbPool.Pop3DeleteMessage(s.mailboxId, messageId)
     if err != nil {
       s.sendlinef("-ERR no such message")
     } else {
@@ -328,7 +326,7 @@ func (s *session) handleTop(line string) {
       messageId = strings.TrimSpace(line)
       //count = 0
     }
-    msgSize, msgBody, err := s.srv.DBConn.Pop3Message(s.mailboxId, messageId)
+    msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, messageId)
     if err != nil {
       s.sendlinef("-ERR no such message")
     } else {
@@ -460,7 +458,7 @@ func (s *session) tryCramMd5Auth() {
 
 func (s *session) handleLoginUser(line string) {
   s.authUsername = line
-  if s.srv.DBConn.IfUserExist(s.authUsername) {
+  if s.srv.ServerConfig.DbPool.IfUserExist(s.authUsername) {
     s.sendlinef("+OK %s is a valid mailbox", s.authUsername)
   } else {
     s.sendlinef("-ERR never heard of mailbox name")
@@ -483,7 +481,7 @@ func (s *session) handleLoginPass(line string) {
 
 func (s *session) authByDB(authMethod string) {
   var err error
-  s.mailboxId, err = s.srv.DBConn.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
+  s.mailboxId, err = s.srv.ServerConfig.DbPool.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
   if err != nil {
     s.sendlinef("-ERR invalid username or password")
     return

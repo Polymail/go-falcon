@@ -7,7 +7,6 @@ import (
   "strings"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/utils"
 )
 
@@ -34,18 +33,9 @@ func StartNginxHTTPProxy(config *config.Config) {
 // nginx auth server
 
 func nginxHTTPAuth(config *config.Config) {
-  // db connect
-  db, err := storage.InitDatabase(config)
-  if err != nil {
-    log.Errorf("Couldn't connect to database: %v", err)
-    return
-  }
-  defer db.Close()
-  db.DB.SetMaxOpenConns(MAX_OPEN_CONN)
-  db.DB.SetMaxIdleConns(MAX_IDLE_CONN)
   // handle
   http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-    nginxHTTPAuthHandler(w, r, config, db)
+    nginxHTTPAuthHandler(w, r, config)
   })
   // server ip:port
   serverBind := fmt.Sprintf("%s:%d", config.Proxy.Host, config.Proxy.Port)
@@ -60,7 +50,7 @@ func nginxHTTPAuth(config *config.Config) {
 
 // nginx auth by nginx headers
 
-func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config.Config, db *storage.DBConn) {
+func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config.Config) {
   log.Debugf("Nginx proxy get request: %v", r)
 
   protocol := strings.ToLower(r.Header.Get("Auth-Protocol"))
@@ -73,7 +63,7 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
     if authMethod == utils.AUTH_CRAM_MD5 || authMethod == utils.AUTH_APOP {
       secret = r.Header.Get("Auth-Salt")
     }
-    id, pass, err := db.CheckUserWithPass(authMethod, username, password, secret)
+    id, pass, err := config.DbPool.CheckUserWithPass(authMethod, username, password, secret)
     if err != nil {
       nginxResponseFail(w, r)
       return
