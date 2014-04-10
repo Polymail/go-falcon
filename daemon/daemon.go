@@ -7,17 +7,17 @@ import (
   "os"
   "os/signal"
   "syscall"
-  mainLog "github.com/le0pard/go-falcon/log"
-  mainConfig "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/config"
 )
 
 var (
   configFile        = flag.String("config", "config.yml", "YAML config for Falcon")
   logFile           = flag.String("log", "", "Log file")
   pidFile           = flag.String("pid", "", "File for pid file")
-  verbose           = flag.Bool("V", false, "verbose mode")
+  verbose           = flag.Bool("V", false, "Verbose mode")
 
-  loggerFileDescr   *os.File
+  loggerFileDescr  *os.File
   errorFile         error
 )
 
@@ -52,10 +52,10 @@ func writePidInFile(pidFile string) {
     defer f.Close()
     _, err = f.WriteString(pid)
     if err != nil {
-      mainLog.Errorf("Error write pid to file: %v", err)
+      log.Errorf("Error write pid to file: %v", err)
     }
   } else {
-    mainLog.Errorf("Open file for pid: %v", err)
+    log.Errorf("Open file for pid: %v", err)
   }
 }
 
@@ -65,29 +65,29 @@ func setLoggerOutput() {
   if *logFile != "" {
     loggerFileDescr, errorFile = os.OpenFile(*logFile, os.O_WRONLY | os.O_TRUNC | os.O_CREATE, 0640)
     if errorFile != nil {
-      mainLog.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
-      mainLog.Errorf("Error open file %v", errorFile)
+      log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
+      log.Errorf("Error open file %v", errorFile)
       *logFile = ""
     } else {
-      mainLog.SetTarget(stdlog.New(loggerFileDescr, "", stdlog.LstdFlags))
+      log.SetTarget(stdlog.New(loggerFileDescr, "", stdlog.LstdFlags))
     }
   } else {
-    mainLog.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
+    log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
   }
 }
 
 // InitShellParser return config var
-func InitDaemon() (*mainConfig.Config, error) {
+func InitDaemon() (*config.Config, error) {
   flag.Parse()
   // set logger
   setLoggerOutput()
   // signals
   listenSignals()
   // info
-  mainLog.StartupInfo()
+  log.StartupInfo()
   // config
-  mainLog.Infof("Using config file %s", *configFile)
-  globalConfig, err := mainConfig.ReadConfig(*configFile)
+  log.Infof("Using config file %s", *configFile)
+  globalConfig, err := config.ReadConfig(*configFile)
   if err != nil {
     return nil, err
   }
@@ -95,7 +95,7 @@ func InitDaemon() (*mainConfig.Config, error) {
   if *verbose == true {
     globalConfig.Log.Debug = *verbose
   }
-  mainLog.Debug = globalConfig.Log.Debug
+  log.Debug = globalConfig.Log.Debug
   // write pid
   if *pidFile != "" {
     writePidInFile(*pidFile)

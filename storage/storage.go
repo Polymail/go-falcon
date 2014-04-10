@@ -48,8 +48,8 @@ type StorageConfig struct {
 }
 
 type DBConn struct {
-  DB *sql.DB
-  config *StorageConfig
+  DB      *sql.DB
+  config  *StorageConfig
 }
 
 func InitDatabase(config *StorageConfig) (*DBConn, error) {
@@ -59,10 +59,9 @@ func InitDatabase(config *StorageConfig) (*DBConn, error) {
     if err != nil {
       return nil, err
     }
-    dbPool := &DBConn{ DB: db, config: config }
-    dbPool.DB.SetMaxOpenConns(config.Pool)
-    dbPool.DB.SetMaxIdleConns(10)
-    return dbPool, err
+    db.SetMaxOpenConns(config.Pool)
+    db.SetMaxIdleConns(10)
+    return  &DBConn{ DB: db, config: config }, err
   default:
     return nil, errors.New("invalid database adapter")
   }
