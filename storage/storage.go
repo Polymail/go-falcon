@@ -51,7 +51,7 @@ type DBConn struct {
 func InitDatabase(config *StorageConfig) (*DBConn, error) {
   switch strings.ToLower(config.Adapter) {
   case "postgresql":
-    db, err := sql.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.Host, config.Port, config.Username, config.Password, config.Database))
+    db, err := sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", config.Username, config.Password, config.Host, config.Port, config.Database))
     if err != nil {
       return nil, err
     }
