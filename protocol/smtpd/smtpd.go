@@ -454,6 +454,9 @@ func (s *session) handleData() {
     s.sendlinef("503 5.5.1 Error: need RCPT command")
     return
   }
+  // rate limit
+  s.isBlocked = s.redisIsSessionBlocked()
+  // is need to block?
   if s.checkNeedAuthOrBlocked() {
     return
   } else {
@@ -461,8 +464,6 @@ func (s *session) handleData() {
     if s.mailboxId > 0 {
       s.env.AddMailboxId(s.mailboxId)
     }
-    // rate limit
-    s.isBlocked = s.redisIsSessionBlocked()
   }
 
   if err := s.env.BeginData(); err != nil {
