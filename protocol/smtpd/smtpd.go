@@ -461,6 +461,8 @@ func (s *session) handleData() {
     if s.mailboxId > 0 {
       s.env.AddMailboxId(s.mailboxId)
     }
+    // rate limit
+    s.isBlocked = s.redisIsSessionBlocked()
   }
 
   if err := s.env.BeginData(); err != nil {
@@ -521,7 +523,6 @@ func (s *session) authByDB(authMethod string) {
 
 func (s *session) setMailboxIdHook(mailboxId int) {
   s.mailboxId = mailboxId
-  s.isBlocked = s.redisIsSessionBlocked()
 }
 
 // plain auth
