@@ -128,7 +128,7 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   switch contentTypeVal {
   case "text/html":
     email.HtmlPart = email.HtmlPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
-  case "text/plain":
+  case "text/plain", "message/delivery-status", "text/rfc822-headers":
     email.TextPart = email.TextPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
   case "message/rfc822":
     msg, err := mail.ReadMessage(bytes.NewBuffer(pbody))
@@ -143,8 +143,6 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
         email.parseEmailBody(mailBody)
       }
     }
-  case "message/delivery-status", "text/rfc822-headers":
-    email.TextPart = email.TextPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
   default:
     // multipart
     if strings.HasPrefix(contentTypeVal, "multipart/") {
