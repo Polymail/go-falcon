@@ -36,7 +36,6 @@ type ParsedEmail struct {
 
   HtmlPart      string
   TextPart      string
-  isRFC         bool
 
   Attachments   []ParsedAttachment
 
@@ -128,13 +127,9 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   // contentType cases
   switch contentTypeVal {
   case "text/html":
-    if email.isRFC == false {
-      email.HtmlPart = email.HtmlPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
-    }
+    email.HtmlPart = email.HtmlPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
   case "text/plain":
-    if email.isRFC == false {
-      email.TextPart = email.TextPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
-    }
+    email.TextPart = email.TextPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
   case "message/rfc822":
     msg, err := mail.ReadMessage(bytes.NewBuffer(pbody))
     if err != nil {
@@ -145,14 +140,11 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
         log.Errorf("Failed parsing message of rfc822: %v", err)
       } else {
         email.Headers = msg.Header
-        email.isRFC = true
         email.parseEmailBody(mailBody)
       }
     }
   case "message/delivery-status", "text/rfc822-headers":
-    if email.isRFC == false {
-      email.TextPart = email.TextPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
-    }
+    email.TextPart = email.TextPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
   default:
     // multipart
     if strings.HasPrefix(contentTypeVal, "multipart/") {
@@ -283,7 +275,7 @@ func (email *ParsedEmail) parseEmailBody(body []byte) {
 // parse email
 
 func ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
-  email := &ParsedEmail{ env: env, MailboxID: env.MailboxID, isRFC: false }
+  email := &ParsedEmail{ env: env, MailboxID: env.MailboxID }
   msg, err := mail.ReadMessage(bytes.NewBuffer(email.env.MailBody))
   if err != nil {
     log.Errorf("Failed parsing message: %v", err)

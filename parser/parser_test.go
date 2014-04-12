@@ -1511,7 +1511,10 @@ ExepJCzTwEmFDalIRbLEGtw0gfpESOpIAF/NnpPzcVCG86s0g2DuSyd41uhNGbEgaSrWEXORErbw
 ------=_Part_2192_32400445.1115745999735--
 
 --Apple-Mail-13-196941151--`,
-  "testing", "blah@example.com", "", "foo@example.com", "", "This is the first part.\n", "", []goodMailAttachments{
+  "testing", "blah@example.com", "", "foo@example.com", "", `This is the first part.
+Just attaching another PDF, here, to see what the message looks like,
+and to see if I can figure out what is going wrong here.
+`, "", []goodMailAttachments{
     {"broken.pdf"},
   }},
 
@@ -2416,22 +2419,38 @@ ZHk+CjwvaHRtbD4K
 --===========================_ _= 6078796(15102)1277826164--
 Comments
 `,
-  "Mail System Error - Returned Mail", "notification+promo@blah.com", "", "Postmaster@ci.com", "Mail Administrator", `This Message was undeliverable due to the following reason:
-
-
-<u@ci.com> has restricted SMS e-mail
-
-Please reply to <Postmaster@ci.com>
-if you feel this message to be in error.
-Reporting-MTA: dns; schemailmta04.ci.com
-Arrival-Date: Tue, 29 Jun 2010 10:42:37 -0500
-Received-From-MTA: dns; schemailedgegx04.ci.com (172.16.130.170)
-
-Original-Recipient: rfc822;u@ci.com
-Final-Recipient: RFC822; <u@ci.com>
-Action: failed
-Status: 5.3.0
-`, "", []goodMailAttachments{}},
+  "Mail System Error - Returned Mail", "notification+promo@blah.com", "", "Postmaster@ci.com", "Mail Administrator",
+"This Message was undeliverable due to the following reason:\r\n" +
+"\r\n" +
+"\r\n" +
+"<u@ci.com> has restricted SMS e-mail\r\n" +
+"\r\n" +
+"Please reply to <Postmaster@ci.com>\r\n" +
+"if you feel this message to be in error.\r\n" +
+"Reporting-MTA: dns; schemailmta04.ci.com\r\n" +
+"Arrival-Date: Tue, 29 Jun 2010 10:42:37 -0500\r\n" +
+"Received-From-MTA: dns; schemailedgegx04.ci.com (172.16.130.170)\r\n" +
+"\r\n" +
+"Original-Recipient: rfc822;u@ci.com\r\n" +
+"Final-Recipient: RFC822; <u@ci.com>\r\n" +
+"Action: failed\r\n" +
+"Status: 5.3.0\r\n" +
+"Hey cingularmefarida,\n" +
+"\n" +
+"Farida Malik thinks you should apply to join HomeRun, your place fot., San Francisco, CA, 94123, USA",
+"<!DOCTYPE html>\n" +
+"<html>\n" +
+"<head>\n" +
+"<title>HomeRun - Your Friend Farida Malik wants you to join run.com/o.45b0d380.gif' width='1' />\n" +
+"</td>\n" +
+"</tr>\n" +
+"</table>\n" +
+"</td>\n" +
+"</tr>\n" +
+"</table>\n" +
+"</div>\n" +
+"</body>\n" +
+"</html>\n", []goodMailAttachments{}},
 
 }
 // bad mails
@@ -2492,13 +2511,19 @@ func (s *ParserSuite) TestGoodMailParser(c *C) {
       c.Check(email.To.Name, Equals, mail.ToName)
       c.Check(email.From.Address, Equals, mail.From)
       c.Check(email.From.Name, Equals, mail.FromName)
+
       if mail.Text == email.TextPart {
         c.Check(email.TextPart, Equals, mail.Text)
       } else {
         c.Check(email.TextPart, Equals, strings.Replace(mail.Text, "\n", "\r\n", -1))
       }
 
-      c.Check(email.HtmlPart, Equals, strings.Replace(mail.Html, "\n", "\r\n", -1))
+      if mail.Html == email.HtmlPart {
+        c.Check(email.HtmlPart, Equals, mail.Html)
+      } else {
+        c.Check(email.HtmlPart, Equals, strings.Replace(mail.Html, "\n", "\r\n", -1))
+      }
+
       if len(mail.Attachments) != len(email.Attachments) {
         c.Errorf("Unexpected value for Count of attachments; got %d but expected: %d, subject: %s",
           len(mail.Attachments), len(email.Attachments), email.Subject)
