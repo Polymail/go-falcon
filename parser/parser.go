@@ -128,12 +128,12 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   // contentType cases
   switch contentTypeVal {
   case "text/html":
-    if email.HtmlPart == "" && email.isRFC == false {
-      email.HtmlPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
+    if email.isRFC == false {
+      email.HtmlPart = email.HtmlPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
     }
   case "text/plain":
-    if email.TextPart == "" && email.isRFC == false {
-      email.TextPart = FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
+    if email.isRFC == false {
+      email.TextPart = email.TextPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
     }
   case "message/rfc822":
     msg, err := mail.ReadMessage(bytes.NewBuffer(pbody))
@@ -148,6 +148,10 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
         email.isRFC = true
         email.parseEmailBody(mailBody)
       }
+    }
+  case "message/delivery-status", "text/rfc822-headers":
+    if email.isRFC == false {
+      email.TextPart = email.TextPart + FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], true)
     }
   default:
     // multipart
