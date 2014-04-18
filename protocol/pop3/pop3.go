@@ -214,7 +214,7 @@ func (s *session) serve() {
       s.sendlinef("-ERR command not supported")
     default:
       if s.checkSeveralSteps(line) {
-        log.Errorf("Client: %q, verhb: %q", line, line.Verb())
+        log.Debugf("Client: %q, verhb: %q", line, line.Verb())
         s.sendlinef("-ERR command not recognized")
       }
     }

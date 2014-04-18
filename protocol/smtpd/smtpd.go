@@ -303,7 +303,7 @@ func (s *session) serve() {
       s.handleStartTLS()
     default:
       if s.checkSeveralSteps(line) {
-        log.Errorf("Client: %q, verhb: %q", line, line.Verb())
+        log.Debugf("Client: %q, verhb: %q", line, line.Verb())
         s.sendlinef("502 5.5.2 Error: command not recognized")
       }
     }
