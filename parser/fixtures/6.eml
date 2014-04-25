@@ -1,0 +1,72 @@
+Date: Mon, 12 Mar 2012 13:13:19 +0000
+Return-Path: support@avocosecure.com
+To: contactmichaelhart@gmail.com
+From: "support@avocosecure.com" <support@avocosecure.com>
+Subject: Example subject line
+Message-ID: <3bf1b8cb4dca53e79a00931700a8afb0@idplive.local>
+X-Priority: 3
+X-Mailer: PHPMailer 5.1 (phpmailer.sourceforge.net)
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+  boundary="b1_3bf1b8cb4dca53e79a00931700a8afb0"
+
+
+--b1_3bf1b8cb4dca53e79a00931700a8afb0
+Content-Type: text/plain; charset = "utf-8"
+Content-Transfer-Encoding: 8bit
+
+
+
+        Hello
+        You have been sent this email as part of your registration with Learner
+Passport
+        To confirm your email address for use with Learner Passport, please
+click on the link below:
+        http://example.com/confirm.php
+        If clicking on the link does not work, please copy it and paste it into
+your browser address entry.
+        Thanks,
+        Learner Passport, Skills Funding Agency
+
+
+
+
+--b1_3bf1b8cb4dca53e79a00931700a8afb0
+Content-Type: text/html; charset = "utf-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style type="text/css">
+  p, li {
+    font-family: arial;
+    line-height: 1.55em;
+    margin-bottom: 18px;
+  }
+  </style>
+</head>
+
+<body>
+  <table cellspacing='0' cellpadding='0' border='0'>
+    <tr>
+      <td>&nbsp;</td>
+      <td>
+        <p>Hello</p>
+        <p>You have been sent this email as part of your registration with Learner Passport</p>
+        <p>To confirm your email address for use with Learner Passport, please click on the link below:</p>
+        http://example.com/confirm.php
+        <p>If clicking on the link does not work, please copy it and paste it into your browser address entry.</p>
+        <p>Thanks,</p>
+        <p>Learner Passport, Skills Funding Agency</p>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+</body>
+</html>
+
+
+
+
+--b1_3bf1b8cb4dca53e79a00931700a8afb0--

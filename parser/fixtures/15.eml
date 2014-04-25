@@ -1,0 +1,116 @@
+Date: Thu, 16 May 2013 10:21:11 +0200
+From: My Bft <mybft@bft.it>
+To: webmaster@bft.it,
+ giacomo.macri@develon.com,
+ ilenia.trevisan@develon.com
+Message-ID: <519496f796057_10c043fd02d0349d012545@mbp_silvia.altavilla.develon.com.mail>
+Subject: Bft Oauth development - Export Utenti
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="--==_mimepart_519496f79191c_10c043fd02d0349d012357";
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+
+
+----==_mimepart_519496f79191c_10c043fd02d0349d012357
+Date: Thu, 16 May 2013 10:21:11 +0200
+Mime-Version: 1.0
+Content-Type: text/html;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-ID: <519496f793e66_10c043fd02d0349d012428@mbp_silvia.altavilla.develon.com.mail>
+
+<html>
+<head>
+  <style type="text/css" media="screen">
+  a { color: #0077CC; }
+  p {
+    font-family: Verdana, Arial, Helvetica, Sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    color: #333333;
+    text-align: left;
+  }
+  #header {
+    width: 1000px;
+  }
+  #footer {
+    width: 1000px;
+    padding-top: 100px;
+  }
+  </style>
+</head>
+
+<body bgcolor="#FFFFFF" style="margin:0px; padding:0px">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="1000" align="center">
+        <div id="header">
+          <img alt="Bft-logo-email" src="http://bft-oauth.dev/assets/bft-logo-email.png" style="margin-left: 20px;" />
+        </div>
+      </td>
+    </tr>
+  </table>
+  <table align="center" width="540" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="540">
+      <p style="margin-top:36px"><strong>Nuovo Export Utenti</strong></p>
+
+      <p>
+        In Allegato Export Utenti Bft Oauth<br>
+      </p>
+
+      <p style="margin-top:40px">Grazie <br/>
+        Lo Staff Bft
+      </p>
+
+      <p style="padding-top:22px"></p>
+    </td>
+  </tr>
+</table>
+  <table align="center" width="1000" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="1000" align="center">
+        <img alt="Footer-email" src="http://bft-oauth.dev/assets/footer-email.jpg" />
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>
+
+----==_mimepart_519496f79191c_10c043fd02d0349d012357
+Date: Thu, 16 May 2013 10:21:11 +0200
+Mime-Version: 1.0
+Content-Type: text/csv;
+ charset=UTF-8;
+ filename=export_users_1368692444.csv
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename=export_users_1368692444.csv
+Content-ID: <519496f74fd33_10c043fd02d0349d0122c6@mbp_silvia.altavilla.develon.com.mail>
+
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,Giacomo,"",giacomo.macri@develon.com,Test,"","","","","","",Italy,"",false,AT
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,ActiveResource,"",activers@develon.com,"",IT03018900245,36077,Vicenza,"",via Retrone 16,0444276203,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,develonlab,develon,lab@develon.com,lab.tes.develon,IT03018900245,36077,Vicenza,Altavilla Vicentina,via Retrone 16,0444276203,Italy,"",false,INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,IGS ELETTRONICA,IACOVELLI,igselettronica@libero.it,IGS ELETTRONICA,02307830592,04022,Latina,Fondi,VIA SAGLIUTOLA 60,3383657585,Italy,"",false,INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,Zilli Gian Domenico,…,zilligiandomenico72@yahoo.it,…,"",32014,Belluno,Ponte nelle Alpi,"Piazza Arrigo Boito, 2/D",0437981420,Italy,Fax. 0437/981420,"",CAT
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,ZAGO ROBERTO ,"",zagoroberto@hotmail.com,ZAGO ROBERTO ,03078270265,31040,Treviso,Salgareda,Via Vigonovo 13,3387418924,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,AUTOMATION SYSTEM,"",info@automationsystem.it,AUTOMATION SYSTEM,02917390235,37040,verona,Veronella,via dell'artigianato,0442480711,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,CALLEGARI MASSIMO,"",masscalle@libero.it,CALLEGARI MASSIMO,03467070268,31030,Treviso,Breda di Piave,cuccilius 1/b,3355232952,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,FABIO,TOFFOLI,toffolifabio@alice.it,TOFFOLI FABIO,01360050932,33080,Pordenone,San Quirino,"VIA ARMENTERESSA, 28",0434919374,Italy,0434919374,true,INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,IVAN,FELETTO,elettrodomus@libero.it,ELETTRODOMUS snc,00422330936,33170,Pordenone,Pordenone,VIA TINTORETTO 7,3483014681,Italy,"",false,INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,ELEKTROIMPIANTI,"",elektroimpiantisnc@vodafone.it,ELEKTROIMPIANTI,02183550306,33034,Udine,Fagagna,VIA DAL BROT 25,3484017931,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,MENGO LANFRANCO,"",mengo.lanfranco@libero.it,MENGO LANFRANCO,00624070272,30016,Venezia,Jesolo,"Via Roma Sx, 23A/7",0421351546,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,LEONARDUZZI SIMONE,"",sissol@alice.it,LEONARDUZZI SIMONE,"","","","","","",Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,Giacomo,riguzzi,riguzzigiacomo@libero.it,ERRE.GI ,03555050404,47521,Forlì-Cesena,Cesena,via Romagna 2700 M.Saraceno,3493257191,Italy,"",false,INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,BET - AM ,"",samuelebettini@tiscali.it,BET - AM ,02233160205,46030,Mantova,Bigarello,"Via Pace, 6",+393498022541,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,ELETTRO 3S,"",info@elettro3s.it,ELETTRO 3S,02426010282,35043,Padova,Monselice,"VIA G.VERDI, 5",0429/784424,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,ELETEL TECHNOLOGY,"",eletel.technology@libero.it,ELETEL TECHNOLOGY,01011860325,34148,Trieste,Trieste,P.ZZA XXV APRILE 7,040812332,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,VENTURINI,"",venturini.impianti@libero.it,VENTURINI,00722400231,37024,Verona,Negrar,Via del Fante 6,337460005,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,UG DI GATTI ULISSE,"",ug.ulisse@virgilio.it,UG DI GATTI ULISSE,"","","","","","",Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,RIGHI IVANO,"",righi.company@virgilio.it,RIGHI IVANO & C snc,00673330353,42040,Reggio Emilia,Campegine,via quartieri  5,0522/677568,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,GIUSEPPE,LOCATELLI,info@gielleelettrica.it,GIELLE ELETTRICA S.R.L.,03130400165,24060,Bergamo,Chiuduno,"VIA A. FANTONI, 22",035838995,Italy,0354496941,false,INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria,CRIVAN,"",ivancri@crivan.191.it,CRIVAN di Crippa Ivan,02437640960,20040,Monza Brianza,Cornate d'Adda,via Fornace,3386273773,Italy,"","",INSTALLER
+nome,cognome,email,rag_sociale,p_iva,cap,provincia,comune,indirizzo,telefono,nazione,fax,newsletter,categoria.
