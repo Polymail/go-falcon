@@ -59,7 +59,7 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
   if emailHeader != "" {
     fromEmail, err := mail.ParseAddress(emailHeader)
     if err != nil {
-      if email.env.From.Email() != "" {
+      if email.env.From != nil && email.env.From.Email() != "" {
         email.From = mail.Address{ Address: email.env.From.Email() }
       } else {
         email.From = mail.Address{ Address: getInvalidFromToHeader(emailHeader) }
@@ -73,7 +73,7 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
   if emailHeader != "" {
     toEmail, err := mail.ParseAddress(emailHeader)
     if err != nil {
-      if (len(email.env.Rcpts) > 0){
+      if email.env.Rcpts != nil && len(email.env.Rcpts) > 0 {
         email.To = mail.Address{ Address: email.env.Rcpts[0].Email() }
       } else {
         email.To = mail.Address{ Address: getInvalidFromToHeader(emailHeader) }

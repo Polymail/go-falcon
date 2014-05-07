@@ -817,6 +817,8 @@ X-Virus-Status: Clean
 "Hand Phone - +91.809 783 3437\r\n" +
 "Web URL: www.LL.com \r\n", "", []goodMailAttachments{}},
 
+{"27.eml", "Cron <root@blabla>", "root", "", "root (Cron Daemon)", "", "blabla-eeb74629", "", []goodMailAttachments{}},
+
 }
 // bad mails
 
