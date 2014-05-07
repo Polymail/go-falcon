@@ -819,6 +819,8 @@ X-Virus-Status: Clean
 
 {"27.eml", "Cron <root@blabla>", "root", "", "root (Cron Daemon)", "", "blabla-eeb74629", "", []goodMailAttachments{}},
 
+{"28.eml", "[Brokers] loaded 51 broker views - 649 were due refresh", "x@234.com", "", "x@324.com", "", "test\r\n", "", []goodMailAttachments{}},
+
 }
 // bad mails
 

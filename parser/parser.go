@@ -276,12 +276,12 @@ func ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
   email := &ParsedEmail{ env: env, MailboxID: env.MailboxID }
   msg, err := mail.ReadMessage(bytes.NewBuffer(email.env.MailBody))
   if err != nil {
-    log.Errorf("Failed parsing message: %v", err)
+    log.Errorf("Failed parsing ReadMessage: %v", err)
     return nil, err
   }
   mailBody, err := ioutil.ReadAll(msg.Body)
   if err != nil {
-    log.Errorf("Failed parsing message: %v", err)
+    log.Errorf("Failed parsing ReadAll: %v", err)
     return nil, err
   }
   email.RawMail = email.env.MailBody
