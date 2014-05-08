@@ -831,6 +831,7 @@ type badMailTypeTest struct {
 var badMailTypeTests = []badMailTypeTest{
   {""},
   {"Invalid email body"},
+  {"Invalid headers: asdasd"},
 }
 
 // TESTS
