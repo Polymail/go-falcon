@@ -20,7 +20,8 @@ var (
   invalidUnquotedRE = regexp.MustCompile(`(.)*\s(filename|name)=[^"](.+\s)+[^"]`)
   invalidUnquotedResRE = regexp.MustCompile(`[^=]+$`)
   invalidEscapedRE = regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
-  mimeHeaderRE = regexp.MustCompile(`=\?(.+?)\?([QBqp])\?(.+?)\?=`)
+  mimeHeaderRE = regexp.MustCompile(`=\?(.+?)\?([QBqb])\?(.+?)\?=`)
+  mimeSpacesHeaderRE = regexp.MustCompile(`(\?=)\s*(=\?)`)
   fixCharsetRE = regexp.MustCompile(`[_:.\/\\]`)
   invalidContentIdRE = regexp.MustCompile(`<(.*)>`)
 )
@@ -66,20 +67,60 @@ func fixInvalidEscapedAttachmentName(str string) string {
 // encode Mime
 
 func MimeHeaderDecode(str string) string {
-  matched := mimeHeaderRE.FindAllStringSubmatch(str, -1)
-  if matched != nil {
-    for _, word := range matched {
-      if len(word) > 2 {
-        switch strings.ToUpper(word[2]) {
-          case "B":
-            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1], true), 1)
-          case "Q":
-            str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(strings.Replace(word[3], "_", " ", -1), "quoted-printable", word[1], true), 1)
-        }
+  str = collapseAdjacentEncodings(str)
+  for _, word := range mimeHeaderRE.FindAllStringSubmatch(str, -1) {
+    if len(word) > 2 {
+      switch strings.ToUpper(word[2]) {
+        case "B":
+          str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1], true), 1)
+        case "Q":
+          str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(strings.Replace(word[3], "_", " ", -1), "quoted-printable", word[1], true), 1)
       }
     }
   }
   return str
+}
+
+func collapseAdjacentEncodings(str string) string {
+  var (
+    resData []string
+    encoding, prevEncoding, lastElement string
+  )
+
+  stringSplitted := mimeSpacesHeaderRE.Split(str, -1)
+  if len(stringSplitted) > 1 {
+    // fix split
+    for i, word := range stringSplitted {
+      switch i {
+        case 0:
+          stringSplitted[i] = word + "?="
+        case (len(stringSplitted) - 1):
+          stringSplitted[i] = "=?" + word
+        default:
+          stringSplitted[i] = "=?" + word + "?="
+      }
+    }
+    // When the encoded string consists of multiple lines, lines with the same
+    // encoding (Q or B) can be joined together.
+    for _, word := range stringSplitted {
+      matched := mimeHeaderRE.FindAllStringSubmatch(word, 1)
+      if len(matched) > 0 && len(matched[0]) > 2 {
+        encoding = strings.ToUpper(matched[0][2])
+        if encoding == prevEncoding {
+          if len(resData) > 0 {
+            lastElement, resData = resData[len(resData)-1], resData[:len(resData)-1]
+            word = lastElement + word
+          }
+        }
+        prevEncoding = encoding
+      }
+      resData = append(resData, word)
+    }
+    // return string
+    return strings.Join(resData, " ")
+  } else {
+    return str
+  }
 }
 
 
