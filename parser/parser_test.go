@@ -276,7 +276,21 @@ Test attachments oddly encoded with japanese charset.
 
 
   {"17.eml", "Testing outlook", "mikel@me.nowhere", "", "email_test@me.nowhere", "Mikel Lindsaar", "Hello\nThis is an outlook test\n\nSo there.\n\nMe.\n",
-  "\u003c!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\u003e\n\u003cHTML\u003e\u003cHEAD\u003e\n\u003cMETA http-equiv=3DContent-Type content=3D\"text/html; =\ncharset=3Diso-8859-1\"\u003e\n\u003cMETA content=3D\"MSHTML 6.00.6000.16525\" name=3DGENERATOR\u003e\n\u003cSTYLE\u003e\u003c/STYLE\u003e\n\u003c/HEAD\u003e\n\u003cBODY bgColor=3D#ffffff\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003eHello\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003eThis is an outlook=20\ntest\u003c/STRONG\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003e\u003c/STRONG\u003e\u003c/FONT\u003e&nbsp;\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003cSTRONG\u003eSo there.\u003c/STRONG\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003e\u003c/FONT\u003e&nbsp;\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=3DArial size=3D2\u003eMe.\u003c/FONT\u003e\u003c/DIV\u003e\u003c/BODY\u003e\u003c/HTML\u003e\n\n",
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\r\n" +
+"<HTML><HEAD>\r\n" +
+"<META http-equiv=Content-Type content=\"text/html; charset=iso-8859-1\">\r\n" +
+"<META content=\"MSHTML 6.00.6000.16525\" name=GENERATOR>\r\n" +
+"<STYLE></STYLE>\r\n" +
+"</HEAD>\r\n" +
+"<BODY bgColor=#ffffff>\r\n" +
+"<DIV><FONT face=Arial size=2>Hello</FONT></DIV>\r\n" +
+"<DIV><FONT face=Arial size=2><STRONG>This is an outlook \r\n" +
+"test</STRONG></FONT></DIV>\r\n" +
+"<DIV><FONT face=Arial size=2><STRONG></STRONG></FONT>&nbsp;</DIV>\r\n" +
+"<DIV><FONT face=Arial size=2><STRONG>So there.</STRONG></FONT></DIV>\r\n" +
+"<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>\r\n" +
+"<DIV><FONT face=Arial size=2>Me.</FONT></DIV></BODY></HTML>\r\n" +
+"\r\n",
   []goodMailAttachments{}},
 
   {"18.eml", "Re: TEST テストテスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
@@ -820,6 +834,184 @@ X-Virus-Status: Clean
 {"27.eml", "Cron <root@blabla>", "root", "", "root (Cron Daemon)", "", "blabla-eeb74629", "", []goodMailAttachments{}},
 
 {"28.eml", "[Brokers] loaded 51 broker views - 649 were due refresh", "x@234.com", "", "x@324.com", "", "test\r\n", "", []goodMailAttachments{}},
+
+{"29.eml", "(example@example.com) Re: in Testing Like A Bus", "example@oexample.org", "example@example.com", "rep@example.org", "Test on The City",
+"\r\n" +
+"\t\r\n" +
+"\t--- Reply by typing above this line ---\r\n" +
+"\tThere are 20 people in this group.\r\n" +
+"\t\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"odiuxzvxzxcvouoiusdfouojv.zxc\r\n" +
+"- Test Super User\r\n" +
+"\r\n" +
+"View this reply on The City http://example.org/groups/4473/topics/1667327\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\tYou received this email because your notification settings for this group are set to Everything (real-time).  To edit your notification settings for this group, click here\r\n" +
+"http://example.org/users/14158/edit?tab=email\r\n" +
+"\r\n" +
+"\r\n" +
+"- The City Staff http://example.org\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\tTUID:57672c7ce82e3ca4bb481a781440b959fab6f80e:TUID\r\n" +
+"    UUID:9b08a3fa647f819e21ec365091b53c680dca2063:UUID\r\n" +
+"\r\n",
+
+
+"<html>\r\n" +
+"\t<body style=\"margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; background-color: #e5e5e5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;\">\r\n" +
+"\t\t\r\n" +
+"\t\r\n" +
+"\t--- Reply by typing above this line ---<br>\r\n" +
+"\t\r\n" +
+"\r\n" +
+"\t\t<br /><br />\r\n" +
+"\t\t<table width=\"622\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\" align=\"center\" valign=\"top\" style=\"border: 1px solid #ccc; background-color: #f2f2f2;\">\r\n" +
+"  \t\t<tr>\r\n" +
+"  \t\t  <td>\r\n" +
+"  \t\t\t\t<table width=\"600\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" valign=\"top\" style=\"background-color: #ffffff; text-align: left; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px\">\r\n" +
+"  \t\t\t\t  <tr>\r\n" +
+"  \t\t\t\t    <td style=\"width: 10px;\">&nbsp;</td>\r\n" +
+"\t\t    \r\n" +
+"  \t\t        <td style=\"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 380px; vertical-align: top;\">\r\n" +
+"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 30px; display: block;\" />\r\n" +
+"  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 14px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
+"  \t\t          \t\r\n" +
+"  Testing Like A Bus | Response to Topic\r\n" +
+"  \t\t\t\t\t\t\t</p>\r\n" +
+"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 15px; display: block;\" />\r\n" +
+"  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 24px; line-height: 26px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
+"  \t\t          \t\r\n" +
+"\t<a href=\"http://example.org/groups/4473/topics/1667327\" style=\"color: #266989; text-decoration: none;\">sdafsadf</a>\r\n" +
+"  \t\t\t\t\t\t\t</p>\r\n" +
+"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 20px; display: block;\" />\r\n" +
+"  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 14px; line-height: 28px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
+"  \t\t          \t  \t\t\t\t\t\t\t</p>\r\n" +
+"  \t\t          \t<table cellspacing=\"0\" cellpadding=\"0\" align=\"left\" valign=\"top\" style=\"background-color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 100%;\">\r\n" +
+"    <tr>\r\n" +
+"      <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
+"        \r\n" +
+"\t<img alt=\"Test Super User\" border=\"1\" bordercolor=\"cccccc\" class=\"thumb\" height=\"32\" src=\"http://example.org/image_service/10/803507/false/thumbnail\" style=\"width: 32px; height: 32px; border: 1px solid #cccccc; padding: 1px;\" width=\"32\" />\r\n" +
+"\r\n" +
+"\r\n" +
+"      </td>\r\n" +
+"      <td style=\"vertical-align: top;\">\r\n" +
+"\t\t\t\t<span style='font-weight: bold;'>From Test Super User:</span> <p class=\"uc\">odiuxzvxzxcvouoiusdfouojv.zxc<br />\r\n" +
+"      \t\r\n" +
+"      </td>\r\n" +
+"    </tr>\r\n" +
+"  </table>\r\n" +
+"  \t\t          <img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
+"  \t\t\t\t\t\t\t<table cellspacing=\"0\" cellpadding=\"0\" align=\"left\" valign=\"top\" style=\"background-color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 100%; clear: both;\">\r\n" +
+"  \t\t            <tr>\r\n" +
+"  \t\t              <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
+"  \t\t                &nbsp;\r\n" +
+"  \t\t              </td>\r\n" +
+"  \t\t              <td style=\"vertical-align: top;font-size: 14px;\">\r\n" +
+"  \t\t                <p style=\"margin:10px 0 0 0;\">\t<a href=\"http://staff.example.org/groups/4473/topics/1667327\" style=\"color: #266989; text-decoration: none; font-weight: bold; \">View this reply on The City &raquo;</a><br />\r\n" +
+"</p>\r\n" +
+"  \t\t              </td>\r\n" +
+"  \t\t            </tr>\r\n" +
+"  \t\t            <tr>\r\n" +
+"  \t\t              <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
+"  \t\t                &nbsp;\r\n" +
+"  \t\t              </td>\r\n" +
+"  \t\t              <td style=\"vertical-align: top;font-size: 14px;\">\r\n" +
+"  \t\t                <p style=\"margin: 20px 0 0 0;\"></p>\r\n" +
+"  \t\t              </td>\r\n" +
+"  \t\t            </tr>\r\n" +
+"  \t\t          </table>\r\n" +
+"  \t\t\t\t\t\t\t<div style='min-height: 200px; word-wrap: break-word'>\r\n" +
+"  \t\t          \t\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"\r\n" +
+"<br />\r\n" +
+"  \t\t\t\t\t\t\t</div>\r\n" +
+"  \t\t\t\t\t\t</td>\r\n" +
+"\r\n" +
+"  \t\t\t\t\t\t<td style=\"width: 20px;\">&nbsp;</td>\r\n" +
+"\t\t    \r\n" +
+"  \t\t\t\t    <td style=\"width: 180px; vertical-align: top;\">\r\n" +
+"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
+"  \t\t\t\t        <img alt=\"\" border=\"0\" height=\"100\" src=\"http://staff.example.org/images/email/stamp_topic.png?2\" style=\"display: block;\" width=\"180\" />\r\n" +
+"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
+"  \t\t\t\t\t\t\t\t\r\n" +
+"  \t\t          <table cellpadding=\"0\" cellspacing=\"0\" style=\"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #777777; line-height: 15px; width: 180px; vertical-align: top;\">\r\n" +
+"  \t\t            <tr>\r\n" +
+"  \t\t              <td style=\"background: #e5e5e5; width: 160px; padding: 7px 10px; vertical-align: top;\">\r\n" +
+"  \t\t                \r\n" +
+"  <p>There are <strong>20 people</strong> in this group.</p>\r\n" +
+"  \r\n" +
+"  \t\t              </td>\r\n" +
+"  \t\t            </tr>\r\n" +
+"\t\t\t\t\t\t\t\t\t\r\n" +
+"\t  \t\t            <tr>\r\n" +
+"\t  \t\t              <td style=\"padding: 7px 0; vertical-align: top; width: 180px;\">\r\n" +
+"\t  \t\t\t\t\t\t\t\t\t\t<span style=\"display: block; width: 180px;\">\r\n" +
+"\t\t\t\t\t\t\t\t\t\t\t\t\t  \r\n" +
+"\t  \t\t\t\t\t\t\t\t\t\t</span>\r\n" +
+"\t  \t\t              </td>\r\n" +
+"\t  \t\t            </tr>\r\n" +
+"\t\t\t\t\t\t\t\t\t\r\n" +
+"  \t\t  \t\t\t\t</table>\r\n" +
+"  \t\t  \t\t\t</td>\r\n" +
+"  \t\t  \t\t\t<td style=\"width: 10px;\">&nbsp;</td>\r\n" +
+"  \t\t\t\t  </tr>\r\n" +
+"  \t\t\t\t\t<tr>\r\n" +
+"  \t\t\t\t\t\t<td style='width: 10px;'>&nbsp;</td>\r\n" +
+"  \t\t\t\t\t\t<td colspan='3'>\r\n" +
+"  \t\t\t\t\t\t\t<hr style='color: #dddddd' />\r\n" +
+"  \t\t\t\t\t\t  <div style=\"color: #777777; font-size: 11px;\">\r\n" +
+"  \t\t          \t\r\n" +
+"\tYou received this email because your notification settings for this group are set to Everything (real-time).  To edit your notification settings for this group, <a href=\"http://example.org/users/14158/edit?tab=email\" style=\"color: #266989;\">click here</a><br />\r\n" +
+"\t\t\t\t\t\t\t\t\t\r\n" +
+"\t\t\t\t\t\t\t\t\t\t\r\n" +
+"\t\t\t\t\t\t\t\t\t\r\n" +
+"  \t\t\t\t\t\t\t</div>\r\n" +
+"  \t\t\t\t\t\t\t<p style=\"font-size: 6px; color: #fff;\">\r\n" +
+"  \t\t\t\t\t\t\t\t\r\n" +
+"\tTUID:57672c7ce82e3ca4bb481a781440b959fab6f80e:TUID\r\n" +
+"    UUID:9b08a3fa647f819e21ec365091b53c680dca2063:UUID\r\n" +
+"\r\n" +
+"  \t\t\t\t\t\t\t</p>\r\n" +
+"  \t         \t</td>\r\n" +
+"  \t\t\t\t\t\t<td style='width: 10px;'>&nbsp;</td>\r\n" +
+"  \t\t\t\t\t</tr>\r\n" +
+"  \t\t\t  </table>\r\n" +
+"\t\t\t  </td>\r\n" +
+"\t\t\t</tr>\r\n" +
+"\t\t</table>\r\n" +
+"\t\t\r\n" +
+"\t\t\t<img alt=\"\" height=\"0\" src=\"http://example.org/tracker/u/user.gif?u=14158\" width=\"0\" />\r\n" +
+"\t\t\r\n" +
+"\t\t<br /><br />\r\n" +
+"\t</body>\r\n" +
+"</html>", []goodMailAttachments{}},
 
 }
 // bad mails

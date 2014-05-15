@@ -98,6 +98,8 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   }
   if contentTransferEncoding == "" {
     contentTransferEncoding = "8bit"
+  } else {
+    contentTransferEncoding = strings.ToLower(contentTransferEncoding)
   }
 
   // content type

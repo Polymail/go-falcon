@@ -14,6 +14,7 @@ import (
   "code.google.com/p/go.text/transform"
   "github.com/sloonz/go-iconv"
   "github.com/le0pard/go-falcon/utils"
+  "github.com/le0pard/go-falcon/qprintable"
 )
 
 var (
@@ -24,6 +25,7 @@ var (
   mimeSpacesHeaderRE = regexp.MustCompile(`(\?=)\s*(=\?)`)
   fixCharsetRE = regexp.MustCompile(`[_:.\/\\]`)
   invalidContentIdRE = regexp.MustCompile(`<(.*)>`)
+  incorectEndQuotedStringRE = regexp.MustCompile(`(?:=0D=0A|=0D|=0A)\r\n`)
 )
 
 // fix escaped and unquoted headers values
@@ -128,10 +130,11 @@ func collapseAdjacentEncodings(str string) string {
 
 func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, checkOnInvalidUtf bool) string {
   // encoding
-  if contentEncoding == "quoted-printable" {
-    data = fromQuotedP(data)
-  } else if contentEncoding == "base64" {
-    data = utils.DecodeBase64(data)
+  switch contentEncoding {
+    case "quoted-printable":
+      data = fromQuotedP(data)
+    case "base64":
+      data = utils.DecodeBase64(data)
   }
 
   // charset
@@ -209,7 +212,7 @@ func convertByIconv(data, contentCharset string) (string, error) {
 
 func fromQuotedP(data string) string {
   buf := bytes.NewBufferString(data)
-  decoder := utils.NewQuotedPrintableReader(buf)
+  decoder := qprintable.NewDecoder(qprintable.DetectEncoding(data), buf)
   res, _ := ioutil.ReadAll(decoder)
   return string(res)
 }
