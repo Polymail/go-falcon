@@ -24,7 +24,6 @@ var (
   mimeSpacesHeaderRE = regexp.MustCompile(`(\?=)\s*(=\?)`)
   fixCharsetRE = regexp.MustCompile(`[_:.\/\\]`)
   invalidContentIdRE = regexp.MustCompile(`<(.*)>`)
-  incorectEndQuotedStringRE = regexp.MustCompile(`(?:=0D=0A|=0D|=0A)\r\n`)
 )
 
 // fix escaped and unquoted headers values
