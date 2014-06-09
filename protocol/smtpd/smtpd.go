@@ -9,34 +9,34 @@ package smtpd
 import (
   "bufio"
   "bytes"
+  "crypto/tls"
   "errors"
-  "regexp"
   "fmt"
+  "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/utils"
+  "io"
   "net"
   "os/exec"
-  "crypto/tls"
+  "regexp"
   "strconv"
   "strings"
   "time"
-  "io"
   "unicode"
-  "github.com/le0pard/go-falcon/log"
-  "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/utils"
 )
 
 var (
-  rcptToRE = regexp.MustCompile(`[Tt][Oo]:[\s*]?<(.+)>`)
+  rcptToRE   = regexp.MustCompile(`[Tt][Oo]:[\s*]?<(.+)>`)
   mailFromRE = regexp.MustCompile(`[Ff][Rr][Oo][Mm]:[\s*]?<(.*)>`)
-  nginxRE = regexp.MustCompile(`(?i)(.*) LOGIN=(\d+) (.*)`)
+  nginxRE    = regexp.MustCompile(`(?i)(.*) LOGIN=(\d+) (.*)`)
 )
 
 // Server is an SMTP server.
 type Server struct {
-  Addr         string // TCP address to listen on, ":2525" if empty
-  Hostname     string // optional Hostname to announce; "" to use system hostname
-  ReadTimeout  time.Duration  // optional read timeout
-  WriteTimeout time.Duration  // optional write timeout
+  Addr         string        // TCP address to listen on, ":2525" if empty
+  Hostname     string        // optional Hostname to announce; "" to use system hostname
+  ReadTimeout  time.Duration // optional read timeout
+  WriteTimeout time.Duration // optional write timeout
 
   TLSconfig *tls.Config // tls config
 
@@ -75,10 +75,10 @@ type Envelope interface {
 }
 
 type BasicEnvelope struct {
-  MailboxID     int
-  From          MailAddress
-  Rcpts         []MailAddress
-  MailBody      []byte
+  MailboxID int
+  From      MailAddress
+  Rcpts     []MailAddress
+  MailBody  []byte
 }
 
 func (e *BasicEnvelope) AddMailboxId(mailboxId int) error {
@@ -179,29 +179,29 @@ type session struct {
   helloType string
   helloHost string
 
-  authPlain bool // bool for 2 step plain auth
-  authLogin bool // bool for 2 step login auth
+  authPlain        bool   // bool for 2 step plain auth
+  authLogin        bool   // bool for 2 step login auth
   authCramMd5Login string // bytes for cram-md5 login
 
-  mailboxId     int    // id of mailbox
-  maxMessages   int    // max messages
-  authUsername  string // auth login
-  authPassword  string // auth password
+  mailboxId    int    // id of mailbox
+  maxMessages  int    // max messages
+  authUsername string // auth login
+  authPassword string // auth password
 
-  isBlocked     bool // is session blocked
+  isBlocked bool // is session blocked
 }
 
 func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
   s = &session{
-    srv: srv,
-    rwc: rwc,
-    br:  bufio.NewReader(rwc),
-    bw:  bufio.NewWriter(rwc),
-    authPlain: false,
-    authLogin: false,
+    srv:              srv,
+    rwc:              rwc,
+    br:               bufio.NewReader(rwc),
+    bw:               bufio.NewWriter(rwc),
+    authPlain:        false,
+    authLogin:        false,
     authCramMd5Login: "",
-    mailboxId: 0,
-    isBlocked: false,
+    mailboxId:        0,
+    isBlocked:        false,
   }
   return
 }
@@ -350,7 +350,7 @@ func (s *session) handleHello(greeting, host string) {
     "250-ENHANCEDSTATUSCODES",
     "250-8BITMIME",
     "250 HELP",
-    )
+  )
   for _, ext := range extensions {
     fmt.Fprintf(s.bw, "%s\r\n", ext)
   }
@@ -445,7 +445,6 @@ func (s *session) handleNginx(line string) {
   }
   s.sendlinef("535 5.7.1 authentication failed")
 }
-
 
 // Handle data
 
@@ -624,14 +623,14 @@ func (s *session) handleAuth(auth string) {
     authToken = ""
   }
   switch command {
-    case "PLAIN":
-      s.tryPlainAuth(authToken)
-    case "LOGIN":
-      s.tryLoginAuth()
-    case "CRAM-MD5":
-      s.tryCramMd5Auth()
-    default:
-      s.sendlinef("504 5.5.2 Unrecognized authentication type")
+  case "PLAIN":
+    s.tryPlainAuth(authToken)
+  case "LOGIN":
+    s.tryLoginAuth()
+  case "CRAM-MD5":
+    s.tryCramMd5Auth()
+  default:
+    s.sendlinef("504 5.5.2 Unrecognized authentication type")
   }
 }
 

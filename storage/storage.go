@@ -1,51 +1,51 @@
 package storage
 
 import (
-  _ "github.com/lib/pq"
   "database/sql"
-  "strings"
   "errors"
   "fmt"
-  "strconv"
-  "time"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/utils"
+  _ "github.com/lib/pq"
+  "strconv"
+  "strings"
+  "time"
 )
 
 type StorageConfig struct {
-  Adapter                   string
-  Host                      string
-  Port                      int
-  Username                  string
-  Password                  string
-  Database                  string
-  Pool                      int
+  Adapter  string
+  Host     string
+  Port     int
+  Username string
+  Password string
+  Database string
+  Pool     int
 
-  Auth_Sql                  string
+  Auth_Sql string
 
-  Settings_Sql              string
+  Settings_Sql string
 
-  Messages_Sql              string
-  Attachments_Sql           string
+  Messages_Sql    string
+  Attachments_Sql string
 
-  Max_Messages_Enabled      bool
-  Max_Messages_Cleanup_Sql  string
+  Max_Messages_Enabled        bool
+  Max_Messages_Cleanup_Sql    string
   Max_Attachments_Cleanup_Sql string
 
-  Spamassassin_Sql          string
+  Spamassassin_Sql string
 
-  Clamav_Sql                string
+  Clamav_Sql string
 
-  Pop3_Count_And_Size_Messages  string
-  Pop3_Messages_List            string
-  Pop3_Messages_List_One        string
-  Pop3_Message_One              string
-  Pop3_Message_Delete           string
+  Pop3_Count_And_Size_Messages string
+  Pop3_Messages_List           string
+  Pop3_Messages_List_One       string
+  Pop3_Message_One             string
+  Pop3_Message_Delete          string
 }
 
 type DBConn struct {
-  DB      *sql.DB
-  config  *StorageConfig
+  DB     *sql.DB
+  config *StorageConfig
 }
 
 func InitDatabase(config *StorageConfig) (*DBConn, error) {
@@ -57,7 +57,7 @@ func InitDatabase(config *StorageConfig) (*DBConn, error) {
     }
     db.SetMaxOpenConns(config.Pool)
     db.SetMaxIdleConns(10)
-    return  &DBConn{ DB: db, config: config }, err
+    return &DBConn{DB: db, config: config}, err
   default:
     return nil, errors.New("invalid database adapter")
   }
@@ -67,7 +67,7 @@ func InitDatabase(config *StorageConfig) (*DBConn, error) {
 
 func (db *DBConn) IfUserExist(username string) bool {
   var (
-    id int
+    id       int
     password string
   )
   err := db.DB.QueryRow(db.config.Auth_Sql, username).Scan(&id, &password)
@@ -81,7 +81,7 @@ func (db *DBConn) IfUserExist(username string) bool {
 
 func (db *DBConn) CheckUserWithPass(authMethod, username, cramPassword, cramSecret string) (int, string, error) {
   var (
-    id int
+    id       int
     password string
   )
   log.Debugf("AUTH by %s / %s", username, cramPassword)
@@ -140,7 +140,7 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
 
 // update spam report
 
-func(db *DBConn) UpdateSpamReport(mailboxId int, messageId int, spamReport string) (int, error) {
+func (db *DBConn) UpdateSpamReport(mailboxId int, messageId int, spamReport string) (int, error) {
   var (
     id int
   )
@@ -158,7 +158,7 @@ func(db *DBConn) UpdateSpamReport(mailboxId int, messageId int, spamReport strin
 
 // update viruses report
 
-func(db *DBConn) UpdateVirusesReport(mailboxId int, messageId int, virusesReport string) (int, error) {
+func (db *DBConn) UpdateVirusesReport(mailboxId int, messageId int, virusesReport string) (int, error) {
   var (
     id int
   )
@@ -173,7 +173,6 @@ func(db *DBConn) UpdateVirusesReport(mailboxId int, messageId int, virusesReport
   }
   return id, nil
 }
-
 
 // save attachment
 
@@ -206,7 +205,7 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
 // get settings
 
 func (db *DBConn) GetMaxMessages(mailboxId int) (int, error) {
-  var(
+  var (
     maxMessages int
   )
   err := db.DB.QueryRow(db.config.Settings_Sql, mailboxId).Scan(&maxMessages)
@@ -220,9 +219,9 @@ func (db *DBConn) GetMaxMessages(mailboxId int) (int, error) {
 func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
   if db.config.Max_Messages_Enabled && maxMessages > 0 {
     var (
-      sql     string
-      tmpId   int
-      msgIds  []string
+      sql    string
+      tmpId  int
+      msgIds []string
     )
     sql = strings.Replace(db.config.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
     rows, err := db.DB.Query(sql, mailboxId, maxMessages)
@@ -257,9 +256,9 @@ func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
 
 func (db *DBConn) Pop3MessagesCountAndSum(mailboxId int) (int, int, error) {
   var (
-    sql     string
-    count   int
-    sum     int
+    sql   string
+    count int
+    sum   int
   )
   sql = strings.Replace(db.config.Pop3_Count_And_Size_Messages, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
   err := db.DB.QueryRow(sql, mailboxId).Scan(&count, &sum)
@@ -338,8 +337,8 @@ func (db *DBConn) Pop3Message(mailboxId int, messageId string) (int, string, err
 
 func (db *DBConn) Pop3DeleteMessage(mailboxId int, messageId string) error {
   var (
-    sql     string
-    retId   int
+    sql   string
+    retId int
   )
 
   sql = strings.Replace(db.config.Pop3_Message_Delete, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)

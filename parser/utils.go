@@ -2,28 +2,28 @@ package parser
 
 import (
   "bytes"
-  "net/url"
-  "io/ioutil"
-  "strings"
-  "regexp"
   "code.google.com/p/go.text/encoding/charmap"
   "code.google.com/p/go.text/encoding/japanese"
-  "code.google.com/p/go.text/encoding/traditionalchinese"
-  "code.google.com/p/go.text/encoding/simplifiedchinese"
   "code.google.com/p/go.text/encoding/korean"
+  "code.google.com/p/go.text/encoding/simplifiedchinese"
+  "code.google.com/p/go.text/encoding/traditionalchinese"
   "code.google.com/p/go.text/transform"
-  "github.com/sloonz/go-iconv"
   "github.com/le0pard/go-falcon/utils"
+  "github.com/sloonz/go-iconv"
+  "io/ioutil"
+  "net/url"
+  "regexp"
+  "strings"
 )
 
 var (
-  invalidUnquotedRE = regexp.MustCompile(`(.)*\s(filename|name)=[^"](.+\s)+[^"]`)
+  invalidUnquotedRE    = regexp.MustCompile(`(.)*\s(filename|name)=[^"](.+\s)+[^"]`)
   invalidUnquotedResRE = regexp.MustCompile(`[^=]+$`)
-  invalidEscapedRE = regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
-  mimeHeaderRE = regexp.MustCompile(`=\?(.+?)\?([QBqb])\?(.+?)\?=`)
-  mimeSpacesHeaderRE = regexp.MustCompile(`(\?=)\s*(=\?)`)
-  fixCharsetRE = regexp.MustCompile(`[_:.\/\\]`)
-  invalidContentIdRE = regexp.MustCompile(`<(.*)>`)
+  invalidEscapedRE     = regexp.MustCompile(`name\*[[0-9]*]?=iso-2022-jp'ja'(.*)`)
+  mimeHeaderRE         = regexp.MustCompile(`=\?(.+?)\?([QBqb])\?(.+?)\?=`)
+  mimeSpacesHeaderRE   = regexp.MustCompile(`(\?=)\s*(=\?)`)
+  fixCharsetRE         = regexp.MustCompile(`[_:.\/\\]`)
+  invalidContentIdRE   = regexp.MustCompile(`<(.*)>`)
 )
 
 // fix escaped and unquoted headers values
@@ -34,14 +34,12 @@ func FixMailEncodedHeader(str string) string {
   return str
 }
 
-
 func fixInvalidUnquotedAttachmentName(str string) string {
   if invalidUnquotedRE.MatchString(str) {
     str = invalidUnquotedResRE.ReplaceAllString(str, "\"$0\"")
   }
   return str
 }
-
 
 func fixInvalidEscapedAttachmentName(str string) string {
   var words []string
@@ -71,10 +69,10 @@ func MimeHeaderDecode(str string) string {
   for _, word := range mimeHeaderRE.FindAllStringSubmatch(str, -1) {
     if len(word) > 2 {
       switch strings.ToUpper(word[2]) {
-        case "B":
-          str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1], true), 1)
-        case "Q":
-          str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(strings.Replace(word[3], "_", " ", -1), "quoted-printable", word[1], true), 1)
+      case "B":
+        str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(word[3], "base64", word[1], true), 1)
+      case "Q":
+        str = strings.Replace(str, word[0], FixEncodingAndCharsetOfPart(strings.Replace(word[3], "_", " ", -1), "quoted-printable", word[1], true), 1)
       }
     }
   }
@@ -83,7 +81,7 @@ func MimeHeaderDecode(str string) string {
 
 func collapseAdjacentEncodings(str string) string {
   var (
-    resData []string
+    resData                             []string
     encoding, prevEncoding, lastElement string
   )
 
@@ -92,12 +90,12 @@ func collapseAdjacentEncodings(str string) string {
     // fix split
     for i, word := range stringSplitted {
       switch i {
-        case 0:
-          stringSplitted[i] = word + "?="
-        case (len(stringSplitted) - 1):
-          stringSplitted[i] = "=?" + word
-        default:
-          stringSplitted[i] = "=?" + word + "?="
+      case 0:
+        stringSplitted[i] = word + "?="
+      case (len(stringSplitted) - 1):
+        stringSplitted[i] = "=?" + word
+      default:
+        stringSplitted[i] = "=?" + word + "?="
       }
     }
     // When the encoded string consists of multiple lines, lines with the same
@@ -123,16 +121,15 @@ func collapseAdjacentEncodings(str string) string {
   }
 }
 
-
 // fix email body
 
 func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, checkOnInvalidUtf bool) string {
   // encoding
   switch contentEncoding {
-    case "quoted-printable":
-      data = fromQuotedP(data)
-    case "base64":
-      data = utils.DecodeBase64(data)
+  case "quoted-printable":
+    data = fromQuotedP(data)
+  case "base64":
+    data = utils.DecodeBase64(data)
   }
 
   // charset

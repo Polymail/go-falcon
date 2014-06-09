@@ -1,37 +1,37 @@
 package parser
 
 import (
-  stdlog "log"
-  . "launchpad.net/gocheck"
-  "os"
   "encoding/json"
-  "strings"
-  "testing"
-  "math/rand"
-  "path"
-  "io/ioutil"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
+  "io/ioutil"
+  . "launchpad.net/gocheck"
+  stdlog "log"
+  "math/rand"
+  "os"
+  "path"
+  "strings"
+  "testing"
 )
 
 // good mails
 
 type goodMailAttachments struct {
-  Filename      string
+  Filename string
 }
 
 type goodMailTypeTest struct {
-  Fixture     string
+  Fixture string
 
-  Subject     string
-  To          string
-  ToName      string
-  From        string
-  FromName    string
-  Text        string
-  Html        string
+  Subject  string
+  To       string
+  ToName   string
+  From     string
+  FromName string
+  Text     string
+  Html     string
 
-  Attachments  []goodMailAttachments
+  Attachments []goodMailAttachments
 }
 
 var goodMailTypeTests = []goodMailTypeTest{
@@ -46,7 +46,7 @@ var goodMailTypeTests = []goodMailTypeTest{
   {"4.eml", "illness notification ALPHÉE", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
 
   {"5.eml", "Welcome to Verical", "MichaelJWilliamstfb24d057-49fb-477d-8cf3-5357f2591641@test.com", "", "support@verical.com", "", "Please view the HTML version of this email.",
-  `<html>
+    `<html>
 
 <head>
 </head>
@@ -110,11 +110,11 @@ This email may contain information that is legally PRIVILEGED and CONFIDENTIAL i
 
 </body>
 </html>`, []goodMailAttachments{
-  {""},
-}},
+      {""},
+    }},
 
   {"6.eml", "Example subject line", "contactmichaelhart@gmail.com", "", "support@avocosecure.com", "support@avocosecure.com",
-`
+    `
 
         Hello
         You have been sent this email as part of your registration with Learner
@@ -130,7 +130,7 @@ your browser address entry.
 
 
 `,
-`<!DOCTYPE html>
+    `<!DOCTYPE html>
 <html>
 <head>
   <style type="text/css">
@@ -168,14 +168,14 @@ your browser address entry.
   {"7.eml", "Hello World", "", "", "", "", "Ã¿Ã´Ã¿Ã½", "", []goodMailAttachments{}},
 
   {"8.eml", "testing", "blah@example.com", "", "foo@example.com", "",
-  "A fax has arrived from remote ID ''.\n------------------------------------------------------------\nTime: 3/9/2006 3:50:52 PM\nReceived from remote ID: \nInbound user ID XXXXXXXXXX, routing code XXXXXXXXX\nResult: (0/352;0/0) Successful Send\nPage record: 1 - 1\nElapsed time: 00:58 on channel 11\n",
-  "", []goodMailAttachments{}},
+    "A fax has arrived from remote ID ''.\n------------------------------------------------------------\nTime: 3/9/2006 3:50:52 PM\nReceived from remote ID: \nInbound user ID XXXXXXXXXX, routing code XXXXXXXXX\nResult: (0/352;0/0) Successful Send\nPage record: 1 - 1\nElapsed time: 00:58 on channel 11\n",
+    "", []goodMailAttachments{}},
 
   {"9.eml", "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "대부분의 마찬가지로, 우리는 하나님을 믿습니다.\n\n제 이름은 Jamis입니다.", "", []goodMailAttachments{}},
 
   {"10.eml", "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "Mikel Lindsaar",
-"かきくえこ\n\n-- \nhttp://lindsaar.net/\nRails, RSpec and Life blog....\n",
-  "", []goodMailAttachments{}},
+    "かきくえこ\n\n-- \nhttp://lindsaar.net/\nRails, RSpec and Life blog....\n",
+    "", []goodMailAttachments{}},
 
   {"11.eml", "Eelanalüüsi päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", []goodMailAttachments{
     {"Eelanalüüsi päring.jpg"},
@@ -190,8 +190,8 @@ your browser address entry.
   }},
 
   {"14.eml",
-  "Fwd: Signed email causes file attachments", "xxxxx@xxxxxxxxx.com", "xxxxx xxxx", "xxxxxxxxx.xxxxxxx@gmail.com", "xxxxxxxxx xxxxxxx",
-  `We should not include these files or vcards as attachments.
+    "Fwd: Signed email causes file attachments", "xxxxx@xxxxxxxxx.com", "xxxxx xxxx", "xxxxxxxxx.xxxxxxx@gmail.com", "xxxxxxxxx xxxxxxx",
+    `We should not include these files or vcards as attachments.
 
 ---------- Forwarded message ----------
 From: xxxxx xxxxxx <xxxxxxxx@xxx.com>
@@ -205,12 +205,12 @@ Hi,
 Test attachments oddly encoded with japanese charset.
 
 `, "", []goodMailAttachments{
-    {"01 Quien Te Dij\ufffdat. Pitbull.mp3"},
-  }},
+      {"01 Quien Te Dij\ufffdat. Pitbull.mp3"},
+    }},
 
   {"15.eml",
-  "Bft Oauth development - Export Utenti", "webmaster@bft.it", "", "mybft@bft.it", "My Bft", "",
-  `<html>
+    "Bft Oauth development - Export Utenti", "webmaster@bft.it", "", "mybft@bft.it", "My Bft", "",
+    `<html>
 <head>
   <style type="text/css" media="screen">
   a { color: #0077CC; }
@@ -271,44 +271,43 @@ Test attachments oddly encoded with japanese charset.
 `, []goodMailAttachments{}},
 
   {"16.eml", "Alerte suite a la recherche", "f.tete@immobilier-confiance.fr", "", "contact@immobilier-confiance.fr", "Immobilier Confiance", "",
-  "Bonjour,\nSuite à la recherche ajoutée concernant le contact Test2 TEST\u003cbr/\u003eVoici les réultats : \u003cbr/\u003e\u003cbr/\u003eRésultats qui peuvent s'accorder aux termes de la recherche :\u003cbr/\u003e\u003ctable\u003e\u003ctr\u003e\u003cth\u003eRéférence\u003c/th\u003e\u003cth\u003eType de Bien\u003c/th\u003e\u003cth\u003ePrix Fai\u003c/th\u003e\u003cth\u003eNégociateur\u003c/th\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF901\u003c/td\u003e\u003ctd\u003eferme\u003c/td\u003e\u003ctd\u003e490000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF905\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e269000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF909\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e234000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF915\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e115000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF9152\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e125000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF927\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e179000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
-  []goodMailAttachments{}},
-
+    "Bonjour,\nSuite à la recherche ajoutée concernant le contact Test2 TEST\u003cbr/\u003eVoici les réultats : \u003cbr/\u003e\u003cbr/\u003eRésultats qui peuvent s'accorder aux termes de la recherche :\u003cbr/\u003e\u003ctable\u003e\u003ctr\u003e\u003cth\u003eRéférence\u003c/th\u003e\u003cth\u003eType de Bien\u003c/th\u003e\u003cth\u003ePrix Fai\u003c/th\u003e\u003cth\u003eNégociateur\u003c/th\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF901\u003c/td\u003e\u003ctd\u003eferme\u003c/td\u003e\u003ctd\u003e490000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF905\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e269000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF909\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e234000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF915\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e115000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF9152\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e125000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF927\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e179000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
+    []goodMailAttachments{}},
 
   {"17.eml", "Testing outlook", "mikel@me.nowhere", "", "email_test@me.nowhere", "Mikel Lindsaar", "Hello\nThis is an outlook test\n\nSo there.\n\nMe.\n",
-"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\r\n" +
-"<HTML><HEAD>\r\n" +
-"<META http-equiv=Content-Type content=\"text/html; charset=iso-8859-1\">\r\n" +
-"<META content=\"MSHTML 6.00.6000.16525\" name=GENERATOR>\r\n" +
-"<STYLE></STYLE>\r\n" +
-"</HEAD>\r\n" +
-"<BODY bgColor=#ffffff>\r\n" +
-"<DIV><FONT face=Arial size=2>Hello</FONT></DIV>\r\n" +
-"<DIV><FONT face=Arial size=2><STRONG>This is an outlook \r\n" +
-"test</STRONG></FONT></DIV>\r\n" +
-"<DIV><FONT face=Arial size=2><STRONG></STRONG></FONT>&nbsp;</DIV>\r\n" +
-"<DIV><FONT face=Arial size=2><STRONG>So there.</STRONG></FONT></DIV>\r\n" +
-"<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>\r\n" +
-"<DIV><FONT face=Arial size=2>Me.</FONT></DIV></BODY></HTML>\r\n" +
-"\r\n",
-  []goodMailAttachments{}},
+    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\r\n" +
+      "<HTML><HEAD>\r\n" +
+      "<META http-equiv=Content-Type content=\"text/html; charset=iso-8859-1\">\r\n" +
+      "<META content=\"MSHTML 6.00.6000.16525\" name=GENERATOR>\r\n" +
+      "<STYLE></STYLE>\r\n" +
+      "</HEAD>\r\n" +
+      "<BODY bgColor=#ffffff>\r\n" +
+      "<DIV><FONT face=Arial size=2>Hello</FONT></DIV>\r\n" +
+      "<DIV><FONT face=Arial size=2><STRONG>This is an outlook \r\n" +
+      "test</STRONG></FONT></DIV>\r\n" +
+      "<DIV><FONT face=Arial size=2><STRONG></STRONG></FONT>&nbsp;</DIV>\r\n" +
+      "<DIV><FONT face=Arial size=2><STRONG>So there.</STRONG></FONT></DIV>\r\n" +
+      "<DIV><FONT face=Arial size=2></FONT>&nbsp;</DIV>\r\n" +
+      "<DIV><FONT face=Arial size=2>Me.</FONT></DIV></BODY></HTML>\r\n" +
+      "\r\n",
+    []goodMailAttachments{}},
 
   {"18.eml", "Re: TEST テストテスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
   {"19.eml", "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "", "doug@example.com", "Doug Sauder",
-  "Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
-  "", []goodMailAttachments{}},
+    "Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
+    "", []goodMailAttachments{}},
 
   {"20.eml", "Re: TEST テストテスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
   {"21.eml", "Test message from Microsoft Outlook 00", "jblow@example.com", "Joe Blow", "doug@example.com", "Doug Sauder",
-  "\n\nThe Hare and the Tortoise \n \nA HARE one day ridiculed the short feet and slow pace of the Tortoise, who replied, laughing:  \"Though you be swift as the wind, I will beat you in a race.\"  The Hare, believing her assertion to be simply impossible, assented to the proposal; and they agreed that the Fox should choose the course and fix the goal.  On the day appointed for the race the two started together.  The Tortoise never for a moment stopped, but went on with a slow but steady pace straight to the end of the course.  The Hare, lying down by the wayside, fell fast asleep.  At last waking up, and moving as fast as he could, he saw the Tortoise had reached the goal, and was comfortably dozing after her fatigue.  \n \nSlow but steady wins the race.  \n\n\n",
-  "\u003c!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\u003e\n\u003cHTML\u003e\u003cHEAD\u003e\n\u003cMETA content=\"text/html; charset=iso-8859-1\" http-equiv=Content-Type\u003e\n\u003cMETA content=\"MSHTML 5.00.2314.1000\" name=GENERATOR\u003e\u003c/HEAD\u003e\n\u003cBODY\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cIMG align=baseline alt=\"blue ball\" border=0 \nhspace=0 src=\"cid:938014623@17052000-0f9b\"\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cBR\u003eThe Hare and the Tortoise \u003cBR\u003e&nbsp;\u003cBR\u003eA HARE \none day ridiculed the short feet and slow pace of the Tortoise, who replied, \nlaughing:&nbsp; \"Though you be swift as the wind, I will beat you in a \nrace.\"&nbsp; The Hare, believing her assertion to be simply impossible, assented \nto the proposal; and they agreed that the Fox should choose the course and fix \nthe goal.&nbsp; On the day appointed for the race the two started \ntogether.&nbsp; The Tortoise never for a moment stopped, but went on with a slow \nbut steady pace straight to the end of the course.&nbsp; The Hare, lying down by \nthe wayside, fell fast asleep.&nbsp; At last waking up, and moving as fast as he \ncould, he saw the Tortoise had reached the goal, and was comfortably dozing \nafter her fatigue.&nbsp; \u003cBR\u003e&nbsp;\u003cBR\u003eSlow but steady wins the race.&nbsp; \n\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cBR\u003e&nbsp;\u003c/DIV\u003e\u003c/FONT\u003e\u003c/BODY\u003e\u003c/HTML\u003e\n",
-  []goodMailAttachments{
-    {"blueball.png"},
-    {"greenball.png"},
-    {"redball.png"},
-  }},
+    "\n\nThe Hare and the Tortoise \n \nA HARE one day ridiculed the short feet and slow pace of the Tortoise, who replied, laughing:  \"Though you be swift as the wind, I will beat you in a race.\"  The Hare, believing her assertion to be simply impossible, assented to the proposal; and they agreed that the Fox should choose the course and fix the goal.  On the day appointed for the race the two started together.  The Tortoise never for a moment stopped, but went on with a slow but steady pace straight to the end of the course.  The Hare, lying down by the wayside, fell fast asleep.  At last waking up, and moving as fast as he could, he saw the Tortoise had reached the goal, and was comfortably dozing after her fatigue.  \n \nSlow but steady wins the race.  \n\n\n",
+    "\u003c!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\u003e\n\u003cHTML\u003e\u003cHEAD\u003e\n\u003cMETA content=\"text/html; charset=iso-8859-1\" http-equiv=Content-Type\u003e\n\u003cMETA content=\"MSHTML 5.00.2314.1000\" name=GENERATOR\u003e\u003c/HEAD\u003e\n\u003cBODY\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cIMG align=baseline alt=\"blue ball\" border=0 \nhspace=0 src=\"cid:938014623@17052000-0f9b\"\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cBR\u003eThe Hare and the Tortoise \u003cBR\u003e&nbsp;\u003cBR\u003eA HARE \none day ridiculed the short feet and slow pace of the Tortoise, who replied, \nlaughing:&nbsp; \"Though you be swift as the wind, I will beat you in a \nrace.\"&nbsp; The Hare, believing her assertion to be simply impossible, assented \nto the proposal; and they agreed that the Fox should choose the course and fix \nthe goal.&nbsp; On the day appointed for the race the two started \ntogether.&nbsp; The Tortoise never for a moment stopped, but went on with a slow \nbut steady pace straight to the end of the course.&nbsp; The Hare, lying down by \nthe wayside, fell fast asleep.&nbsp; At last waking up, and moving as fast as he \ncould, he saw the Tortoise had reached the goal, and was comfortably dozing \nafter her fatigue.&nbsp; \u003cBR\u003e&nbsp;\u003cBR\u003eSlow but steady wins the race.&nbsp; \n\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cBR\u003e&nbsp;\u003c/DIV\u003e\u003c/FONT\u003e\u003c/BODY\u003e\u003c/HTML\u003e\n",
+    []goodMailAttachments{
+      {"blueball.png"},
+      {"greenball.png"},
+      {"redball.png"},
+    }},
 
   {"22.eml", "testing", "blah@example.com", "", "foo@example.com", "", `This is the first part.
 Just attaching another PDF, here, to see what the message looks like,
@@ -318,7 +317,7 @@ and to see if I can figure out what is going wrong here.
   }},
 
   {"23.eml",
-  "ASDAN password change request", "robforrest@asdan.org.uk", "", "info@asdan.org.uk", "ASDAN", `This is an empty HTML Snippet that can be edited hereA password reset has been requested for the ASDAN secure area for this email address.
+    "ASDAN password change request", "robforrest@asdan.org.uk", "", "info@asdan.org.uk", "ASDAN", `This is an empty HTML Snippet that can be edited hereA password reset has been requested for the ASDAN secure area for this email address.
 If you did not request this, please delete this email and your password will remain the same.
 If you wish to reset your password, please click on the link below where you will be prompted to enter a new password.
 Reset your password
@@ -629,7 +628,7 @@ This is an empty HTML Snippet that can be edited <a style=\'color: #ae3334;\'  h
 `, []goodMailAttachments{}},
 
   {"24.eml",
-  "Warning: could not send message for past 8 hours", "jennifer@sss.sssssss.net.au", "", "MAILER-DAEMON@tppppp.com.au", "Mail Delivery Subsystem", `    **********************************************
+    "Warning: could not send message for past 8 hours", "jennifer@sss.sssssss.net.au", "", "MAILER-DAEMON@tppppp.com.au", "Mail Delivery Subsystem", `    **********************************************
     **      THIS IS A WARNING MESSAGE ONLY      **
     **  YOU DO NOT NEED TO RESEND YOUR MESSAGE  **
     **********************************************
@@ -678,346 +677,345 @@ X-Virus-Status: Clean
 `, "", []goodMailAttachments{}},
 
   {"25.eml", "Mail System Error - Returned Mail", "notification+promo@blah.com", "", "Postmaster@ci.com", "Mail Administrator",
-"This Message was undeliverable due to the following reason:\r\n" +
-"\r\n" +
-"\r\n" +
-"<u@ci.com> has restricted SMS e-mail\r\n" +
-"\r\n" +
-"Please reply to <Postmaster@ci.com>\r\n" +
-"if you feel this message to be in error.\r\n" +
-"Reporting-MTA: dns; schemailmta04.ci.com\r\n" +
-"Arrival-Date: Tue, 29 Jun 2010 10:42:37 -0500\r\n" +
-"Received-From-MTA: dns; schemailedgegx04.ci.com (172.16.130.170)\r\n" +
-"\r\n" +
-"Original-Recipient: rfc822;u@ci.com\r\n" +
-"Final-Recipient: RFC822; <u@ci.com>\r\n" +
-"Action: failed\r\n" +
-"Status: 5.3.0\r\n" +
-"Hey cingularmefarida,\n" +
-"\n" +
-"Farida Malik thinks you should apply to join HomeRun, your place fot., San Francisco, CA, 94123, USA",
-"<!DOCTYPE html>\n" +
-"<html>\n" +
-"<head>\n" +
-"<title>HomeRun - Your Friend Farida Malik wants you to join run.com/o.45b0d380.gif' width='1' />\n" +
-"</td>\n" +
-"</tr>\n" +
-"</table>\n" +
-"</td>\n" +
-"</tr>\n" +
-"</table>\n" +
-"</div>\n" +
-"</body>\n" +
-"</html>\n", []goodMailAttachments{}},
+    "This Message was undeliverable due to the following reason:\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "<u@ci.com> has restricted SMS e-mail\r\n" +
+      "\r\n" +
+      "Please reply to <Postmaster@ci.com>\r\n" +
+      "if you feel this message to be in error.\r\n" +
+      "Reporting-MTA: dns; schemailmta04.ci.com\r\n" +
+      "Arrival-Date: Tue, 29 Jun 2010 10:42:37 -0500\r\n" +
+      "Received-From-MTA: dns; schemailedgegx04.ci.com (172.16.130.170)\r\n" +
+      "\r\n" +
+      "Original-Recipient: rfc822;u@ci.com\r\n" +
+      "Final-Recipient: RFC822; <u@ci.com>\r\n" +
+      "Action: failed\r\n" +
+      "Status: 5.3.0\r\n" +
+      "Hey cingularmefarida,\n" +
+      "\n" +
+      "Farida Malik thinks you should apply to join HomeRun, your place fot., San Francisco, CA, 94123, USA",
+    "<!DOCTYPE html>\n" +
+      "<html>\n" +
+      "<head>\n" +
+      "<title>HomeRun - Your Friend Farida Malik wants you to join run.com/o.45b0d380.gif' width='1' />\n" +
+      "</td>\n" +
+      "</tr>\n" +
+      "</table>\n" +
+      "</td>\n" +
+      "</tr>\n" +
+      "</table>\n" +
+      "</div>\n" +
+      "</body>\n" +
+      "</html>\n", []goodMailAttachments{}},
 
-{"26.eml", "Undelivered Mail Returned to Sender", "rahul.chaudhari@LL.com", "", "MAILER-DAEMON@lvmail01.LL.com", "",
-"This is the mail system at host lvmail01.LL.com.\r\n" +
-"\r\n" +
-"I'm sorry to have to inform you that your message could not\r\n" +
-"be delivered to one or more recipients. It's attached below.\r\n" +
-"\r\n" +
-"For further assistance, please send mail to postmaster.\r\n" +
-"\r\n" +
-"If you do so, please include this problem report. You can\r\n" +
-"delete your own text from the attached returned message.\r\n" +
-"\r\n" +
-"                   The mail system\r\n" +
-"\r\n" +
-"<bbbbvhvbbvkjbhfbvbvjhb@gmail.com>: host\r\n" +
-"    gmail-smtp-in.l.google.com[209.85.223.33] said: 550-5.1.1 The email account\r\n" +
-"    that you tried to reach does not exist. Please try 550-5.1.1\r\n" +
-"    double-checking the recipient's email address for typos or 550-5.1.1\r\n" +
-"    unnecessary spaces. Learn more at                              550 5.1.1\r\n" +
-"    http://mail.google.com/support/bin/answer.py?answer=6596 41si5422799iwn.27\r\n" +
-"    (in reply to RCPT TO command)\r\n" +
-"\r\n" +
-"<bscdbcjhasbcjhbdscbhbsdhcbj@gmail.com>: host\r\n" +
-"    gmail-smtp-in.l.google.com[209.85.223.33] said: 550-5.1.1 The email account\r\n" +
-"    that you tried to reach does not exist. Please try 550-5.1.1\r\n" +
-"    double-checking the recipient's email address for typos or 550-5.1.1\r\n" +
-"    unnecessary spaces. Learn more at                              550 5.1.1\r\n" +
-"    http://mail.google.com/support/bin/answer.py?answer=6596 41si5422799iwn.27\r\n" +
-"    (in reply to RCPT TO command)\r\n" +
-"\r\n" +
-"<egyfefsdvsfvvhjsd@gmail.com>: host gmail-smtp-in.l.google.com[209.85.223.33]\r\n" +
-"    said: 550-5.1.1 The email account that you tried to reach does not exist.\r\n" +
-"    Please try 550-5.1.1 double-checking the recipient's email address for\r\n" +
-"    typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
-"    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
-"    41si5422799iwn.27 (in reply to RCPT TO command)\r\n" +
-"\r\n" +
-"<kfhejkfbsjkjsbhds@gmail.com>: host gmail-smtp-in.l.google.com[209.85.223.33]\r\n" +
-"    said: 550-5.1.1 The email account that you tried to reach does not exist.\r\n" +
-"    Please try 550-5.1.1 double-checking the recipient's email address for\r\n" +
-"    typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
-"    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
-"    41si5422799iwn.27 (in reply to RCPT TO command)\r\n" +
-"\r\n" +
-"<qfvhgsvhgsduiohncdhcvhsdfvsfygusd@gmail.com>: host\r\n" +
-"    gmail-smtp-in.l.google.com[209.85.223.33] said: 550-5.1.1 The email account\r\n" +
-"    that you tried to reach does not exist. Please try 550-5.1.1\r\n" +
-"    double-checking the recipient's email address for typos or 550-5.1.1\r\n" +
-"    unnecessary spaces. Learn more at                              550 5.1.1\r\n" +
-"    http://mail.google.com/support/bin/answer.py?answer=6596 41si5422799iwn.27\r\n" +
-"    (in reply to RCPT TO command)\r\n" +
-"Reporting-MTA: dns; lvmail01.LL.com\r\n" +
-"X-Postfix-Queue-ID: 9B7841BC027\r\n" +
-"X-Postfix-Sender: rfc822; rahul.chaudhari@LL.com\r\n" +
-"Arrival-Date: Tue, 23 Feb 2010 22:16:15 -0800 (PST)\r\n" +
-"\r\n" +
-"Final-Recipient: rfc822; bbbbvhvbbvkjbhfbvbvjhb@gmail.com\r\n" +
-"Original-Recipient: rfc822;bbbbvhvbbvkjbhfbvbvjhb@gmail.com\r\n" +
-"Action: failed\r\n" +
-"Status: 5.1.1\r\n" +
-"Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
-"Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
-"    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
-"    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
-"    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
-"    41si5422799iwn.27\r\n" +
-"\r\n" +
-"Final-Recipient: rfc822; bscdbcjhasbcjhbdscbhbsdhcbj@gmail.com\r\n" +
-"Original-Recipient: rfc822;bscdbcjhasbcjhbdscbhbsdhcbj@gmail.com\r\n" +
-"Action: failed\r\n" +
-"Status: 5.1.1\r\n" +
-"Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
-"Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
-"    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
-"    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
-"    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
-"    41si5422799iwn.27\r\n" +
-"\r\n" +
-"Final-Recipient: rfc822; egyfefsdvsfvvhjsd@gmail.com\r\n" +
-"Original-Recipient: rfc822;egyfefsdvsfvvhjsd@gmail.com\r\n" +
-"Action: failed\r\n" +
-"Status: 5.1.1\r\n" +
-"Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
-"Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
-"    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
-"    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
-"    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
-"    41si5422799iwn.27\r\n" +
-"\r\n" +
-"Final-Recipient: rfc822; kfhejkfbsjkjsbhds@gmail.com\r\n" +
-"Original-Recipient: rfc822;kfhejkfbsjkjsbhds@gmail.com\r\n" +
-"Action: failed\r\n" +
-"Status: 5.1.1\r\n" +
-"Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
-"Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
-"    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
-"    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
-"    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
-"    41si5422799iwn.27\r\n" +
-"\r\n" +
-"Final-Recipient: rfc822; qfvhgsvhgsduiohncdhcvhsdfvsfygusd@gmail.com\r\n" +
-"Original-Recipient: rfc822;qfvhgsvhgsduiohncdhcvhsdfvsfygusd@gmail.com\r\n" +
-"Action: failed\r\n" +
-"Status: 5.1.1\r\n" +
-"Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
-"Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
-"    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
-"    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
-"    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
-"    41si5422799iwn.27\r\n" +
-"This is just testing.\r\n" +
-"\r\n" +
-"\r\n" +
-"Thanks & Regards,\r\n" +
-"Rahul P. Chaudhari\r\n" +
-"Software Developer\r\n" +
-"LIVIA India Private Limited\r\n" +
-"\r\n" +
-"Board Line - +91.22.6725 5100\r\n" +
-"Hand Phone - +91.809 783 3437\r\n" +
-"Web URL: www.LL.com \r\n", "", []goodMailAttachments{}},
+  {"26.eml", "Undelivered Mail Returned to Sender", "rahul.chaudhari@LL.com", "", "MAILER-DAEMON@lvmail01.LL.com", "",
+    "This is the mail system at host lvmail01.LL.com.\r\n" +
+      "\r\n" +
+      "I'm sorry to have to inform you that your message could not\r\n" +
+      "be delivered to one or more recipients. It's attached below.\r\n" +
+      "\r\n" +
+      "For further assistance, please send mail to postmaster.\r\n" +
+      "\r\n" +
+      "If you do so, please include this problem report. You can\r\n" +
+      "delete your own text from the attached returned message.\r\n" +
+      "\r\n" +
+      "                   The mail system\r\n" +
+      "\r\n" +
+      "<bbbbvhvbbvkjbhfbvbvjhb@gmail.com>: host\r\n" +
+      "    gmail-smtp-in.l.google.com[209.85.223.33] said: 550-5.1.1 The email account\r\n" +
+      "    that you tried to reach does not exist. Please try 550-5.1.1\r\n" +
+      "    double-checking the recipient's email address for typos or 550-5.1.1\r\n" +
+      "    unnecessary spaces. Learn more at                              550 5.1.1\r\n" +
+      "    http://mail.google.com/support/bin/answer.py?answer=6596 41si5422799iwn.27\r\n" +
+      "    (in reply to RCPT TO command)\r\n" +
+      "\r\n" +
+      "<bscdbcjhasbcjhbdscbhbsdhcbj@gmail.com>: host\r\n" +
+      "    gmail-smtp-in.l.google.com[209.85.223.33] said: 550-5.1.1 The email account\r\n" +
+      "    that you tried to reach does not exist. Please try 550-5.1.1\r\n" +
+      "    double-checking the recipient's email address for typos or 550-5.1.1\r\n" +
+      "    unnecessary spaces. Learn more at                              550 5.1.1\r\n" +
+      "    http://mail.google.com/support/bin/answer.py?answer=6596 41si5422799iwn.27\r\n" +
+      "    (in reply to RCPT TO command)\r\n" +
+      "\r\n" +
+      "<egyfefsdvsfvvhjsd@gmail.com>: host gmail-smtp-in.l.google.com[209.85.223.33]\r\n" +
+      "    said: 550-5.1.1 The email account that you tried to reach does not exist.\r\n" +
+      "    Please try 550-5.1.1 double-checking the recipient's email address for\r\n" +
+      "    typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
+      "    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
+      "    41si5422799iwn.27 (in reply to RCPT TO command)\r\n" +
+      "\r\n" +
+      "<kfhejkfbsjkjsbhds@gmail.com>: host gmail-smtp-in.l.google.com[209.85.223.33]\r\n" +
+      "    said: 550-5.1.1 The email account that you tried to reach does not exist.\r\n" +
+      "    Please try 550-5.1.1 double-checking the recipient's email address for\r\n" +
+      "    typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
+      "    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
+      "    41si5422799iwn.27 (in reply to RCPT TO command)\r\n" +
+      "\r\n" +
+      "<qfvhgsvhgsduiohncdhcvhsdfvsfygusd@gmail.com>: host\r\n" +
+      "    gmail-smtp-in.l.google.com[209.85.223.33] said: 550-5.1.1 The email account\r\n" +
+      "    that you tried to reach does not exist. Please try 550-5.1.1\r\n" +
+      "    double-checking the recipient's email address for typos or 550-5.1.1\r\n" +
+      "    unnecessary spaces. Learn more at                              550 5.1.1\r\n" +
+      "    http://mail.google.com/support/bin/answer.py?answer=6596 41si5422799iwn.27\r\n" +
+      "    (in reply to RCPT TO command)\r\n" +
+      "Reporting-MTA: dns; lvmail01.LL.com\r\n" +
+      "X-Postfix-Queue-ID: 9B7841BC027\r\n" +
+      "X-Postfix-Sender: rfc822; rahul.chaudhari@LL.com\r\n" +
+      "Arrival-Date: Tue, 23 Feb 2010 22:16:15 -0800 (PST)\r\n" +
+      "\r\n" +
+      "Final-Recipient: rfc822; bbbbvhvbbvkjbhfbvbvjhb@gmail.com\r\n" +
+      "Original-Recipient: rfc822;bbbbvhvbbvkjbhfbvbvjhb@gmail.com\r\n" +
+      "Action: failed\r\n" +
+      "Status: 5.1.1\r\n" +
+      "Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
+      "Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
+      "    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
+      "    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
+      "    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
+      "    41si5422799iwn.27\r\n" +
+      "\r\n" +
+      "Final-Recipient: rfc822; bscdbcjhasbcjhbdscbhbsdhcbj@gmail.com\r\n" +
+      "Original-Recipient: rfc822;bscdbcjhasbcjhbdscbhbsdhcbj@gmail.com\r\n" +
+      "Action: failed\r\n" +
+      "Status: 5.1.1\r\n" +
+      "Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
+      "Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
+      "    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
+      "    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
+      "    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
+      "    41si5422799iwn.27\r\n" +
+      "\r\n" +
+      "Final-Recipient: rfc822; egyfefsdvsfvvhjsd@gmail.com\r\n" +
+      "Original-Recipient: rfc822;egyfefsdvsfvvhjsd@gmail.com\r\n" +
+      "Action: failed\r\n" +
+      "Status: 5.1.1\r\n" +
+      "Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
+      "Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
+      "    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
+      "    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
+      "    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
+      "    41si5422799iwn.27\r\n" +
+      "\r\n" +
+      "Final-Recipient: rfc822; kfhejkfbsjkjsbhds@gmail.com\r\n" +
+      "Original-Recipient: rfc822;kfhejkfbsjkjsbhds@gmail.com\r\n" +
+      "Action: failed\r\n" +
+      "Status: 5.1.1\r\n" +
+      "Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
+      "Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
+      "    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
+      "    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
+      "    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
+      "    41si5422799iwn.27\r\n" +
+      "\r\n" +
+      "Final-Recipient: rfc822; qfvhgsvhgsduiohncdhcvhsdfvsfygusd@gmail.com\r\n" +
+      "Original-Recipient: rfc822;qfvhgsvhgsduiohncdhcvhsdfvsfygusd@gmail.com\r\n" +
+      "Action: failed\r\n" +
+      "Status: 5.1.1\r\n" +
+      "Remote-MTA: dns; gmail-smtp-in.l.google.com\r\n" +
+      "Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does\r\n" +
+      "    not exist. Please try 550-5.1.1 double-checking the recipient's email\r\n" +
+      "    address for typos or 550-5.1.1 unnecessary spaces. Learn more at\r\n" +
+      "    550 5.1.1 http://mail.google.com/support/bin/answer.py?answer=6596\r\n" +
+      "    41si5422799iwn.27\r\n" +
+      "This is just testing.\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "Thanks & Regards,\r\n" +
+      "Rahul P. Chaudhari\r\n" +
+      "Software Developer\r\n" +
+      "LIVIA India Private Limited\r\n" +
+      "\r\n" +
+      "Board Line - +91.22.6725 5100\r\n" +
+      "Hand Phone - +91.809 783 3437\r\n" +
+      "Web URL: www.LL.com \r\n", "", []goodMailAttachments{}},
 
-{"27.eml", "Cron <root@blabla>", "root", "", "root (Cron Daemon)", "", "blabla-eeb74629", "", []goodMailAttachments{}},
+  {"27.eml", "Cron <root@blabla>", "root", "", "root (Cron Daemon)", "", "blabla-eeb74629", "", []goodMailAttachments{}},
 
-{"28.eml", "[Brokers] loaded 51 broker views - 649 were due refresh", "x@234.com", "", "x@324.com", "", "test\r\n", "", []goodMailAttachments{}},
+  {"28.eml", "[Brokers] loaded 51 broker views - 649 were due refresh", "x@234.com", "", "x@324.com", "", "test\r\n", "", []goodMailAttachments{}},
 
-{"29.eml", "(example@example.com) Re: in Testing Like A Bus", "example@oexample.org", "example@example.com", "rep@example.org", "Test on The City",
-"\r\n" +
-"\t\r\n" +
-"\t--- Reply by typing above this line ---\r\n" +
-"\tThere are 20 people in this group.\r\n" +
-"\t\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"odiuxzvxzxcvouoiusdfouojv.zxc\r\n" +
-"- Test Super User\r\n" +
-"\r\n" +
-"View this reply on The City http://example.org/groups/4473/topics/1667327\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\tYou received this email because your notification settings for this group are set to Everything (real-time).  To edit your notification settings for this group, click here\r\n" +
-"http://example.org/users/14158/edit?tab=email\r\n" +
-"\r\n" +
-"\r\n" +
-"- The City Staff http://example.org\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\tTUID:57672c7ce82e3ca4bb481a781440b959fab6f80e:TUID\r\n" +
-"    UUID:9b08a3fa647f819e21ec365091b53c680dca2063:UUID\r\n" +
-"\r\n",
+  {"29.eml", "(example@example.com) Re: in Testing Like A Bus", "example@oexample.org", "example@example.com", "rep@example.org", "Test on The City",
+    "\r\n" +
+      "\t\r\n" +
+      "\t--- Reply by typing above this line ---\r\n" +
+      "\tThere are 20 people in this group.\r\n" +
+      "\t\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "odiuxzvxzxcvouoiusdfouojv.zxc\r\n" +
+      "- Test Super User\r\n" +
+      "\r\n" +
+      "View this reply on The City http://example.org/groups/4473/topics/1667327\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\tYou received this email because your notification settings for this group are set to Everything (real-time).  To edit your notification settings for this group, click here\r\n" +
+      "http://example.org/users/14158/edit?tab=email\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "- The City Staff http://example.org\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\tTUID:57672c7ce82e3ca4bb481a781440b959fab6f80e:TUID\r\n" +
+      "    UUID:9b08a3fa647f819e21ec365091b53c680dca2063:UUID\r\n" +
+      "\r\n",
 
-
-"<html>\r\n" +
-"\t<body style=\"margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; background-color: #e5e5e5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;\">\r\n" +
-"\t\t\r\n" +
-"\t\r\n" +
-"\t--- Reply by typing above this line ---<br>\r\n" +
-"\t\r\n" +
-"\r\n" +
-"\t\t<br /><br />\r\n" +
-"\t\t<table width=\"622\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\" align=\"center\" valign=\"top\" style=\"border: 1px solid #ccc; background-color: #f2f2f2;\">\r\n" +
-"  \t\t<tr>\r\n" +
-"  \t\t  <td>\r\n" +
-"  \t\t\t\t<table width=\"600\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" valign=\"top\" style=\"background-color: #ffffff; text-align: left; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px\">\r\n" +
-"  \t\t\t\t  <tr>\r\n" +
-"  \t\t\t\t    <td style=\"width: 10px;\">&nbsp;</td>\r\n" +
-"\t\t    \r\n" +
-"  \t\t        <td style=\"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 380px; vertical-align: top;\">\r\n" +
-"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 30px; display: block;\" />\r\n" +
-"  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 14px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
-"  \t\t          \t\r\n" +
-"  Testing Like A Bus | Response to Topic\r\n" +
-"  \t\t\t\t\t\t\t</p>\r\n" +
-"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 15px; display: block;\" />\r\n" +
-"  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 24px; line-height: 26px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
-"  \t\t          \t\r\n" +
-"\t<a href=\"http://example.org/groups/4473/topics/1667327\" style=\"color: #266989; text-decoration: none;\">sdafsadf</a>\r\n" +
-"  \t\t\t\t\t\t\t</p>\r\n" +
-"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 20px; display: block;\" />\r\n" +
-"  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 14px; line-height: 28px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
-"  \t\t          \t  \t\t\t\t\t\t\t</p>\r\n" +
-"  \t\t          \t<table cellspacing=\"0\" cellpadding=\"0\" align=\"left\" valign=\"top\" style=\"background-color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 100%;\">\r\n" +
-"    <tr>\r\n" +
-"      <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
-"        \r\n" +
-"\t<img alt=\"Test Super User\" border=\"1\" bordercolor=\"cccccc\" class=\"thumb\" height=\"32\" src=\"http://example.org/image_service/10/803507/false/thumbnail\" style=\"width: 32px; height: 32px; border: 1px solid #cccccc; padding: 1px;\" width=\"32\" />\r\n" +
-"\r\n" +
-"\r\n" +
-"      </td>\r\n" +
-"      <td style=\"vertical-align: top;\">\r\n" +
-"\t\t\t\t<span style='font-weight: bold;'>From Test Super User:</span> <p class=\"uc\">odiuxzvxzxcvouoiusdfouojv.zxc<br />\r\n" +
-"      \t\r\n" +
-"      </td>\r\n" +
-"    </tr>\r\n" +
-"  </table>\r\n" +
-"  \t\t          <img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
-"  \t\t\t\t\t\t\t<table cellspacing=\"0\" cellpadding=\"0\" align=\"left\" valign=\"top\" style=\"background-color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 100%; clear: both;\">\r\n" +
-"  \t\t            <tr>\r\n" +
-"  \t\t              <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
-"  \t\t                &nbsp;\r\n" +
-"  \t\t              </td>\r\n" +
-"  \t\t              <td style=\"vertical-align: top;font-size: 14px;\">\r\n" +
-"  \t\t                <p style=\"margin:10px 0 0 0;\">\t<a href=\"http://staff.example.org/groups/4473/topics/1667327\" style=\"color: #266989; text-decoration: none; font-weight: bold; \">View this reply on The City &raquo;</a><br />\r\n" +
-"</p>\r\n" +
-"  \t\t              </td>\r\n" +
-"  \t\t            </tr>\r\n" +
-"  \t\t            <tr>\r\n" +
-"  \t\t              <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
-"  \t\t                &nbsp;\r\n" +
-"  \t\t              </td>\r\n" +
-"  \t\t              <td style=\"vertical-align: top;font-size: 14px;\">\r\n" +
-"  \t\t                <p style=\"margin: 20px 0 0 0;\"></p>\r\n" +
-"  \t\t              </td>\r\n" +
-"  \t\t            </tr>\r\n" +
-"  \t\t          </table>\r\n" +
-"  \t\t\t\t\t\t\t<div style='min-height: 200px; word-wrap: break-word'>\r\n" +
-"  \t\t          \t\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"\r\n" +
-"<br />\r\n" +
-"  \t\t\t\t\t\t\t</div>\r\n" +
-"  \t\t\t\t\t\t</td>\r\n" +
-"\r\n" +
-"  \t\t\t\t\t\t<td style=\"width: 20px;\">&nbsp;</td>\r\n" +
-"\t\t    \r\n" +
-"  \t\t\t\t    <td style=\"width: 180px; vertical-align: top;\">\r\n" +
-"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
-"  \t\t\t\t        <img alt=\"\" border=\"0\" height=\"100\" src=\"http://staff.example.org/images/email/stamp_topic.png?2\" style=\"display: block;\" width=\"180\" />\r\n" +
-"  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
-"  \t\t\t\t\t\t\t\t\r\n" +
-"  \t\t          <table cellpadding=\"0\" cellspacing=\"0\" style=\"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #777777; line-height: 15px; width: 180px; vertical-align: top;\">\r\n" +
-"  \t\t            <tr>\r\n" +
-"  \t\t              <td style=\"background: #e5e5e5; width: 160px; padding: 7px 10px; vertical-align: top;\">\r\n" +
-"  \t\t                \r\n" +
-"  <p>There are <strong>20 people</strong> in this group.</p>\r\n" +
-"  \r\n" +
-"  \t\t              </td>\r\n" +
-"  \t\t            </tr>\r\n" +
-"\t\t\t\t\t\t\t\t\t\r\n" +
-"\t  \t\t            <tr>\r\n" +
-"\t  \t\t              <td style=\"padding: 7px 0; vertical-align: top; width: 180px;\">\r\n" +
-"\t  \t\t\t\t\t\t\t\t\t\t<span style=\"display: block; width: 180px;\">\r\n" +
-"\t\t\t\t\t\t\t\t\t\t\t\t\t  \r\n" +
-"\t  \t\t\t\t\t\t\t\t\t\t</span>\r\n" +
-"\t  \t\t              </td>\r\n" +
-"\t  \t\t            </tr>\r\n" +
-"\t\t\t\t\t\t\t\t\t\r\n" +
-"  \t\t  \t\t\t\t</table>\r\n" +
-"  \t\t  \t\t\t</td>\r\n" +
-"  \t\t  \t\t\t<td style=\"width: 10px;\">&nbsp;</td>\r\n" +
-"  \t\t\t\t  </tr>\r\n" +
-"  \t\t\t\t\t<tr>\r\n" +
-"  \t\t\t\t\t\t<td style='width: 10px;'>&nbsp;</td>\r\n" +
-"  \t\t\t\t\t\t<td colspan='3'>\r\n" +
-"  \t\t\t\t\t\t\t<hr style='color: #dddddd' />\r\n" +
-"  \t\t\t\t\t\t  <div style=\"color: #777777; font-size: 11px;\">\r\n" +
-"  \t\t          \t\r\n" +
-"\tYou received this email because your notification settings for this group are set to Everything (real-time).  To edit your notification settings for this group, <a href=\"http://example.org/users/14158/edit?tab=email\" style=\"color: #266989;\">click here</a><br />\r\n" +
-"\t\t\t\t\t\t\t\t\t\r\n" +
-"\t\t\t\t\t\t\t\t\t\t\r\n" +
-"\t\t\t\t\t\t\t\t\t\r\n" +
-"  \t\t\t\t\t\t\t</div>\r\n" +
-"  \t\t\t\t\t\t\t<p style=\"font-size: 6px; color: #fff;\">\r\n" +
-"  \t\t\t\t\t\t\t\t\r\n" +
-"\tTUID:57672c7ce82e3ca4bb481a781440b959fab6f80e:TUID\r\n" +
-"    UUID:9b08a3fa647f819e21ec365091b53c680dca2063:UUID\r\n" +
-"\r\n" +
-"  \t\t\t\t\t\t\t</p>\r\n" +
-"  \t         \t</td>\r\n" +
-"  \t\t\t\t\t\t<td style='width: 10px;'>&nbsp;</td>\r\n" +
-"  \t\t\t\t\t</tr>\r\n" +
-"  \t\t\t  </table>\r\n" +
-"\t\t\t  </td>\r\n" +
-"\t\t\t</tr>\r\n" +
-"\t\t</table>\r\n" +
-"\t\t\r\n" +
-"\t\t\t<img alt=\"\" height=\"0\" src=\"http://example.org/tracker/u/user.gif?u=14158\" width=\"0\" />\r\n" +
-"\t\t\r\n" +
-"\t\t<br /><br />\r\n" +
-"\t</body>\r\n" +
-"</html>", []goodMailAttachments{}},
-
+    "<html>\r\n" +
+      "\t<body style=\"margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; background-color: #e5e5e5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;\">\r\n" +
+      "\t\t\r\n" +
+      "\t\r\n" +
+      "\t--- Reply by typing above this line ---<br>\r\n" +
+      "\t\r\n" +
+      "\r\n" +
+      "\t\t<br /><br />\r\n" +
+      "\t\t<table width=\"622\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\" align=\"center\" valign=\"top\" style=\"border: 1px solid #ccc; background-color: #f2f2f2;\">\r\n" +
+      "  \t\t<tr>\r\n" +
+      "  \t\t  <td>\r\n" +
+      "  \t\t\t\t<table width=\"600\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" align=\"center\" valign=\"top\" style=\"background-color: #ffffff; text-align: left; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px\">\r\n" +
+      "  \t\t\t\t  <tr>\r\n" +
+      "  \t\t\t\t    <td style=\"width: 10px;\">&nbsp;</td>\r\n" +
+      "\t\t    \r\n" +
+      "  \t\t        <td style=\"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 380px; vertical-align: top;\">\r\n" +
+      "  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 30px; display: block;\" />\r\n" +
+      "  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 14px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
+      "  \t\t          \t\r\n" +
+      "  Testing Like A Bus | Response to Topic\r\n" +
+      "  \t\t\t\t\t\t\t</p>\r\n" +
+      "  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 15px; display: block;\" />\r\n" +
+      "  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 24px; line-height: 26px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
+      "  \t\t          \t\r\n" +
+      "\t<a href=\"http://example.org/groups/4473/topics/1667327\" style=\"color: #266989; text-decoration: none;\">sdafsadf</a>\r\n" +
+      "  \t\t\t\t\t\t\t</p>\r\n" +
+      "  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 20px; display: block;\" />\r\n" +
+      "  \t\t\t\t\t\t  <p style=\"font-weight: bold; font-size: 14px; line-height: 28px; color: #777777; margin: 10px 0 0 0;\">\r\n" +
+      "  \t\t          \t  \t\t\t\t\t\t\t</p>\r\n" +
+      "  \t\t          \t<table cellspacing=\"0\" cellpadding=\"0\" align=\"left\" valign=\"top\" style=\"background-color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 100%;\">\r\n" +
+      "    <tr>\r\n" +
+      "      <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
+      "        \r\n" +
+      "\t<img alt=\"Test Super User\" border=\"1\" bordercolor=\"cccccc\" class=\"thumb\" height=\"32\" src=\"http://example.org/image_service/10/803507/false/thumbnail\" style=\"width: 32px; height: 32px; border: 1px solid #cccccc; padding: 1px;\" width=\"32\" />\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "      </td>\r\n" +
+      "      <td style=\"vertical-align: top;\">\r\n" +
+      "\t\t\t\t<span style='font-weight: bold;'>From Test Super User:</span> <p class=\"uc\">odiuxzvxzxcvouoiusdfouojv.zxc<br />\r\n" +
+      "      \t\r\n" +
+      "      </td>\r\n" +
+      "    </tr>\r\n" +
+      "  </table>\r\n" +
+      "  \t\t          <img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
+      "  \t\t\t\t\t\t\t<table cellspacing=\"0\" cellpadding=\"0\" align=\"left\" valign=\"top\" style=\"background-color: #ffffff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #555555; line-height: 16px; width: 100%; clear: both;\">\r\n" +
+      "  \t\t            <tr>\r\n" +
+      "  \t\t              <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
+      "  \t\t                &nbsp;\r\n" +
+      "  \t\t              </td>\r\n" +
+      "  \t\t              <td style=\"vertical-align: top;font-size: 14px;\">\r\n" +
+      "  \t\t                <p style=\"margin:10px 0 0 0;\">\t<a href=\"http://staff.example.org/groups/4473/topics/1667327\" style=\"color: #266989; text-decoration: none; font-weight: bold; \">View this reply on The City &raquo;</a><br />\r\n" +
+      "</p>\r\n" +
+      "  \t\t              </td>\r\n" +
+      "  \t\t            </tr>\r\n" +
+      "  \t\t            <tr>\r\n" +
+      "  \t\t              <td style=\"width: 36px; padding-right: 5px; vertical-align: top;\">\r\n" +
+      "  \t\t                &nbsp;\r\n" +
+      "  \t\t              </td>\r\n" +
+      "  \t\t              <td style=\"vertical-align: top;font-size: 14px;\">\r\n" +
+      "  \t\t                <p style=\"margin: 20px 0 0 0;\"></p>\r\n" +
+      "  \t\t              </td>\r\n" +
+      "  \t\t            </tr>\r\n" +
+      "  \t\t          </table>\r\n" +
+      "  \t\t\t\t\t\t\t<div style='min-height: 200px; word-wrap: break-word'>\r\n" +
+      "  \t\t          \t\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "\r\n" +
+      "<br />\r\n" +
+      "  \t\t\t\t\t\t\t</div>\r\n" +
+      "  \t\t\t\t\t\t</td>\r\n" +
+      "\r\n" +
+      "  \t\t\t\t\t\t<td style=\"width: 20px;\">&nbsp;</td>\r\n" +
+      "\t\t    \r\n" +
+      "  \t\t\t\t    <td style=\"width: 180px; vertical-align: top;\">\r\n" +
+      "  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
+      "  \t\t\t\t        <img alt=\"\" border=\"0\" height=\"100\" src=\"http://staff.example.org/images/email/stamp_topic.png?2\" style=\"display: block;\" width=\"180\" />\r\n" +
+      "  \t\t\t\t\t\t\t<img alt=\"\" border=\"0\" src=\"http://example.org/images/email/spacer.gif\" style=\"height: 10px; display: block;\" />\r\n" +
+      "  \t\t\t\t\t\t\t\t\r\n" +
+      "  \t\t          <table cellpadding=\"0\" cellspacing=\"0\" style=\"font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #777777; line-height: 15px; width: 180px; vertical-align: top;\">\r\n" +
+      "  \t\t            <tr>\r\n" +
+      "  \t\t              <td style=\"background: #e5e5e5; width: 160px; padding: 7px 10px; vertical-align: top;\">\r\n" +
+      "  \t\t                \r\n" +
+      "  <p>There are <strong>20 people</strong> in this group.</p>\r\n" +
+      "  \r\n" +
+      "  \t\t              </td>\r\n" +
+      "  \t\t            </tr>\r\n" +
+      "\t\t\t\t\t\t\t\t\t\r\n" +
+      "\t  \t\t            <tr>\r\n" +
+      "\t  \t\t              <td style=\"padding: 7px 0; vertical-align: top; width: 180px;\">\r\n" +
+      "\t  \t\t\t\t\t\t\t\t\t\t<span style=\"display: block; width: 180px;\">\r\n" +
+      "\t\t\t\t\t\t\t\t\t\t\t\t\t  \r\n" +
+      "\t  \t\t\t\t\t\t\t\t\t\t</span>\r\n" +
+      "\t  \t\t              </td>\r\n" +
+      "\t  \t\t            </tr>\r\n" +
+      "\t\t\t\t\t\t\t\t\t\r\n" +
+      "  \t\t  \t\t\t\t</table>\r\n" +
+      "  \t\t  \t\t\t</td>\r\n" +
+      "  \t\t  \t\t\t<td style=\"width: 10px;\">&nbsp;</td>\r\n" +
+      "  \t\t\t\t  </tr>\r\n" +
+      "  \t\t\t\t\t<tr>\r\n" +
+      "  \t\t\t\t\t\t<td style='width: 10px;'>&nbsp;</td>\r\n" +
+      "  \t\t\t\t\t\t<td colspan='3'>\r\n" +
+      "  \t\t\t\t\t\t\t<hr style='color: #dddddd' />\r\n" +
+      "  \t\t\t\t\t\t  <div style=\"color: #777777; font-size: 11px;\">\r\n" +
+      "  \t\t          \t\r\n" +
+      "\tYou received this email because your notification settings for this group are set to Everything (real-time).  To edit your notification settings for this group, <a href=\"http://example.org/users/14158/edit?tab=email\" style=\"color: #266989;\">click here</a><br />\r\n" +
+      "\t\t\t\t\t\t\t\t\t\r\n" +
+      "\t\t\t\t\t\t\t\t\t\t\r\n" +
+      "\t\t\t\t\t\t\t\t\t\r\n" +
+      "  \t\t\t\t\t\t\t</div>\r\n" +
+      "  \t\t\t\t\t\t\t<p style=\"font-size: 6px; color: #fff;\">\r\n" +
+      "  \t\t\t\t\t\t\t\t\r\n" +
+      "\tTUID:57672c7ce82e3ca4bb481a781440b959fab6f80e:TUID\r\n" +
+      "    UUID:9b08a3fa647f819e21ec365091b53c680dca2063:UUID\r\n" +
+      "\r\n" +
+      "  \t\t\t\t\t\t\t</p>\r\n" +
+      "  \t         \t</td>\r\n" +
+      "  \t\t\t\t\t\t<td style='width: 10px;'>&nbsp;</td>\r\n" +
+      "  \t\t\t\t\t</tr>\r\n" +
+      "  \t\t\t  </table>\r\n" +
+      "\t\t\t  </td>\r\n" +
+      "\t\t\t</tr>\r\n" +
+      "\t\t</table>\r\n" +
+      "\t\t\r\n" +
+      "\t\t\t<img alt=\"\" height=\"0\" src=\"http://example.org/tracker/u/user.gif?u=14158\" width=\"0\" />\r\n" +
+      "\t\t\r\n" +
+      "\t\t<br /><br />\r\n" +
+      "\t</body>\r\n" +
+      "</html>", []goodMailAttachments{}},
 }
+
 // bad mails
 
 type badMailTypeTest struct {
-  RawBody     string
+  RawBody string
 }
 
 var badMailTypeTests = []badMailTypeTest{
@@ -1032,6 +1030,7 @@ var badMailTypeTests = []badMailTypeTest{
 func Test(t *testing.T) { TestingT(t) }
 
 type ParserSuite struct{}
+
 var _ = Suite(&ParserSuite{})
 
 func (s *ParserSuite) SetUpTest(c *C) {
@@ -1041,7 +1040,6 @@ func (s *ParserSuite) SetUpTest(c *C) {
   // uncomment for debug
   //log.Debug = true
 }
-
 
 func escapeString(v string) string {
   bytes, _ := json.Marshal(v)
@@ -1068,7 +1066,7 @@ func (s *ParserSuite) TestGoodMailParser(c *C) {
     }
     testBody := strings.Replace(string(RawBody), "\n", "\r\n", -1)
     // parse email
-    envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
+    envelop := &smtpd.BasicEnvelope{MailboxID: 0, MailBody: []byte(testBody)}
     email, err := ParseMail(envelop)
     c.Assert(err, IsNil)
     if email == nil || err != nil {
@@ -1119,7 +1117,7 @@ func (s *ParserSuite) BenchmarkParser(c *C) {
     }
     testBody := strings.Replace(string(RawBody), "\n", "\r\n", -1)
     // parse email
-    envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
+    envelop := &smtpd.BasicEnvelope{MailboxID: 0, MailBody: []byte(testBody)}
     _, mailErr := ParseMail(envelop)
     if mailErr != nil {
       c.Errorf("Error in parsing email: %v", err)
@@ -1133,7 +1131,7 @@ func (s *ParserSuite) TestBadMailParser(c *C) {
   for _, mail := range badMailTypeTests {
     testBody := strings.Replace(mail.RawBody, "\n", "\r\n", -1)
     // parse email
-    envelop := &smtpd.BasicEnvelope{ MailboxID: 0, MailBody: []byte(testBody)}
+    envelop := &smtpd.BasicEnvelope{MailboxID: 0, MailBody: []byte(testBody)}
     email, err := ParseMail(envelop)
     c.Assert(err, NotNil)
     if err == nil {

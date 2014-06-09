@@ -1,28 +1,28 @@
 package worker
 
 import (
+  "fmt"
+  "github.com/le0pard/go-falcon/clamav"
+  "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/parser"
+  "github.com/le0pard/go-falcon/protocol/smtpd"
+  "github.com/le0pard/go-falcon/redishook"
+  "github.com/le0pard/go-falcon/spamassassin"
   "net/http"
   "strings"
-  "fmt"
-  "github.com/le0pard/go-falcon/log"
-  "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/parser"
-  "github.com/le0pard/go-falcon/spamassassin"
-  "github.com/le0pard/go-falcon/clamav"
-  "github.com/le0pard/go-falcon/redishook"
-  "github.com/le0pard/go-falcon/protocol/smtpd"
 )
 
 // start worker
 func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   var (
-    email       *parser.ParsedEmail
-    report      string
-    messageId   int
+    email     *parser.ParsedEmail
+    report    string
+    messageId int
   )
   log.Debugf("Starting storage worker")
   for {
-    envelop := <- channel
+    envelop := <-channel
     // get settings
     maxMessages, err := config.DbPool.GetMaxMessages(envelop.MailboxID)
     if err != nil {
@@ -118,8 +118,8 @@ func webHookSender(config *config.Config, mailboxID, messageId int) {
         r.Header.Set("Content-Type", "application/json")
         resp, err := client.Do(r)
         if err != nil {
-           log.Errorf("error init web hook: %v", err)
-           continue
+          log.Errorf("error init web hook: %v", err)
+          continue
         }
         defer resp.Body.Close()
       }

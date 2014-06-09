@@ -2,19 +2,19 @@ package proxy
 
 import (
   "fmt"
-  "strconv"
-  "net/http"
-  "strings"
-  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/utils"
+  "net/http"
+  "strconv"
+  "strings"
 )
 
 const (
-  MAX_AUTH_RETRY = 10
+  MAX_AUTH_RETRY         = 10
   INVALID_AUTH_WAIT_TIME = "3"
-  PROTOCOL_SMTP = "smtp"
-  PROTOCOL_POP3 = "pop3"
+  PROTOCOL_SMTP          = "smtp"
+  PROTOCOL_POP3          = "pop3"
 
   MAX_IDLE_CONN = 5
   MAX_OPEN_CONN = 30
@@ -83,7 +83,7 @@ func nginxResponseSuccess(config *config.Config, w http.ResponseWriter, protocol
     w.Header().Add("Auth-User", userId) // return mailbox id instead username
   } else if protocol == PROTOCOL_POP3 {
     serverHost, serverPort = config.Pop3.Host, strconv.Itoa(utils.GetRandFromArray(config.Pop3PortRanges)) // revrite server options
-    w.Header().Add("Auth-Pass", password) // return password for pop3
+    w.Header().Add("Auth-Pass", password)                                                                  // return password for pop3
   }
   w.Header().Add("Auth-Status", "OK")
   w.Header().Add("Auth-Server", serverHost)

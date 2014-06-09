@@ -9,7 +9,6 @@ import (
   "github.com/le0pard/go-falcon/log"
 )
 
-
 func (s *session) redisIsSessionBlocked() bool {
   if !s.srv.ServerConfig.Redis.Enabled {
     return false
@@ -37,7 +36,6 @@ func (s *session) redisIsSessionBlocked() bool {
 
   return true
 }
-
 
 func (s *session) redisRateLimitKey() string {
   return fmt.Sprintf("%s:rate-inbox-limits-%d", s.srv.ServerConfig.Redis.Namespace, s.mailboxId)

@@ -3,26 +3,26 @@ package pop3
 
 import (
   "bufio"
+  "crypto/tls"
   "errors"
   "fmt"
+  "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/utils"
+  "io"
   "net"
   "os/exec"
-  "crypto/tls"
   "strings"
   "time"
-  "io"
   "unicode"
-  "github.com/le0pard/go-falcon/log"
-  "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/utils"
 )
 
 // Server is an SMTP server.
 type Server struct {
-  Addr         string // TCP address to listen on, ":2525" if empty
-  Hostname     string // optional Hostname to announce; "" to use system hostname
-  ReadTimeout  time.Duration  // optional read timeout
-  WriteTimeout time.Duration  // optional write timeout
+  Addr         string        // TCP address to listen on, ":2525" if empty
+  Hostname     string        // optional Hostname to announce; "" to use system hostname
+  ReadTimeout  time.Duration // optional read timeout
+  WriteTimeout time.Duration // optional write timeout
 
   TLSconfig *tls.Config // tls config
 
@@ -95,26 +95,26 @@ type session struct {
   br  *bufio.Reader
   bw  *bufio.Writer
 
-  authPlain bool // bool for 2 step plain auth
-  authLogin bool // bool for 2 step login auth
-  authApopLogin string // bytes for apop login
+  authPlain        bool   // bool for 2 step plain auth
+  authLogin        bool   // bool for 2 step login auth
+  authApopLogin    string // bytes for apop login
   authCramMd5Login string // bytes for cram-md5 login
 
-  mailboxId     int    // id of mailbox
-  authUsername  string // auth login
-  authPassword  string // auth password
+  mailboxId    int    // id of mailbox
+  authUsername string // auth login
+  authPassword string // auth password
 }
 
 func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
   s = &session{
-    srv: srv,
-    rwc: rwc,
-    br:  bufio.NewReader(rwc),
-    bw:  bufio.NewWriter(rwc),
-    authPlain: false,
-    authLogin: false,
+    srv:              srv,
+    rwc:              rwc,
+    br:               bufio.NewReader(rwc),
+    bw:               bufio.NewWriter(rwc),
+    authPlain:        false,
+    authLogin:        false,
     authCramMd5Login: "",
-    mailboxId: 0,
+    mailboxId:        0,
   }
   return
 }
@@ -250,7 +250,7 @@ func (s *session) handleStat() {
 
 // handle RSET
 
-func (s *session) handleRset(){
+func (s *session) handleRset() {
   if !s.checkNeedAuth() {
     count, sum, err := s.srv.ServerConfig.DbPool.Pop3MessagesCountAndSum(s.mailboxId)
     if err != nil {
@@ -349,14 +349,14 @@ func (s *session) handleAuth(auth string) {
     authToken = ""
   }
   switch command {
-    case "PLAIN":
-      s.tryPlainAuth(authToken)
-    case "LOGIN":
-      s.tryLoginAuth()
-    case "CRAM-MD5":
-      s.tryCramMd5Auth()
-    default:
-      s.sendlinef("-ERR Unrecognized authentication type")
+  case "PLAIN":
+    s.tryPlainAuth(authToken)
+  case "LOGIN":
+    s.tryLoginAuth()
+  case "CRAM-MD5":
+    s.tryCramMd5Auth()
+  default:
+    s.sendlinef("-ERR Unrecognized authentication type")
   }
 }
 

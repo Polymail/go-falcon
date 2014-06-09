@@ -1,16 +1,16 @@
 package main
 
 import (
-  "runtime"
-  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/daemon"
-  "github.com/le0pard/go-falcon/proxy"
+  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol"
+  "github.com/le0pard/go-falcon/proxy"
+  "runtime"
 )
 
 var (
-  globalConfig      config.Config
+  globalConfig config.Config
 )
 
 func main() {

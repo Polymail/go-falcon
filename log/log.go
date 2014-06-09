@@ -2,8 +2,8 @@ package log
 
 import (
   "fmt"
-  "sync"
   "runtime"
+  "sync"
 )
 
 type Logger interface {

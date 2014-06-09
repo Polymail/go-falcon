@@ -2,27 +2,27 @@ package utils
 
 import (
   "bytes"
-  "encoding/base64"
-  "strings"
   "crypto/hmac"
   "crypto/md5"
-  "strconv"
-  "math/rand"
-  "time"
-  "os"
+  "encoding/base64"
   "fmt"
+  "math/rand"
+  "os"
+  "strconv"
+  "strings"
+  "time"
 )
 
-func randomString (l int ) string {
-    bytes := make([]byte, l)
-    for i:=0 ; i<l ; i++ {
-        bytes[i] = byte(randInt(65, 90))
-    }
-    return string(bytes)
+func randomString(l int) string {
+  bytes := make([]byte, l)
+  for i := 0; i < l; i++ {
+    bytes[i] = byte(randInt(65, 90))
+  }
+  return string(bytes)
 }
 
-func randInt(min int , max int) int {
-    return min + rand.Intn(max-min)
+func randInt(min int, max int) int {
+  return min + rand.Intn(max-min)
 }
 
 func GenerateRandString(l int) string {
@@ -79,13 +79,13 @@ func CheckProtocolAuthPass(authMethod, rawPassword, cramPassword, cramSecret str
 // Decode protocol plain auth
 
 func DecodeProtocolAuthPlain(b64 string) (string, string, string) {
-  f := bytes.Split([]byte(DecodeBase64(b64)), []byte{ 0 })
+  f := bytes.Split([]byte(DecodeBase64(b64)), []byte{0})
 
-  if ((len(f) == 4) || (len(f) == 3)) {
+  if (len(f) == 4) || (len(f) == 3) {
     return string(f[0]), string(f[1]), string(f[2])
   }
 
-  return "","",""
+  return "", "", ""
 }
 
 // encode base64

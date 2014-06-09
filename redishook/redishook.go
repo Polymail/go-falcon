@@ -1,23 +1,22 @@
 package redishook
 
 import (
-  "strconv"
-  "time"
   "fmt"
   "github.com/garyburd/redigo/redis"
-  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/utils"
+  "strconv"
+  "time"
 )
 
 const (
-  REDIS_KEY_TTL = 60
-  REDIS_KEY_MAX_COUNT = 15
+  REDIS_KEY_TTL        = 60
+  REDIS_KEY_MAX_COUNT  = 15
   NOTIFICATION_TIMEOUT = 30
-  MAX_TTL_FOR_SPAM = 20
-  MAX_EMAILS_FOR_SPAM = 10
+  MAX_TTL_FOR_SPAM     = 20
+  MAX_EMAILS_FOR_SPAM  = 10
 )
-
 
 func SendNotifications(config *config.Config, mailboxID, messageID int, subject string) (bool, error) {
   redisCon := config.RedisPool.Get()
@@ -27,7 +26,6 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
   messageStr := strconv.Itoa(messageID)
 
   data := "{\"channel\": \"/inboxes/" + mailboxStr + "\", \"ext\": {\"username\": \"" + config.Redis.Hook_Username + "\", \"password\": \"" + config.Redis.Hook_Password + "\"}, \"data\": {\"mailbox_id\": \"" + mailboxStr + "\", \"message_id\": \"" + messageStr + "\"}}"
-
 
   if config.Redis.Hook_Username != "" && config.Redis.Hook_Password != "" {
     // Faye begin
@@ -71,7 +69,6 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
     }
     // Faye end
   }
-
 
   if config.Redis.Sidekiq_Queue != "" && config.Redis.Sidekiq_Class != "" {
     // Sidekiq begin

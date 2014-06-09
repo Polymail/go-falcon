@@ -1,24 +1,24 @@
 package daemon
 
 import (
-  stdlog "log"
   "flag"
-  "strconv"
+  "github.com/le0pard/go-falcon/config"
+  "github.com/le0pard/go-falcon/log"
+  stdlog "log"
   "os"
   "os/signal"
+  "strconv"
   "syscall"
-  "github.com/le0pard/go-falcon/log"
-  "github.com/le0pard/go-falcon/config"
 )
 
 var (
-  configFile        = flag.String("config", "config.yml", "YAML config for Falcon")
-  logFile           = flag.String("log", "", "Log file")
-  pidFile           = flag.String("pid", "", "File for pid file")
-  verbose           = flag.Bool("V", false, "Verbose mode")
+  configFile = flag.String("config", "config.yml", "YAML config for Falcon")
+  logFile    = flag.String("log", "", "Log file")
+  pidFile    = flag.String("pid", "", "File for pid file")
+  verbose    = flag.Bool("V", false, "Verbose mode")
 
-  loggerFileDescr  *os.File
-  errorFile         error
+  loggerFileDescr *os.File
+  errorFile       error
 )
 
 // signals
@@ -47,7 +47,7 @@ func listenSignals() {
 
 func writePidInFile(pidFile string) {
   pid := strconv.Itoa(os.Getpid())
-  f, err := os.OpenFile(pidFile, os.O_WRONLY | os.O_TRUNC | os.O_CREATE, 0666)
+  f, err := os.OpenFile(pidFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
   if err == nil {
     defer f.Close()
     _, err = f.WriteString(pid)
@@ -63,7 +63,7 @@ func writePidInFile(pidFile string) {
 
 func setLoggerOutput() {
   if *logFile != "" {
-    loggerFileDescr, errorFile = os.OpenFile(*logFile, os.O_WRONLY | os.O_TRUNC | os.O_CREATE, 0640)
+    loggerFileDescr, errorFile = os.OpenFile(*logFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0640)
     if errorFile != nil {
       log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
       log.Errorf("Error open file %v", errorFile)

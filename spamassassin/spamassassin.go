@@ -2,48 +2,48 @@
 package spamassassin
 
 import (
-  "net"
-  "errors"
   "bufio"
-  "strconv"
-  "io"
-  "strings"
-  "regexp"
   "encoding/json"
+  "errors"
   "github.com/le0pard/go-falcon/config"
+  "io"
+  "net"
+  "regexp"
+  "strconv"
+  "strings"
 )
 
 var (
-  spamInfoRe = regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`)
-  spamMainRe = regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`)
+  spamInfoRe    = regexp.MustCompile(`(.+)\/(.+) (\d+) (.+)`)
+  spamMainRe    = regexp.MustCompile(`^Spam: (.+) ; (.+) . (.+)$`)
   spamDetailsRe = regexp.MustCompile(`^(-?[0-9\.]*)\s([a-zA-Z0-9_]*)(\W*)([\w:\s-]*)`)
 )
 
 type Spamassassin struct {
-  config *config.Config
-  RawEmail  []byte
+  config   *config.Config
+  RawEmail []byte
 }
 
 type SpamassassinHeader struct {
-  Pts                   string
-  RuleName              string
-  Description           string
+  Pts         string
+  RuleName    string
+  Description string
 }
 
 type SpamassassinResponse struct {
-  ResponseCode          int
-  ResponseMessage       string
-  Score                 float64
-  Spam                  bool
-  Threshold             float64
-  Details               []SpamassassinHeader
+  ResponseCode    int
+  ResponseMessage string
+  Score           float64
+  Spam            bool
+  Threshold       float64
+  Details         []SpamassassinHeader
 }
 
 // check email by spamassassin
 
 func CheckSpamEmail(config *config.Config, email []byte) (string, error) {
   spamassassin := &Spamassassin{
-    config: config,
+    config:   config,
     RawEmail: email,
   }
   output, err := spamassassin.checkEmail()
@@ -67,7 +67,7 @@ func (ss *Spamassassin) checkEmail() ([]string, error) {
     return dataArrays, errors.New("Invalid ip address")
   }
   addr := &net.TCPAddr{
-    IP: ip,
+    IP:   ip,
     Port: ss.config.Spamassassin.Port,
   }
   conn, err := net.DialTCP("tcp", nil, addr)
@@ -149,11 +149,10 @@ func (ss *Spamassassin) parseOutput(output []string) *SpamassassinResponse {
     if spamDetailsRe.MatchString(row) {
       res := spamDetailsRe.FindStringSubmatch(row)
       if len(res) == 5 {
-        header := SpamassassinHeader{ Pts: res[1], RuleName: res[2], Description: res[4] }
+        header := SpamassassinHeader{Pts: res[1], RuleName: res[2], Description: res[4]}
         response.Details = append(response.Details, header)
       }
     }
   }
   return response
 }
-

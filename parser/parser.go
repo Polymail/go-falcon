@@ -2,44 +2,44 @@ package parser
 
 import (
   "bytes"
-  "net/mail"
-  "net/textproto"
-  "mime"
-  "mime/multipart"
-  "io"
-  "io/ioutil"
-  "strings"
-  "time"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
+  "io"
+  "io/ioutil"
+  "mime"
+  "mime/multipart"
+  "net/mail"
+  "net/textproto"
+  "strings"
+  "time"
 )
 
 type ParsedAttachment struct {
-  AttachmentType                string
-  AttachmentFileName            string
-  AttachmentTransferEncoding    string
-  AttachmentContentType         string
-  AttachmentContentID           string
-  AttachmentBody                string
+  AttachmentType             string
+  AttachmentFileName         string
+  AttachmentTransferEncoding string
+  AttachmentContentType      string
+  AttachmentContentID        string
+  AttachmentBody             string
 }
 
 type ParsedEmail struct {
-  env *smtpd.BasicEnvelope
-  MailboxID     int
-  RawMail       []byte
+  env       *smtpd.BasicEnvelope
+  MailboxID int
+  RawMail   []byte
 
-  Subject       string
-  Date          time.Time
-  From          mail.Address
-  To            mail.Address
-  Headers       mail.Header
+  Subject string
+  Date    time.Time
+  From    mail.Address
+  To      mail.Address
+  Headers mail.Header
 
-  HtmlPart      string
-  TextPart      string
+  HtmlPart string
+  TextPart string
 
-  Attachments   []ParsedAttachment
+  Attachments []ParsedAttachment
 
-  EmailBody     []byte
+  EmailBody []byte
 }
 
 // parse headers
@@ -60,9 +60,9 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
     fromEmail, err := mail.ParseAddress(emailHeader)
     if err != nil {
       if email.env.From != nil && email.env.From.Email() != "" {
-        email.From = mail.Address{ Address: email.env.From.Email() }
+        email.From = mail.Address{Address: email.env.From.Email()}
       } else {
-        email.From = mail.Address{ Address: getInvalidFromToHeader(emailHeader) }
+        email.From = mail.Address{Address: getInvalidFromToHeader(emailHeader)}
       }
     } else {
       email.From = *fromEmail
@@ -74,9 +74,9 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
     toEmail, err := mail.ParseAddress(emailHeader)
     if err != nil {
       if email.env.Rcpts != nil && len(email.env.Rcpts) > 0 {
-        email.To = mail.Address{ Address: email.env.Rcpts[0].Email() }
+        email.To = mail.Address{Address: email.env.Rcpts[0].Email()}
       } else {
-        email.To = mail.Address{ Address: getInvalidFromToHeader(emailHeader) }
+        email.To = mail.Address{Address: getInvalidFromToHeader(emailHeader)}
       }
     } else {
       email.To = *toEmail
@@ -88,7 +88,7 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
 
 func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody []byte) {
   var (
-    contentDispositionVal string
+    contentDispositionVal    string
     contentDispositionParams map[string]string
   )
 
@@ -151,7 +151,7 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
       email.parseMimeEmail(pbody, contentTypeParams["boundary"])
     } else if contentDisposition != "" {
       email.parseAttachment(headers, contentTypeVal, contentDispositionVal, contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
-    // attachments without content disposition (sic!)
+      // attachments without content disposition (sic!)
     } else if strings.HasPrefix(contentTypeVal, "image/") || strings.HasPrefix(contentTypeVal, "audio/") || strings.HasPrefix(contentTypeVal, "video/") || strings.HasPrefix(contentTypeVal, "application/") || strings.HasPrefix(contentTypeVal, "text/") {
       email.parseAttachment(headers, contentTypeVal, "attachment", contentTransferEncoding, contentTypeParams, contentDispositionParams, pbody)
     } else {
@@ -165,24 +165,24 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
 // parse attachments
 
 func (email *ParsedEmail) parseAttachment(headers textproto.MIMEHeader, contentTypeVal, contentDispositionVal, contentTransferEncoding string, contentTypeParams, contentDispositionParams map[string]string, pbody []byte) {
-    switch contentDispositionVal {
-    case "attachment", "inline":
-      filename := getFilenameOfAttachment(contentTypeParams, contentDispositionParams)
-      attachmentContentID := headers.Get("Content-ID")
-      if attachmentContentID != "" {
-        contentId, err := mail.ParseAddress(attachmentContentID)
-        if err == nil {
-          attachmentContentID = contentId.Address
-        } else {
-          attachmentContentID = getInvalidContentId(attachmentContentID)
-        }
+  switch contentDispositionVal {
+  case "attachment", "inline":
+    filename := getFilenameOfAttachment(contentTypeParams, contentDispositionParams)
+    attachmentContentID := headers.Get("Content-ID")
+    if attachmentContentID != "" {
+      contentId, err := mail.ParseAddress(attachmentContentID)
+      if err == nil {
+        attachmentContentID = contentId.Address
+      } else {
+        attachmentContentID = getInvalidContentId(attachmentContentID)
       }
-      attachment := ParsedAttachment{ AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], false), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID }
-      email.Attachments = append(email.Attachments, attachment)
-    default:
-      log.Errorf("Unknown content disposition: %s", contentDispositionVal)
-      log.Errorf("Unknown content params: %v", contentDispositionParams)
     }
+    attachment := ParsedAttachment{AttachmentType: contentDispositionVal, AttachmentFileName: filename, AttachmentBody: FixEncodingAndCharsetOfPart(string(pbody), contentTransferEncoding, contentTypeParams["charset"], false), AttachmentContentType: contentTypeVal, AttachmentTransferEncoding: contentTransferEncoding, AttachmentContentID: attachmentContentID}
+    email.Attachments = append(email.Attachments, attachment)
+  default:
+    log.Errorf("Unknown content disposition: %s", contentDispositionVal)
+    log.Errorf("Unknown content params: %v", contentDispositionParams)
+  }
 }
 
 // get filename of attachment
@@ -275,7 +275,7 @@ func (email *ParsedEmail) parseEmailBody(body []byte) {
 // parse email
 
 func ParseMail(env *smtpd.BasicEnvelope) (*ParsedEmail, error) {
-  email := &ParsedEmail{ env: env, MailboxID: env.MailboxID }
+  email := &ParsedEmail{env: env, MailboxID: env.MailboxID}
   msg, err := mail.ReadMessage(bytes.NewBuffer(email.env.MailBody))
   if err != nil {
     log.Errorf("Failed parsing ReadMessage: %v", err)

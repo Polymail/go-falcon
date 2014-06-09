@@ -4,12 +4,12 @@ import (
   "testing"
 )
 
-type  mimeInvalidNameHeaderTest struct {
-  From      string
-  To        string
+type mimeInvalidNameHeaderTest struct {
+  From string
+  To   string
 }
 
-var mimeInvalidNameHeaderTests = [] mimeInvalidNameHeaderTest{
+var mimeInvalidNameHeaderTests = []mimeInvalidNameHeaderTest{
   {"Content-Type: text/plain; name=test.txt", "Content-Type: text/plain; name=test.txt"},
   {"Content-Type: image/png; name=test-with-dash.png", "Content-Type: image/png; name=test-with-dash.png"},
   {"Content-Type: text/plain; name=This is a test.txt", "Content-Type: text/plain; name=\"This is a test.txt\""},
@@ -25,10 +25,9 @@ func TestMimeInvalidNameHeader(t *testing.T) {
   }
 }
 
-
 type mimeHeaderTest struct {
-  From      string
-  To        string
+  From string
+  To   string
 }
 
 var mimeHeaderTests = []mimeHeaderTest{

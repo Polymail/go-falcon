@@ -1,14 +1,14 @@
 package config
 
 import (
-  "runtime"
-  "io/ioutil"
-  "time"
   "fmt"
-  "launchpad.net/goyaml"
   "github.com/garyburd/redigo/redis"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/storage"
+  "io/ioutil"
+  "launchpad.net/goyaml"
+  "runtime"
+  "time"
 )
 
 // Config represents the supported configuration options for a falcon,
@@ -16,57 +16,57 @@ import (
 type protocolType string
 
 const (
-    protocolSmtp protocolType = "smtp"
-    protocolLmtp protocolType = "lmtp"
+  protocolSmtp protocolType = "smtp"
+  protocolLmtp protocolType = "lmtp"
 )
 
 type Config struct {
   Adapter struct {
-    Protocol        protocolType
-    Host            string
-    Port            int
-    Hostname        string
-    Auth            bool
-    Tls             bool
-    Ssl_Hostname    string
-    Ssl_Pub_Key     string
-    Ssl_Prv_Key     string
-    Welcome_Msg     string
-    Max_Mail_Size   int
-    Rate_Limit      int
-    Workers_Size    int
+    Protocol      protocolType
+    Host          string
+    Port          int
+    Hostname      string
+    Auth          bool
+    Tls           bool
+    Ssl_Hostname  string
+    Ssl_Pub_Key   string
+    Ssl_Prv_Key   string
+    Welcome_Msg   string
+    Max_Mail_Size int
+    Rate_Limit    int
+    Workers_Size  int
   }
-  Storage           *storage.StorageConfig
-  Pop3 struct {
-    Enabled         bool
-    Host            string
-    Port            int
-    Hostname        string
-    Tls             bool
-    Ssl_Hostname    string
-    Ssl_Pub_Key     string
-    Ssl_Prv_Key     string
+  Storage *storage.StorageConfig
+  Pop3    struct {
+    Enabled      bool
+    Host         string
+    Port         int
+    Hostname     string
+    Tls          bool
+    Ssl_Hostname string
+    Ssl_Pub_Key  string
+    Ssl_Prv_Key  string
   }
   Spamassassin struct {
-    Enabled       bool
-    Ip            string
-    Port          int
-    Timeout       int
+    Enabled bool
+    Ip      string
+    Port    int
+    Timeout int
   }
   Clamav struct {
-    Enabled       bool
-    Host          string
-    Port          int
-    Timeout       int
+    Enabled bool
+    Host    string
+    Port    int
+    Timeout int
   }
   Proxy struct {
-    Enabled       bool
-    Proxy_Mode    bool
-    Host          string
-    Port          int
+    Enabled      bool
+    Proxy_Mode   bool
+    Host         string
+    Port         int
     Client_Ports struct {
-      Smtp        []int
-      Pop3        []int
+      Smtp []int
+      Pop3 []int
     }
   }
   Redis struct {
@@ -82,21 +82,21 @@ type Config struct {
     Sidekiq_Class string
   }
   Web_Hooks struct {
-    Enabled       bool
-    Username      string
-    Password      string
-    Urls          []string
+    Enabled  bool
+    Username string
+    Password string
+    Urls     []string
   }
   Daemon struct {
-    Max_Procs     int
+    Max_Procs int
   }
   Log struct {
-    Debug         bool
+    Debug bool
   }
-  DbPool          *storage.DBConn
-  RedisPool       *redis.Pool
-  SmtpPortRanges  []int
-  Pop3PortRanges  []int
+  DbPool         *storage.DBConn
+  RedisPool      *redis.Pool
+  SmtpPortRanges []int
+  Pop3PortRanges []int
 }
 
 // NewConfig returns a new Config without any options.
@@ -199,18 +199,18 @@ func (config *Config) initDbPool() error {
 func (config *Config) initRedisPool() {
   // pool
   config.RedisPool = &redis.Pool{
-    MaxIdle: config.Redis.Pool,
+    MaxIdle:     config.Redis.Pool,
     IdleTimeout: time.Duration(config.Redis.Timeout) * time.Second,
-    Dial: func () (redis.Conn, error) {
+    Dial: func() (redis.Conn, error) {
       c, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", config.Redis.Host, config.Redis.Port))
       if err != nil {
         return nil, err
       }
       /*
-      if _, err := c.Do("AUTH", password); err != nil {
-        c.Close()
-        return nil, err
-      }
+         if _, err := c.Do("AUTH", password); err != nil {
+           c.Close()
+           return nil, err
+         }
       */
       return c, err
     },

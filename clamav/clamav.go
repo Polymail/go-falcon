@@ -2,13 +2,13 @@
 package clamav
 
 import (
-  "net"
   "bufio"
-  "io"
-  "strings"
-  "regexp"
   "fmt"
   "github.com/le0pard/go-falcon/config"
+  "io"
+  "net"
+  "regexp"
+  "strings"
 )
 
 const CHUNK_SIZE = 1024
@@ -18,15 +18,15 @@ var (
 )
 
 type Clamav struct {
-  config *config.Config
-  RawEmail  []byte
+  config   *config.Config
+  RawEmail []byte
 }
 
 // check email for viruses by clamav
 
 func CheckEmailForViruses(config *config.Config, email []byte) (string, error) {
   clamav := &Clamav{
-    config: config,
+    config:   config,
     RawEmail: email,
   }
   output, err := clamav.checkEmail()
@@ -56,15 +56,15 @@ func (ss *Clamav) checkEmail() ([]string, error) {
   }
   chunkPos := 0
   for {
-    if chunkPos + CHUNK_SIZE >= len(ss.RawEmail) - 1 {
-      data := ss.RawEmail[chunkPos:len(ss.RawEmail) - 1]
+    if chunkPos+CHUNK_SIZE >= len(ss.RawEmail)-1 {
+      data := ss.RawEmail[chunkPos : len(ss.RawEmail)-1]
       err = sendChunkOfData(conn, data)
       if err != nil {
         return dataArrays, err
       }
       break
     } else {
-      data := ss.RawEmail[chunkPos:chunkPos + CHUNK_SIZE]
+      data := ss.RawEmail[chunkPos : chunkPos+CHUNK_SIZE]
       err = sendChunkOfData(conn, data)
       if err != nil {
         return dataArrays, err
@@ -132,4 +132,3 @@ func (ss *Clamav) parseOutput(output []string) string {
   }
   return ""
 }
-
