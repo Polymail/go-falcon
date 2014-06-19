@@ -327,7 +327,7 @@ func (db *DBConn) Pop3Message(mailboxId int, messageId string) (int, string, err
   }
   err = db.DB.QueryRow(sql, mailboxId, msgId).Scan(&msgSize, &msgBody)
   if err != nil {
-    log.Errorf("Pop3Message SQL error: %v", err)
+    log.Debugf("Pop3Message SQL error: %v", err)
     return 0, "", err
   }
   return msgSize, msgBody, nil
@@ -348,7 +348,7 @@ func (db *DBConn) Pop3DeleteMessage(mailboxId int, messageId string) error {
   }
   err = db.DB.QueryRow(sql, mailboxId, msgId).Scan(&retId)
   if err != nil {
-    log.Errorf("Pop3DeleteMessage SQL error: %v", err)
+    log.Debugf("Pop3DeleteMessage SQL error: %v", err)
     return err
   }
   return nil
