@@ -9,9 +9,11 @@ import (
   "github.com/le0pard/go-falcon/protocol/pop3"
   "github.com/le0pard/go-falcon/protocol/smtpd"
   "github.com/le0pard/go-falcon/worker"
+  "time"
 )
 
 const (
+  TCP_TIMEOUT = 300
   EMAIL_CHANNEL_SIZE = 100
 )
 
@@ -81,6 +83,8 @@ func goPop3Server(config *config.Config) {
     Addr:         serverBind,
     Hostname:     config.Pop3.Hostname,
     ServerConfig: config,
+    WriteTimeout: time.Duration(TCP_TIMEOUT)*time.Second,
+    ReadTimeout:  time.Duration(TCP_TIMEOUT)*time.Second,
   }
   // tls certs
   if config.Pop3.Tls {
@@ -123,6 +127,8 @@ func StartSmtpServer(config *config.Config) {
     Hostname:     config.Adapter.Hostname,
     OnNewMail:    onNewMail,
     ServerConfig: config,
+    WriteTimeout: time.Duration(TCP_TIMEOUT)*time.Second,
+    ReadTimeout:  time.Duration(TCP_TIMEOUT)*time.Second,
   }
   // tls certs
   if config.Adapter.Tls {
