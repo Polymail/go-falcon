@@ -13,13 +13,14 @@ import (
 )
 
 type StorageConfig struct {
-  Adapter  string
-  Host     string
-  Port     int
-  Username string
-  Password string
-  Database string
-  Pool     int
+  Adapter     string
+  Host        string
+  Port        int
+  Username    string
+  Password    string
+  Database    string
+  Pool        int
+  Pool_Idle   int
 
   Auth_Sql string
 
@@ -56,7 +57,7 @@ func InitDatabase(config *StorageConfig) (*DBConn, error) {
       return nil, err
     }
     db.SetMaxOpenConns(config.Pool)
-    db.SetMaxIdleConns(10)
+    db.SetMaxIdleConns(config.Pool_Idle)
     return &DBConn{DB: db, config: config}, err
   default:
     return nil, errors.New("invalid database adapter")

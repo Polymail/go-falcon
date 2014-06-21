@@ -161,7 +161,10 @@ func (config *Config) setDefaultValues() {
     config.Storage.Port = 5432
   }
   if config.Storage.Pool < 1 {
-    config.Storage.Pool = 1
+    config.Storage.Pool = 5
+  }
+  if config.Storage.Pool_Idle < 1 {
+    config.Storage.Pool_Idle = 2
   }
   // default for Proxy
   if config.Proxy.Host == "" {
