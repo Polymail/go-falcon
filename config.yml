@@ -39,7 +39,7 @@ storage:
   clamav_sql: "UPDATE messages SET viruses_report=$3 WHERE inbox_id = $1 AND id=$2 RETURNING id"
   # pop3 sql if enabled
   pop3_count_and_size_messages: "SELECT count(id), COALESCE(SUM(email_size), 0) FROM messages WHERE id IN (SELECT id FROM messages WHERE inbox_id = $1 ORDER BY id DESC LIMIT 100)"
-  pop3_messages_list: "SELECT id, email_size FROM messages WHERE inbox_id = $1 ORDER BY id DESC LIMIT 1000"
+  pop3_messages_list: "SELECT id, email_size FROM messages WHERE inbox_id = $1 ORDER BY id DESC LIMIT 100"
   pop3_messages_list_one: "SELECT id, email_size FROM messages WHERE inbox_id = $1 AND id = $2"
   pop3_message_one: "SELECT email_size, raw_body FROM messages WHERE inbox_id = $1 AND id = $2"
   pop3_message_delete: "DELETE FROM messages WHERE inbox_id = $1 AND id = $2 RETURNING id"
