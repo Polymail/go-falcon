@@ -11,6 +11,7 @@ deps:
 		$(FALCONGOBIN) get code.google.com/p/go.text/encoding
 		$(FALCONGOBIN) get github.com/garyburd/redigo/redis
 		$(FALCONGOBIN) get github.com/sloonz/go-iconv
+		$(FALCONGOBIN) get github.com/sloonz/go-qprintable
 		$(FALCONGOBIN) get launchpad.net/gocheck
 test:
 		$(FALCONGOBIN) test -v ./...

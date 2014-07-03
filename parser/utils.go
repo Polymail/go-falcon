@@ -10,6 +10,7 @@ import (
   "code.google.com/p/go.text/transform"
   "github.com/le0pard/go-falcon/utils"
   "github.com/sloonz/go-iconv"
+  "github.com/sloonz/go-qprintable"
   "io/ioutil"
   "net/url"
   "regexp"
@@ -207,7 +208,8 @@ func convertByIconv(data, contentCharset string) (string, error) {
 
 func fromQuotedP(data string) string {
   buf := bytes.NewBufferString(data)
-  decoder := utils.NewQuotedPrintableReader(buf)
+  decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
+  //decoder := go_multipart_packages.NewQuotedPrintableReader(buf)
   res, _ := ioutil.ReadAll(decoder)
   return string(res)
 }

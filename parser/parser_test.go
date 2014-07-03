@@ -1010,6 +1010,30 @@ X-Virus-Status: Clean
       "\t\t<br /><br />\r\n" +
       "\t</body>\r\n" +
       "</html>", []goodMailAttachments{}},
+
+  {"30.eml", "Поступил новый пользовательский запрос", "support@xxx.net", "", "no-reply@xxx.net", "DDos-Guard", "Вы получили новый пользовательский\r\n" +
+"запрос\r\n" +
+"\r\n" +
+"Информация о клиенте:\r\n" +
+"Имя: asdasd\r\n" +
+"Электронная почта: asd\r\n" +
+"Телефон: asd\r\n" +
+"Сайт: asdfasd\r\n" +
+"\r\n" +
+"Текст запроса:\r\n" +
+"fasdfasdf\r\n" +
+"\r\n", "Вы получили новый пользовательский запрс<br/>\r\n" +
+"<br/>\r\n" +
+"<u>Информация о клиенте:</u><br/>\r\n" +
+"Имя: <strong>asd</strong><br/>\r\n" +
+"Электронная почта: <strong>asd</strong><br/>\r\n" +
+"Телефон: <strong>asd</strong><br/>\r\n" +
+"Сайт: <strong>asdfasd</strong><br/>\r\n" +
+"<br/>\r\n" +
+"<u>Текст запроса:</u><br/>\r\n" +
+"fasdfasdf\r\n", []goodMailAttachments{}},
+
+
 }
 
 // bad mails
