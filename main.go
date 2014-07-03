@@ -20,7 +20,7 @@ func main() {
     return
   }
   // conf
-  log.Debugf("Loaded config: %v", globalConfig)
+  log.Debugf("Loaded config: %+v", globalConfig)
   // set runtime
   runtime.GOMAXPROCS(globalConfig.Daemon.Max_Procs)
   // start nginx proxy
