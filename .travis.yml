@@ -1,11 +1,9 @@
 language: go
+go:
+  - 1.3
+  - tip
 before_script:
-  - psql -c 'CREATE DATABASE pqgotest;' -U postgres
-install:
-  - gvm install go1.2.1
-  - gvm use go1.2.1 --default
-  - export GOPATH=$HOME/gopath
-  - make deps
+  - make
 script: make test
 notifications:
   email: false
