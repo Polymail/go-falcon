@@ -8,7 +8,7 @@
 // 2. it will pass through a '\r' or '\n' not preceded by '=', consistent
 //    with other broken QP encoders & decoders.
 
-package go_multipart_packages
+package go_multipart_pacthed
 
 import (
 	"bufio"

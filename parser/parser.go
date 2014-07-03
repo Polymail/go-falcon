@@ -2,7 +2,7 @@ package parser
 
 import (
   "bytes"
-  "github.com/le0pard/go-falcon/go_multipart_packages"
+  "github.com/le0pard/go-falcon/go_multipart_pacthed"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol/smtpd"
   "io"
@@ -211,7 +211,7 @@ func getFilenameOfAttachment(contentTypeParams, contentDispositionParams map[str
 
 // parse part of email
 
-func (email *ParsedEmail) parseEmailPart(part *go_multipart_packages.Part) {
+func (email *ParsedEmail) parseEmailPart(part *go_multipart_pacthed.Part) {
   pbody, err := ioutil.ReadAll(part)
   if err != nil {
     log.Errorf("Read part: %v", err)
@@ -235,7 +235,7 @@ func (email *ParsedEmail) parseMimeEmail(pbody []byte, boundary string) {
   }
 
   bodyReader := bytes.NewReader(pbody)
-  reader := go_multipart_packages.NewReader(bodyReader, boundary)
+  reader := go_multipart_pacthed.NewReader(bodyReader, boundary)
 
   for {
     p, err := reader.NextPart()
