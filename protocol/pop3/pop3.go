@@ -297,9 +297,9 @@ func (s *session) handleList(line string) {
 
 func (s *session) handleRetr(line string) {
   if !s.checkNeedAuth() {
-    messageId := s.parseMessageId(line)
-    if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
-      msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, s.cachedList[messageId - 1][0])
+    messageId := s.getMessageId(s.parseMessageId(line))
+    if messageId > 0 {
+      msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, messageId)
       if err != nil {
         s.sendlinef("-ERR no such message")
       } else {
@@ -317,9 +317,9 @@ func (s *session) handleRetr(line string) {
 
 func (s *session) handleDel(line string) {
   if !s.checkNeedAuth() {
-    messageId := s.parseMessageId(line)
-    if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
-      err := s.srv.ServerConfig.DbPool.Pop3DeleteMessage(s.mailboxId, s.cachedList[messageId - 1][0])
+    messageId := s.getMessageId(s.parseMessageId(line))
+    if messageId > 0 {
+      err := s.srv.ServerConfig.DbPool.Pop3DeleteMessage(s.mailboxId, messageId)
       if err != nil {
         s.sendlinef("-ERR no such message")
       } else {
@@ -342,9 +342,9 @@ func (s *session) handleTop(line string) {
       msgId = strings.TrimSpace(line)
     }
 
-    messageId := s.parseMessageId(msgId)
-    if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
-      msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, s.cachedList[messageId - 1][0])
+    messageId := s.getMessageId(s.parseMessageId(msgId))
+    if messageId > 0 {
+      msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, messageId)
       if err != nil {
         s.sendlinef("-ERR no such message")
       } else {
@@ -590,6 +590,13 @@ func (s *session) parseMessageId(line string) int {
     if err == nil {
       return messageId
     }
+  }
+  return 0
+}
+
+func (s *session) getMessageId(messageId int) int {
+  if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
+    return s.cachedList[messageId - 1][0]
   }
   return 0
 }
