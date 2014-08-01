@@ -13,6 +13,7 @@ import (
   "net"
   "os/exec"
   "strings"
+  "strconv"
   "time"
   "unicode"
 )
@@ -103,6 +104,8 @@ type session struct {
   mailboxId    int    // id of mailbox
   authUsername string // auth login
   authPassword string // auth password
+
+  cachedList   [][2]int
 }
 
 func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
@@ -264,6 +267,8 @@ func (s *session) handleRset() {
 // handle LIST
 
 func (s *session) handleList(line string) {
+  var errList error
+
   if !s.checkNeedAuth() {
     count, sum, err := s.srv.ServerConfig.DbPool.Pop3MessagesCountAndSum(s.mailboxId)
     if err != nil {
@@ -271,11 +276,15 @@ func (s *session) handleList(line string) {
     } else {
       s.sendlinef("+OK %d messages (%d octets)", count, sum)
       if count > 0 {
-        messageId := strings.TrimSpace(line)
-        messages, err := s.srv.ServerConfig.DbPool.Pop3MessagesList(s.mailboxId, messageId)
-        if err == nil {
-          for _, msg := range messages {
-            s.sendlinef("%s %s", msg[0], msg[1])
+        messageId := s.parseMessageId(line)
+        s.cachedList, errList = s.srv.ServerConfig.DbPool.Pop3MessagesList(s.mailboxId)
+        if errList == nil {
+          if messageId > 0 && len(s.cachedList) >= messageId {
+            s.sendlinef("%d %d", messageId, s.cachedList[messageId - 1][1])
+          } else {
+            for i, msg := range s.cachedList {
+              s.sendlinef("%d %d", i+1, msg[1])
+            }
           }
         }
       }
@@ -288,14 +297,18 @@ func (s *session) handleList(line string) {
 
 func (s *session) handleRetr(line string) {
   if !s.checkNeedAuth() {
-    messageId := strings.TrimSpace(line)
-    msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, messageId)
-    if err != nil {
-      s.sendlinef("-ERR no such message")
+    messageId := s.parseMessageId(line)
+    if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
+      msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, s.cachedList[messageId - 1][0])
+      if err != nil {
+        s.sendlinef("-ERR no such message")
+      } else {
+        s.sendlinef("+OK %d octets", msgSize)
+        s.sendlinef("%s", msgBody)
+        s.sendlinef(".")
+      }
     } else {
-      s.sendlinef("+OK %d octets", msgSize)
-      s.sendlinef("%s", msgBody)
-      s.sendlinef(".")
+      s.sendlinef("-ERR no such message")
     }
   }
 }
@@ -304,12 +317,16 @@ func (s *session) handleRetr(line string) {
 
 func (s *session) handleDel(line string) {
   if !s.checkNeedAuth() {
-    messageId := strings.TrimSpace(line)
-    err := s.srv.ServerConfig.DbPool.Pop3DeleteMessage(s.mailboxId, messageId)
-    if err != nil {
-      s.sendlinef("-ERR no such message")
+    messageId := s.parseMessageId(line)
+    if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
+      err := s.srv.ServerConfig.DbPool.Pop3DeleteMessage(s.mailboxId, s.cachedList[messageId - 1][0])
+      if err != nil {
+        s.sendlinef("-ERR no such message")
+      } else {
+        s.sendlinef("+OK message 1 deleted")
+      }
     } else {
-      s.sendlinef("+OK message 1 deleted")
+      s.sendlinef("-ERR no such message")
     }
   }
 }
@@ -318,21 +335,25 @@ func (s *session) handleDel(line string) {
 
 func (s *session) handleTop(line string) {
   if !s.checkNeedAuth() {
-    var messageId string
+    var msgId string
     if idx := strings.Index(line, " "); idx != -1 {
-      messageId = strings.TrimSpace(line[:idx])
-      //count = strings.TrimRightFunc(line[idx+1:len(line)], unicode.IsSpace)
+      msgId = strings.TrimSpace(line[:idx])
     } else {
-      messageId = strings.TrimSpace(line)
-      //count = 0
+      msgId = strings.TrimSpace(line)
     }
-    msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, messageId)
-    if err != nil {
-      s.sendlinef("-ERR no such message")
+
+    messageId := s.parseMessageId(msgId)
+    if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
+      msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, messageId)
+      if err != nil {
+        s.sendlinef("-ERR no such message")
+      } else {
+        s.sendlinef("+OK %d octets", msgSize)
+        s.sendlinef("%s", msgBody)
+        s.sendlinef(".")
+      }
     } else {
-      s.sendlinef("+OK %d octets", msgSize)
-      s.sendlinef("%s", msgBody)
-      s.sendlinef(".")
+      s.sendlinef("-ERR no such message")
     }
   }
 }
@@ -558,6 +579,19 @@ func (s *session) handleError(err error) {
     return
   }
   log.Errorf("Error: %s", err)
+}
+
+// Utils
+
+func (s *session) parseMessageId(line string) int {
+  messageId := strings.TrimSpace(line)
+  if messageId != "" {
+    messageId, err := strconv.Atoi(messageId)
+    if err == nil {
+      return messageId
+    }
+  }
+  return 0
 }
 
 // COMMAND LINE
