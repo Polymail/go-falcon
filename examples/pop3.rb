@@ -3,7 +3,7 @@ require 'net/pop'
 raise "args shoud be email ans pass" if ARGV.length < 2
 username, password = ARGV[0], ARGV[1]
 
-Net::POP3.start('falcon.rw.rw', 110, username, password, true) do |pop|
+Net::POP3.start('mailtrap.rw.rw', 110, username, password, true) do |pop|
   if pop.mails.empty?
     puts 'No mail.'
   else

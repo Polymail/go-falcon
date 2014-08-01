@@ -344,7 +344,7 @@ func (s *session) handleTop(line string) {
 
     messageId := s.parseMessageId(msgId)
     if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
-      msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, messageId)
+      msgSize, msgBody, err := s.srv.ServerConfig.DbPool.Pop3Message(s.mailboxId, s.cachedList[messageId - 1][0])
       if err != nil {
         s.sendlinef("-ERR no such message")
       } else {
