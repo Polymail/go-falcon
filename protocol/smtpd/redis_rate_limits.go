@@ -36,7 +36,13 @@ func (s *session) redisIsSessionBlocked() bool {
   emailsKeyCount, err := redis.Int(redisCon.Do("INCR", redisKey))
   if err == nil {
     if 1 == emailsKeyCount {
-      _, err = redisCon.Do("EXPIRE", redisKey, 1) // expire 1 sec
+      // ttl of key begin
+      redisKeyTTL := 1
+      if s.rateLimit > 10 {
+        redisKeyTTL = 10
+      }
+      // ttl of key end
+      _, err = redisCon.Do("EXPIRE", redisKey, redisKeyTTL)
       if err != nil {
         log.Errorf("redisRateLimits EXPIRE error: %v", err)
       }
