@@ -14,6 +14,7 @@ import (
   "fmt"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/redisworker"
   "github.com/le0pard/go-falcon/utils"
   "io"
   "net"
@@ -525,8 +526,18 @@ func (s *session) authByDB(authMethod string) {
 
 func (s *session) setMailboxIdHook(mailboxId int) {
   s.mailboxId = mailboxId
-  inboxSettings, err := s.srv.ServerConfig.DbPool.GeInboxSettings(s.mailboxId)
-  if err == nil {
+  // get settings
+  inboxSettings, err := redisworker.GetCachedInboxSettings(s.srv.ServerConfig, s.mailboxId)
+  if err != nil || 0 == inboxSettings.MaxMessages || 0 == inboxSettings.RateLimit {
+    // inbox setting from database
+    inboxSettings, err = s.srv.ServerConfig.DbPool.GeInboxSettings(s.mailboxId)
+    // check settings
+    if err == nil {
+      // cache setting in redis
+      redisworker.StoreCachedInboxSettings(s.srv.ServerConfig, s.mailboxId, inboxSettings)
+      s.rateLimit = inboxSettings.RateLimit
+    }
+  } else {
     s.rateLimit = inboxSettings.RateLimit
   }
 }
