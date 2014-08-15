@@ -22,13 +22,17 @@ const (
 
 // get cached inbox setting
 
+func getRedisCacheInboxKey(config *config.Config, mailboxID int) string {
+  return fmt.Sprintf("%s:inboxes-settings-cache_%d", config.Redis.Namespace, mailboxID)
+}
+
 func GetCachedInboxSettings(config *config.Config, mailboxID int) (storage.InboxSettings, error) {
   var (
     inboxSettings storage.InboxSettings
     err           error
   )
 
-  redisCacheKey := fmt.Sprintf("%s:inboxes-settings-cache_%d", config.Redis.Namespace, mailboxID)
+  redisCacheKey := getRedisCacheInboxKey(config, mailboxID)
 
   redisCon := config.RedisPool.Get()
   defer redisCon.Close()
@@ -43,7 +47,7 @@ func GetCachedInboxSettings(config *config.Config, mailboxID int) (storage.Inbox
 // store cache inbox settings
 
 func StoreCachedInboxSettings(config *config.Config, mailboxID int, inboxSettings storage.InboxSettings) {
-  redisCacheKey := fmt.Sprintf("%s:inboxes-settings-cache_%d", config.Redis.Namespace, mailboxID)
+  redisCacheKey := getRedisCacheInboxKey(config, mailboxID)
 
   redisCon := config.RedisPool.Get()
   defer redisCon.Close()
