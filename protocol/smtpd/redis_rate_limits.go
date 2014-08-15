@@ -30,7 +30,7 @@ func (s *session) redisIsSessionBlocked() bool {
     log.Errorf("redisRateLimits INCR error: %v", err)
   }
 
-  if err != nil || emailsKeyCount <= s.srv.ServerConfig.Adapter.Rate_Limit {
+  if err != nil || emailsKeyCount <= s.rateLimit {
     return false
   }
 

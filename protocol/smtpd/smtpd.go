@@ -188,6 +188,7 @@ type session struct {
   authUsername string // auth login
   authPassword string // auth password
 
+  rateLimit int // rate limit from db
   isBlocked bool // is session blocked
 }
 
@@ -201,6 +202,7 @@ func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
     authLogin:        false,
     authCramMd5Login: "",
     mailboxId:        0,
+    rateLimit:        srv.ServerConfig.Adapter.Rate_Limit,
     isBlocked:        false,
   }
   return
@@ -523,6 +525,10 @@ func (s *session) authByDB(authMethod string) {
 
 func (s *session) setMailboxIdHook(mailboxId int) {
   s.mailboxId = mailboxId
+  inboxSettings, err := s.srv.ServerConfig.DbPool.GeInboxSettings(s.mailboxId)
+  if err == nil {
+    s.rateLimit = inboxSettings.RateLimit
+  }
 }
 
 // plain auth

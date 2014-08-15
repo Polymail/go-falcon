@@ -81,12 +81,6 @@ type Config struct {
     Sidekiq_Queue string
     Sidekiq_Class string
   }
-  Web_Hooks struct {
-    Enabled  bool
-    Username string
-    Password string
-    Urls     []string
-  }
   Daemon struct {
     Max_Procs int
   }

@@ -1,16 +1,13 @@
 package worker
 
 import (
-  "fmt"
   "github.com/le0pard/go-falcon/clamav"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/parser"
   "github.com/le0pard/go-falcon/protocol/smtpd"
-  "github.com/le0pard/go-falcon/redishook"
+  "github.com/le0pard/go-falcon/redisworker"
   "github.com/le0pard/go-falcon/spamassassin"
-  "net/http"
-  "strings"
 )
 
 // start worker
@@ -24,10 +21,18 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
   for {
     envelop := <-channel
     // get settings
-    maxMessages, err := config.DbPool.GetMaxMessages(envelop.MailboxID)
-    if err != nil {
-      // invalid settings
-      continue
+    inboxSettings, err := redisworker.GetCachedInboxSettings(config, envelop.MailboxID)
+    if err != nil || 0 == inboxSettings.MaxMessages || 0 == inboxSettings.RateLimit {
+      // inbox setting from database
+      inboxSettings, err = config.DbPool.GeInboxSettings(envelop.MailboxID)
+      // check settings
+      if err != nil {
+        // invalid settings
+        continue
+      } else {
+        // cache setting in redis
+        redisworker.StoreCachedInboxSettings(config, envelop.MailboxID, inboxSettings)
+      }
     }
     // parse email
     email, err = parser.ParseMail(envelop)
@@ -43,9 +48,9 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
         }
 
         //cleanup messages
-        config.DbPool.CleanupMessages(email.MailboxID, maxMessages)
+        config.DbPool.CleanupMessages(email.MailboxID, inboxSettings)
         // redis counter
-        if messageId > 0 && redishook.IsNotSpamAttackCampaign(config, envelop.MailboxID) {
+        if messageId > 0 && redisworker.IsNotSpamAttackCampaign(config, envelop.MailboxID) {
           // spamassassin
           if config.Spamassassin.Enabled {
             report, err = spamassassin.CheckSpamEmail(config, email.RawMail)
@@ -76,11 +81,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
           }
           // redis hooks
           if config.Redis.Enabled {
-            redishook.SendNotifications(config, email.MailboxID, messageId, email.Subject)
-          }
-          // web hooks
-          if config.Web_Hooks.Enabled {
-            go webHookSender(config, email.MailboxID, messageId)
+            redisworker.SendNotifications(config, email.MailboxID, messageId, email.Subject)
           }
         }
 
@@ -98,31 +99,5 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
 func StartWorkers(config *config.Config, channel chan *smtpd.BasicEnvelope) {
   for i := 0; i < config.Adapter.Workers_Size; i++ {
     go startParserAndStorageWorker(config, channel)
-  }
-}
-
-// web hooks
-
-func webHookSender(config *config.Config, mailboxID, messageId int) {
-  if len(config.Web_Hooks.Urls) > 0 {
-    client := &http.Client{}
-    for _, url := range config.Web_Hooks.Urls {
-      r, err := http.NewRequest("POST", url,
-        strings.NewReader(fmt.Sprintf("{\"channel\": \"/inboxes/%d\", \"ext\": {\"username\": \"%s\", \"password\": \"%s\"}, \"data\": {\"mailbox_id\": \"%d\", \"message_id\": \"%d\"}}", mailboxID, config.Web_Hooks.Username, config.Web_Hooks.Password, mailboxID, messageId)))
-
-      if err != nil {
-        log.Errorf("error init web hook: %v", err)
-        continue
-      } else {
-        defer r.Body.Close()
-        r.Header.Set("Content-Type", "application/json")
-        resp, err := client.Do(r)
-        if err != nil {
-          log.Errorf("error init web hook: %v", err)
-          continue
-        }
-        defer resp.Body.Close()
-      }
-    }
   }
 }

@@ -48,6 +48,10 @@ type DBConn struct {
   config *StorageConfig
 }
 
+type InboxSettings struct {
+  MaxMessages, RateLimit   int
+}
+
 func InitDatabase(config *StorageConfig) (*DBConn, error) {
   switch strings.ToLower(config.Adapter) {
   case "postgresql":
@@ -204,27 +208,28 @@ func (db *DBConn) StoreAttachment(mailboxId int, messageId int, filename, attach
 
 // get settings
 
-func (db *DBConn) GetMaxMessages(mailboxId int) (int, error) {
+func (db *DBConn) GeInboxSettings(mailboxId int) (InboxSettings, error) {
   var (
     maxMessages int
+    rateLimit int
   )
-  err := db.DB.QueryRow(db.config.Settings_Sql, mailboxId).Scan(&maxMessages)
+  err := db.DB.QueryRow(db.config.Settings_Sql, mailboxId).Scan(&maxMessages, &rateLimit)
   if err != nil {
     log.Errorf("Settings SQL error: %v", err)
   }
-  return maxMessages, err
+  return InboxSettings{MaxMessages: maxMessages, RateLimit: rateLimit}, err
 }
 
 // cleanup messages
-func (db *DBConn) CleanupMessages(mailboxId, maxMessages int) error {
-  if db.config.Max_Messages_Enabled && maxMessages > 0 {
+func (db *DBConn) CleanupMessages(mailboxId int, inboxSettings InboxSettings) error {
+  if db.config.Max_Messages_Enabled && inboxSettings.MaxMessages > 0 {
     var (
       sql    string
       tmpId  int
       msgIds []string
     )
     sql = strings.Replace(db.config.Max_Messages_Cleanup_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
-    rows, err := db.DB.Query(sql, mailboxId, maxMessages)
+    rows, err := db.DB.Query(sql, mailboxId, inboxSettings.MaxMessages)
     if err != nil {
       log.Errorf("CleanupMessages SQL error: %v", err)
       return err

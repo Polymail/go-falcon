@@ -1,10 +1,11 @@
-package redishook
+package redisworker
 
 import (
   "fmt"
   "github.com/garyburd/redigo/redis"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/storage"
   "github.com/le0pard/go-falcon/utils"
   "strconv"
   "time"
@@ -16,7 +17,43 @@ const (
   NOTIFICATION_TIMEOUT = 30
   MAX_TTL_FOR_SPAM     = 20
   MAX_EMAILS_FOR_SPAM  = 10
+  INBOX_SETTINGS_TTL   = 14400 // 4 hours
 )
+
+// get cached inbox setting
+
+func GetCachedInboxSettings(config *config.Config, mailboxID int) (storage.InboxSettings, error) {
+  var (
+    inboxSettings storage.InboxSettings
+    err           error
+  )
+
+  redisCacheKey := fmt.Sprintf("%s:inboxes-settings-cache_%d", config.Redis.Namespace, mailboxID)
+
+  redisCon := config.RedisPool.Get()
+  defer redisCon.Close()
+
+  cacheData, err := redis.Values(redisCon.Do("HGETALL", redisCacheKey))
+  if err == nil {
+    redis.ScanStruct(cacheData, &inboxSettings)
+  }
+  return inboxSettings, err
+}
+
+// store cache inbox settings
+
+func StoreCachedInboxSettings(config *config.Config, mailboxID int, inboxSettings storage.InboxSettings) {
+  redisCacheKey := fmt.Sprintf("%s:inboxes-settings-cache_%d", config.Redis.Namespace, mailboxID)
+
+  redisCon := config.RedisPool.Get()
+  defer redisCon.Close()
+
+  redisCon.Do("HMSET", redis.Args{}.Add(redisCacheKey).AddFlat(&inboxSettings)...)
+  redisCon.Do("EXPIRE", redisCacheKey, INBOX_SETTINGS_TTL)
+}
+
+
+// send redis notifications
 
 func SendNotifications(config *config.Config, mailboxID, messageID int, subject string) (bool, error) {
   redisCon := config.RedisPool.Get()
