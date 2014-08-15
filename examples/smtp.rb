@@ -84,17 +84,17 @@ end
 =end
 #=begin
 arr = []
-1.times do
+4.times do
   arr << Thread.new do
-    1.times do |i|
-      Net::SMTP.start('falcon.rw.rw',
-                      2525,
-                      'falcon.rw.rw',
-                      username, password, :cram_md5) do |smtp|
-          smtp.send_message message, "me#{rand(10)}@fromdomain.com",
-                                    ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
+    Net::SMTP.start('falcon.rw.rw',
+                    2525,
+                    'falcon.rw.rw',
+                    username, password, :cram_md5) do |smtp|
+      10.times do |i|
+        smtp.send_message message, "me#{rand(10)}@fromdomain.com",
+          ['test@todomain.com', 'test2@todomain.com', 'test3@todomain.com']
+        puts "#{i} sent"
       end
-      puts "#{i} sent"
     end
   end
 end
