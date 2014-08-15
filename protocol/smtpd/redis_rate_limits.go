@@ -7,7 +7,22 @@ import (
   "fmt"
   "github.com/garyburd/redigo/redis"
   "github.com/le0pard/go-falcon/log"
+  "github.com/le0pard/go-falcon/redisworker"
 )
+
+func (s *session) getInboxRateLimit(mailboxId int) (int, error) {
+  inboxSettings, err := redisworker.GetCachedInboxSettings(s.srv.ServerConfig, mailboxId)
+  if err != nil || 0 == inboxSettings.MaxMessages || 0 == inboxSettings.RateLimit {
+    // inbox setting from database
+    inboxSettings, err = s.srv.ServerConfig.DbPool.GeInboxSettings(mailboxId)
+    // check settings
+    if err == nil {
+      // cache setting in redis
+      redisworker.StoreCachedInboxSettings(s.srv.ServerConfig, mailboxId, inboxSettings)
+    }
+  }
+  return inboxSettings.RateLimit, err
+}
 
 func (s *session) redisIsSessionBlocked() bool {
   if !s.srv.ServerConfig.Redis.Enabled {
