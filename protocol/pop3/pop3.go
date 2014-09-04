@@ -106,6 +106,7 @@ type session struct {
   authPassword string // auth password
 
   cachedList   [][2]int
+  isListFetched bool
 }
 
 func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
@@ -118,6 +119,7 @@ func (srv *Server) newSession(rwc net.Conn) (s *session, err error) {
     authLogin:        false,
     authCramMd5Login: "",
     mailboxId:        0,
+    isListFetched:    false,
   }
   return
 }
@@ -267,8 +269,6 @@ func (s *session) handleRset() {
 // handle LIST
 
 func (s *session) handleList(line string) {
-  var errList error
-
   if !s.checkNeedAuth() {
     count, sum, err := s.srv.ServerConfig.DbPool.Pop3MessagesCountAndSum(s.mailboxId)
     if err != nil {
@@ -276,15 +276,13 @@ func (s *session) handleList(line string) {
     } else {
       s.sendlinef("+OK %d messages (%d octets)", count, sum)
       if count > 0 {
+        s.cacheMessagesList()
         messageId := s.parseMessageId(line)
-        s.cachedList, errList = s.srv.ServerConfig.DbPool.Pop3MessagesList(s.mailboxId)
-        if errList == nil {
-          if messageId > 0 && len(s.cachedList) >= messageId {
-            s.sendlinef("%d %d", messageId, s.cachedList[messageId - 1][1])
-          } else {
-            for i, msg := range s.cachedList {
-              s.sendlinef("%d %d", i+1, msg[1])
-            }
+        if messageId > 0 && len(s.cachedList) >= messageId {
+          s.sendlinef("%d %d", messageId, s.cachedList[messageId - 1][1])
+        } else {
+          for i, msg := range s.cachedList {
+            s.sendlinef("%d %d", i+1, msg[1])
           }
         }
       }
@@ -595,11 +593,24 @@ func (s *session) parseMessageId(line string) int {
 }
 
 func (s *session) getMessageId(messageId int) int {
+  s.cacheMessagesList()
   if len(s.cachedList) > 0 && messageId > 0 && len(s.cachedList) >= messageId {
     return s.cachedList[messageId - 1][0]
   }
   return 0
 }
+
+func (s *session) cacheMessagesList() {
+  if s.isListFetched == false && len(s.cachedList) == 0 {
+    cachedList, errList := s.srv.ServerConfig.DbPool.Pop3MessagesList(s.mailboxId)
+    if errList == nil {
+      s.cachedList = cachedList
+    }
+    s.isListFetched = true
+  }
+}
+
+
 
 // COMMAND LINE
 
