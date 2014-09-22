@@ -292,8 +292,8 @@ func (s *session) serve() {
     case "RCPT":
       s.handleRcpt(line)
     case "DATA":
-      if s.handleData() == false {
-        return
+      if !s.handleData() {
+        return // some error to handle data, close the pipe (max message size)
       }
     case "VRFY", "EXPN":
       s.sendlinef("252 send some mail, i'll try my best")
@@ -475,11 +475,13 @@ func (s *session) handleData() bool {
     s.handleError(err)
     return true
   }
+
   s.sendlinef("354 Go ahead")
   for {
     sl, err := s.br.ReadBytes('\n')
     if err != nil {
       s.errorf("read error: %v", err)
+      s.resetBufAndEmail()
       return false
     }
     if bytes.Equal(sl, []byte(".\r\n")) {
@@ -490,15 +492,21 @@ func (s *session) handleData() bool {
     }
     err = s.env.Write(sl, s.srv.ServerConfig.Adapter.Max_Mail_Size)
     if err != nil {
-      s.br.Reset(bufio.NewReader(s.rwc))
-      s.sendSMTPErrorOrLinef(err, "550 ??? failed")
+      s.resetBufAndEmail()
+      s.sendSMTPErrorOrLinef(err, "550 too big message size")
       return false
     }
   }
+
   s.env.Close()
   s.sendlinef("250 2.0.0 Ok: queued")
   s.env = nil
   return true
+}
+
+func (s *session) resetBufAndEmail() {
+  s.br.Reset(bufio.NewReader(s.rwc))
+  s.env = nil
 }
 
 // check auth if need and not blocked
