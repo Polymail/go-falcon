@@ -106,8 +106,10 @@ func (e *BasicEnvelope) BeginData() error {
 func (e *BasicEnvelope) Write(line []byte, maxSize int) error {
   e.MailBody = append(e.MailBody, line...)
   if maxSize > 0 && len(e.MailBody) > maxSize {
+    e.MailBody = nil
     return SMTPError("552 5.3.4 Error: message too big")
   }
+
   return nil
 }
 
@@ -290,7 +292,9 @@ func (s *session) serve() {
     case "RCPT":
       s.handleRcpt(line)
     case "DATA":
-      s.handleData()
+      if s.handleData() == false {
+        return
+      }
     case "VRFY", "EXPN":
       s.sendlinef("252 send some mail, i'll try my best")
     case "HELP":
@@ -450,16 +454,16 @@ func (s *session) handleNginx(line string) {
 
 // Handle data
 
-func (s *session) handleData() {
+func (s *session) handleData() bool {
   if s.env == nil {
     s.sendlinef("503 5.5.1 Error: need RCPT command")
-    return
+    return true
   }
   // rate limit
   s.isBlocked = s.redisIsSessionBlocked()
   // is need to block?
   if s.checkNeedAuthOrBlocked() {
-    return
+    return true
   } else {
     // store mailbox id in envelop
     if s.mailboxId > 0 {
@@ -469,14 +473,14 @@ func (s *session) handleData() {
 
   if err := s.env.BeginData(); err != nil {
     s.handleError(err)
-    return
+    return true
   }
   s.sendlinef("354 Go ahead")
   for {
     sl, err := s.br.ReadBytes('\n')
     if err != nil {
       s.errorf("read error: %v", err)
-      return
+      return false
     }
     if bytes.Equal(sl, []byte(".\r\n")) {
       break
@@ -486,13 +490,15 @@ func (s *session) handleData() {
     }
     err = s.env.Write(sl, s.srv.ServerConfig.Adapter.Max_Mail_Size)
     if err != nil {
+      s.br.Reset(bufio.NewReader(s.rwc))
       s.sendSMTPErrorOrLinef(err, "550 ??? failed")
-      return
+      return false
     }
   }
   s.env.Close()
   s.sendlinef("250 2.0.0 Ok: queued")
   s.env = nil
+  return true
 }
 
 // check auth if need and not blocked
