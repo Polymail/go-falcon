@@ -44,8 +44,31 @@ type ParsedEmail struct {
 
 // parse headers
 
+func getFromOrToHeader(email *ParsedEmail, headerType string) (mail.Address) {
+  mailAddressRes := mail.Address{}
+
+  emailHeader := email.Headers.Get(headerType)
+  if emailHeader != "" {
+    toEmail, err := mail.ParseAddress(emailHeader)
+    if err != nil {
+      if email.env.Rcpts != nil && len(email.env.Rcpts) > 0 {
+        mailAddressRes = mail.Address{Address: email.env.Rcpts[0].Email()}
+      } else {
+        mailAddressRes = mail.Address{Address: getInvalidFromToHeader(emailHeader)}
+      }
+    } else {
+      mailAddressRes = *toEmail
+    }
+  }
+
+  if len(mailAddressRes.Name) > 0 {
+    mailAddressRes.Name = MimeHeaderDecode(mailAddressRes.Name)
+  }
+
+  return mailAddressRes
+}
+
 func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
-  var emailHeader = ""
   var err error
 
   email.Headers = msg.Header
@@ -55,39 +78,9 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
     email.Date = time.Now()
   }
   // from
-  emailHeader = email.Headers.Get("From")
-  if emailHeader != "" {
-    fromEmail, err := mail.ParseAddress(emailHeader)
-    if err != nil {
-      if email.env.From != nil && email.env.From.Email() != "" {
-        email.From = mail.Address{Address: email.env.From.Email()}
-      } else {
-        email.From = mail.Address{Address: getInvalidFromToHeader(emailHeader)}
-      }
-    } else {
-      if len(fromEmail.Name) > 0 {
-        fromEmail.Name = MimeHeaderDecode(fromEmail.Name)
-      }
-      email.From = *fromEmail
-    }
-  }
+  email.From = getFromOrToHeader(email, "From")
   // to
-  emailHeader = email.Headers.Get("To")
-  if emailHeader != "" {
-    toEmail, err := mail.ParseAddress(emailHeader)
-    if err != nil {
-      if email.env.Rcpts != nil && len(email.env.Rcpts) > 0 {
-        email.To = mail.Address{Address: email.env.Rcpts[0].Email()}
-      } else {
-        email.To = mail.Address{Address: getInvalidFromToHeader(emailHeader)}
-      }
-    } else {
-      if len(toEmail.Name) > 0 {
-        toEmail.Name = MimeHeaderDecode(toEmail.Name)
-      }
-      email.To = *toEmail
-    }
-  }
+  email.To = getFromOrToHeader(email, "To")
 }
 
 // select type of email
