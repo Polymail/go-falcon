@@ -65,7 +65,7 @@ func TestQuotedPrintable(t *testing.T) {
 	}
 	for _, tt := range tests {
 		var buf bytes.Buffer
-		_, err := io.Copy(&buf, NewQuotedPrintableReader(strings.NewReader(tt.in)))
+		_, err := io.Copy(&buf, newQuotedPrintableReader(strings.NewReader(tt.in)))
 		if got := buf.String(); got != tt.want {
 			t.Errorf("for %q, got %q; want %q", tt.in, got, tt.want)
 		}
@@ -116,7 +116,7 @@ func TestQPExhaustive(t *testing.T) {
 			return
 		}
 		buf.Reset()
-		_, err := io.Copy(&buf, NewQuotedPrintableReader(strings.NewReader(s)))
+		_, err := io.Copy(&buf, newQuotedPrintableReader(strings.NewReader(s)))
 		if err != nil {
 			errStr := err.Error()
 			if strings.Contains(errStr, "invalid bytes after =:") {

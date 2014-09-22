@@ -1033,7 +1033,6 @@ X-Virus-Status: Clean
 "<u>Текст запроса:</u><br/>\r\n" +
 "fasdfasdf\r\n", []goodMailAttachments{}},
 
-
 }
 
 // bad mails

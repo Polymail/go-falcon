@@ -23,9 +23,7 @@ type qpReader struct {
 	line []byte // to be consumed before more of br
 }
 
-/* MONKEY PATCH: PATCHED here by LEOPARD */
-
-func NewQuotedPrintableReader(r io.Reader) io.Reader {
+func newQuotedPrintableReader(r io.Reader) io.Reader {
 	return &qpReader{
 		br: bufio.NewReader(r),
 	}

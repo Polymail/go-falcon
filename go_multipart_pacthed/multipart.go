@@ -114,7 +114,7 @@ func newPart(mr *Reader) (*Part, error) {
 	const cte = "Content-Transfer-Encoding"
 	if bp.Header.Get(cte) == "quoted-printable" {
 		bp.Header.Del(cte)
-		bp.r = NewQuotedPrintableReader(bp.r)
+		bp.r = newQuotedPrintableReader(bp.r)
 	}
   */
 	return bp, nil
