@@ -65,6 +65,9 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
         email.From = mail.Address{Address: getInvalidFromToHeader(emailHeader)}
       }
     } else {
+      if len(fromEmail.Name) > 0 {
+        fromEmail.Name = MimeHeaderDecode(fromEmail.Name)
+      }
       email.From = *fromEmail
     }
   }
@@ -79,6 +82,9 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
         email.To = mail.Address{Address: getInvalidFromToHeader(emailHeader)}
       }
     } else {
+      if len(toEmail.Name) > 0 {
+        toEmail.Name = MimeHeaderDecode(toEmail.Name)
+      }
       email.To = *toEmail
     }
   }
