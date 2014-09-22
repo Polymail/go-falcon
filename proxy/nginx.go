@@ -8,6 +8,7 @@ import (
   "net/http"
   "strconv"
   "strings"
+  "sync"
 )
 
 const (
@@ -15,6 +16,11 @@ const (
   INVALID_AUTH_WAIT_TIME = "3"
   PROTOCOL_SMTP          = "smtp"
   PROTOCOL_POP3          = "pop3"
+)
+
+var (
+  roundRobinIterator = 0
+  roundRobinMutex = &sync.Mutex{}
 )
 
 // If running Nginx as a proxy, give Nginx the IP address and port for the SMTP server
@@ -74,7 +80,7 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
 // success auth response
 
 func nginxResponseSuccess(config *config.Config, w http.ResponseWriter, protocol, userId, password string) {
-  serverHost, serverPort := config.Adapter.Host, strconv.Itoa(utils.GetRandFromArray(config.SmtpPortRanges))
+  serverHost, serverPort := config.Adapter.Host, strconv.Itoa(getRoundRobinFromArray(config.SmtpPortRanges))
 
   if protocol == PROTOCOL_SMTP {
     w.Header().Add("Auth-User", userId) // return mailbox id instead username
@@ -105,4 +111,18 @@ func nginxResponseFail(w http.ResponseWriter, r *http.Request) {
   }
   // empty body
   fmt.Fprint(w, "")
+}
+
+// round robin
+
+func getRoundRobinFromArray(arr []int) int {
+  roundRobinMutex.Lock()
+  defer roundRobinMutex.Unlock()
+
+  roundRobinIterator = roundRobinIterator + 1
+  if roundRobinIterator >= len(arr) {
+    roundRobinIterator = 0
+  }
+
+  return arr[roundRobinIterator]
 }
