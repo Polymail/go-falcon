@@ -61,10 +61,6 @@ func getFromOrToHeader(email *ParsedEmail, headerType string) (mail.Address) {
     }
   }
 
-  if len(mailAddressRes.Name) > 0 {
-    mailAddressRes.Name = MimeHeaderDecode(mailAddressRes.Name)
-  }
-
   return mailAddressRes
 }
 

@@ -151,7 +151,9 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
       }
       return b.String()
     case "shift-jis", "iso-2022-jp", "big5", "gb2312", "iso-8859-2", "iso-8859-6", "iso-8859-8", "koi8-r", "koi8-u", "windows-1251", "euc-kr":
-      decoder := japanese.ShiftJIS.NewDecoder()
+
+      var decoder transform.Transformer
+
       switch contentCharset {
       case "iso-2022-jp":
         decoder = japanese.ISO2022JP.NewDecoder()
@@ -209,7 +211,6 @@ func convertByIconv(data, contentCharset string) (string, error) {
 func fromQuotedP(data string) string {
   buf := bytes.NewBufferString(data)
   decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
-  //decoder := go_multipart_pacthed.NewQuotedPrintableReader(buf)
   res, _ := ioutil.ReadAll(decoder)
   return string(res)
 }

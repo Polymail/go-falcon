@@ -6,7 +6,6 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol"
   "github.com/le0pard/go-falcon/proxy"
-  "runtime"
 )
 
 var (
@@ -21,8 +20,8 @@ func main() {
   }
   // conf
   log.Debugf("Loaded config: %+v", globalConfig)
-  // set runtime
-  runtime.GOMAXPROCS(globalConfig.Daemon.Max_Procs)
+  // set runtime, disabled
+  //runtime.GOMAXPROCS(globalConfig.Daemon.Max_Procs)
   // start nginx proxy
   proxy.StartNginxHTTPProxy(globalConfig)
   // start pop3 server
