@@ -1,7 +1,6 @@
 package worker
 
 import (
-  "time"
   "github.com/le0pard/go-falcon/clamav"
   "github.com/le0pard/go-falcon/config"
   "github.com/le0pard/go-falcon/log"
@@ -21,8 +20,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
   log.Debugf("Starting storage worker")
   for {
     envelop := <-channel
-    // debug begin
-    startTime := time.Now()
     // get settings
     inboxSettings, err := redisworker.GetCachedInboxSettings(config, envelop.MailboxID)
     if err != nil || 0 == inboxSettings.MaxMessages || 0 == inboxSettings.RateLimit {
@@ -95,9 +92,6 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
     } else {
       log.Errorf("ParseMail: %v", err)
     }
-    // debug end
-    elapsedTime := time.Since(startTime)
-    log.Infof("Debug time: took %s for inbox %s\n\n", elapsedTime, envelop.MailboxID)
   }
 }
 
