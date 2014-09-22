@@ -15,9 +15,6 @@ const (
   INVALID_AUTH_WAIT_TIME = "3"
   PROTOCOL_SMTP          = "smtp"
   PROTOCOL_POP3          = "pop3"
-
-  MAX_IDLE_CONN = 5
-  MAX_OPEN_CONN = 30
 )
 
 // If running Nginx as a proxy, give Nginx the IP address and port for the SMTP server
