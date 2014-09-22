@@ -6,7 +6,6 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/protocol"
   "github.com/le0pard/go-falcon/proxy"
-  _ "net/http/pprof"
 )
 
 var (
