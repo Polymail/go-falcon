@@ -85,6 +85,3 @@ proxy:
   client_ports:
     smtp: []
     pop3: []
-
-daemon:
-  max_procs: 4

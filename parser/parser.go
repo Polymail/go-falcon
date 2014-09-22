@@ -103,8 +103,9 @@ func (email *ParsedEmail) parseEmailByType(headers textproto.MIMEHeader, pbody [
   if err != nil {
     log.Errorf("Invalid ContentType: %v", err)
     return
+  } else {
+    contentTypeVal = strings.ToLower(contentTypeVal)
   }
-  contentTypeVal = strings.ToLower(contentTypeVal)
 
   // content disposition
   if contentDisposition != "" {

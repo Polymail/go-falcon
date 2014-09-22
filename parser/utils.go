@@ -30,9 +30,7 @@ var (
 // fix escaped and unquoted headers values
 
 func FixMailEncodedHeader(str string) string {
-  str = fixInvalidUnquotedAttachmentName(str)
-  str = fixInvalidEscapedAttachmentName(str)
-  return str
+  return fixInvalidEscapedAttachmentName(fixInvalidUnquotedAttachmentName(str))
 }
 
 func fixInvalidUnquotedAttachmentName(str string) string {
@@ -209,8 +207,7 @@ func convertByIconv(data, contentCharset string) (string, error) {
 // quoted-printable
 
 func fromQuotedP(data string) string {
-  buf := bytes.NewBufferString(data)
-  decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, buf)
+  decoder := qprintable.NewDecoder(qprintable.BinaryEncoding, bytes.NewBufferString(data))
   res, _ := ioutil.ReadAll(decoder)
   return string(res)
 }
@@ -257,7 +254,7 @@ func getInvalidFromToHeader(header string) string {
   if invalidContentIdRE.MatchString(header) {
     res := invalidContentIdRE.FindStringSubmatch(header)
     if len(res) == 2 {
-      return res[1]
+      header = res[1]
     }
   }
   return header

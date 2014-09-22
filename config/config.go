@@ -7,7 +7,6 @@ import (
   "github.com/le0pard/go-falcon/storage"
   "io/ioutil"
   "launchpad.net/goyaml"
-  "runtime"
   "time"
 )
 
@@ -80,9 +79,6 @@ type Config struct {
     Hook_Password string
     Sidekiq_Queue string
     Sidekiq_Class string
-  }
-  Daemon struct {
-    Max_Procs int
   }
   Log struct {
     Debug bool
@@ -166,9 +162,6 @@ func (config *Config) setDefaultValues() {
   }
   if config.Proxy.Port <= 0 {
     config.Proxy.Port = 2525
-  }
-  if config.Daemon.Max_Procs <= 0 {
-    config.Daemon.Max_Procs = runtime.NumCPU()
   }
   // ports
   config.SmtpPortRanges = []int{config.Adapter.Port}

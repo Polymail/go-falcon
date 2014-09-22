@@ -20,8 +20,6 @@ func main() {
   }
   // conf
   log.Debugf("Loaded config: %+v", globalConfig)
-  // set runtime, disabled
-  //runtime.GOMAXPROCS(globalConfig.Daemon.Max_Procs)
   // start nginx proxy
   proxy.StartNginxHTTPProxy(globalConfig)
   // start pop3 server
