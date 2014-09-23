@@ -258,6 +258,7 @@ func (s *session) serve() {
       // client close connection
       if io.EOF != err {
         s.errorf("read error: %v", err)
+        s.resetBufAndEmail()
       }
       return
     }
@@ -506,6 +507,7 @@ func (s *session) handleData() bool {
 
 func (s *session) resetBufAndEmail() {
   s.br.Reset(bufio.NewReader(s.rwc))
+  s.bw.Reset(bufio.NewWriter(s.rwc))
   s.env = nil
 }
 
