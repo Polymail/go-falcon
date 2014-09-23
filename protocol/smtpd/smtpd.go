@@ -476,7 +476,6 @@ func (s *session) handleData() {
 
   data := &bytes.Buffer{}
   reader := textproto.NewReader(s.br).DotReader()
-
   _, err := io.CopyN(data, reader, int64(s.srv.ServerConfig.Adapter.Max_Mail_Size))
 
   if err == io.EOF {
@@ -487,7 +486,7 @@ func (s *session) handleData() {
   }
 
   if err != nil {
-		// Network error, ignore
+		// Network error, ignore (or just exit)
 		return
 	}
 
@@ -616,7 +615,7 @@ func (s *session) cramMd5Auth(line string) {
 func (s *session) tryCramMd5Auth() {
   s.clearAuthData()
   s.authCramMd5Login = utils.GenerateProtocolCramMd5(s.srv.hostname())
-  s.sendlinef("334 " + utils.EncodeBase64(s.authCramMd5Login))
+  s.sendlinef(fmt.Sprintf("334 %s", utils.EncodeBase64(s.authCramMd5Login)))
 }
 
 // clear auth
