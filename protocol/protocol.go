@@ -13,7 +13,7 @@ import (
 )
 
 const (
-  TCP_TIMEOUT = 15
+  TCP_TIMEOUT = 30
   EMAIL_CHANNEL_SIZE = 100
 )
 
