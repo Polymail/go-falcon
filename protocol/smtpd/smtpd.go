@@ -106,7 +106,7 @@ func (e *BasicEnvelope) BeginData() error {
 }
 
 func (e *BasicEnvelope) Write(line []byte) error {
-  e.MailBody = append(e.MailBody, line...)
+  e.MailBody = line
   return nil
 }
 
