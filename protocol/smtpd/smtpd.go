@@ -16,7 +16,9 @@ import (
   "github.com/le0pard/go-falcon/log"
   "github.com/le0pard/go-falcon/utils"
   "io"
+  "io/ioutil"
   "net"
+  "net/textproto"
   "os/exec"
   "regexp"
   "strconv"
@@ -70,7 +72,7 @@ type Envelope interface {
   AddSender(from MailAddress) error
   AddRecipient(rcpt MailAddress) error
   BeginData() error
-  Write(line []byte, maxSize int) error
+  Write(line []byte) error
   Close() error
 }
 
@@ -103,13 +105,8 @@ func (e *BasicEnvelope) BeginData() error {
   return nil
 }
 
-func (e *BasicEnvelope) Write(line []byte, maxSize int) error {
+func (e *BasicEnvelope) Write(line []byte) error {
   e.MailBody = append(e.MailBody, line...)
-  if maxSize > 0 && len(e.MailBody) > maxSize {
-    e.MailBody = nil
-    return SMTPError("552 5.3.4 Error: message too big")
-  }
-
   return nil
 }
 
@@ -258,7 +255,7 @@ func (s *session) serve() {
       // client close connection
       if io.EOF != err {
         s.errorf("read error: %v", err)
-        s.resetBufAndEmail()
+        s.resetEnvelope()
       }
       return
     }
@@ -277,7 +274,7 @@ func (s *session) serve() {
       s.sendlinef("221 2.0.0 Bye")
       return
     case "RSET":
-      s.env = nil
+      s.resetEnvelope()
       s.sendlinef("250 2.0.0 OK")
     case "NOOP":
       s.sendlinef("250 2.0.0 OK")
@@ -293,9 +290,7 @@ func (s *session) serve() {
     case "RCPT":
       s.handleRcpt(line)
     case "DATA":
-      if !s.handleData() {
-        return // some error to handle data, close the pipe (max message size)
-      }
+      s.handleData()
     case "VRFY", "EXPN":
       s.sendlinef("252 send some mail, i'll try my best")
     case "HELP":
@@ -383,7 +378,7 @@ func (s *session) handleMailFrom(email string) {
     s.sendf("451 Server.OnNewMail not configured\r\n")
     return
   }
-  s.env = nil
+  s.resetEnvelope()
   fromEmail := addrString(email)
   env, err := cb(s, fromEmail)
   if err != nil {
@@ -455,16 +450,16 @@ func (s *session) handleNginx(line string) {
 
 // Handle data
 
-func (s *session) handleData() bool {
+func (s *session) handleData() {
   if s.env == nil {
     s.sendlinef("503 5.5.1 Error: need RCPT command")
-    return true
+    return
   }
   // rate limit
   s.isBlocked = s.redisIsSessionBlocked()
   // is need to block?
   if s.checkNeedAuthOrBlocked() {
-    return true
+    return
   } else {
     // store mailbox id in envelop
     if s.mailboxId > 0 {
@@ -474,40 +469,41 @@ func (s *session) handleData() bool {
 
   if err := s.env.BeginData(); err != nil {
     s.handleError(err)
-    return true
+    return
   }
 
   s.sendlinef("354 Go ahead")
-  for {
-    sl, err := s.br.ReadBytes('\n')
-    if err != nil {
-      s.errorf("read error: %v", err)
-      s.resetBufAndEmail()
-      return false
-    }
-    if bytes.Equal(sl, []byte(".\r\n")) {
-      break
-    }
-    if sl[0] == '.' {
-      sl = sl[1:]
-    }
-    err = s.env.Write(sl, s.srv.ServerConfig.Adapter.Max_Mail_Size)
-    if err != nil {
-      s.resetBufAndEmail()
-      s.sendSMTPErrorOrLinef(err, "550 too big message size")
-      return false
-    }
+
+  data := &bytes.Buffer{}
+  reader := textproto.NewReader(s.br).DotReader()
+
+  _, err := io.CopyN(data, reader, int64(s.srv.ServerConfig.Adapter.Max_Mail_Size))
+
+  if err == io.EOF {
+    s.env.Write(data.Bytes())
+    s.env.Close()
+    s.resetEnvelope()
+    s.sendlinef("250 2.0.0 Ok: queued")
   }
 
-  s.env.Close()
-  s.sendlinef("250 2.0.0 Ok: queued")
-  s.env = nil
-  return true
+  if err != nil {
+		// Network error, ignore
+		return
+	}
+
+  // Discard the rest and report an error.
+  _, err = io.Copy(ioutil.Discard, reader)
+
+  if err != nil {
+		// Network error, ignore
+		return
+	}
+
+  s.sendlinef(fmt.Sprintf("552 5.7.0 Message exceeded max message size of %d bytes", s.srv.ServerConfig.Adapter.Max_Mail_Size))
+  s.resetEnvelope()
 }
 
-func (s *session) resetBufAndEmail() {
-  s.br.Reset(bufio.NewReader(s.rwc))
-  s.bw.Reset(bufio.NewWriter(s.rwc))
+func (s *session) resetEnvelope() {
   s.env = nil
 }
 
@@ -685,7 +681,7 @@ func (s *session) handleError(err error) {
     return
   }
   log.Errorf("Error: %s", err)
-  s.env = nil
+  s.resetEnvelope()
 }
 
 // ADDRESS
