@@ -109,14 +109,14 @@ func newPart(mr *Reader) (*Part, error) {
 		return nil, err
 	}
 	bp.r = partReader{bp}
-  /* MONKEY PATCH: PATCHED here by LEOPARD */
-  /*
-	const cte = "Content-Transfer-Encoding"
-	if bp.Header.Get(cte) == "quoted-printable" {
-		bp.Header.Del(cte)
-		bp.r = newQuotedPrintableReader(bp.r)
-	}
-  */
+	/* MONKEY PATCH: PATCHED here by LEOPARD */
+	/*
+		const cte = "Content-Transfer-Encoding"
+		if bp.Header.Get(cte) == "quoted-printable" {
+			bp.Header.Del(cte)
+			bp.r = newQuotedPrintableReader(bp.r)
+		}
+	*/
 	return bp, nil
 }
 

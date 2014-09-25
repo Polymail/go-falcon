@@ -1,29 +1,29 @@
 package main
 
 import (
-  "github.com/le0pard/go-falcon/config"
-  "github.com/le0pard/go-falcon/daemon"
-  "github.com/le0pard/go-falcon/log"
-  "github.com/le0pard/go-falcon/protocol"
-  "github.com/le0pard/go-falcon/proxy"
+	"github.com/le0pard/go-falcon/config"
+	"github.com/le0pard/go-falcon/daemon"
+	"github.com/le0pard/go-falcon/log"
+	"github.com/le0pard/go-falcon/protocol"
+	"github.com/le0pard/go-falcon/proxy"
 )
 
 var (
-  globalConfig config.Config
+	globalConfig config.Config
 )
 
 func main() {
-  // parse shell and config
-  globalConfig, err := daemon.InitDaemon()
-  if err != nil {
-    return
-  }
-  // conf
-  log.Debugf("Loaded config: %+v", globalConfig)
-  // start nginx proxy
-  proxy.StartNginxHTTPProxy(globalConfig)
-  // start pop3 server
-  protocol.StartPop3Server(globalConfig)
-  // start smtp server
-  protocol.StartSmtpServer(globalConfig)
+	// parse shell and config
+	globalConfig, err := daemon.InitDaemon()
+	if err != nil {
+		return
+	}
+	// conf
+	log.Debugf("Loaded config: %+v", globalConfig)
+	// start nginx proxy
+	proxy.StartNginxHTTPProxy(globalConfig)
+	// start pop3 server
+	protocol.StartPop3Server(globalConfig)
+	// start smtp server
+	protocol.StartSmtpServer(globalConfig)
 }

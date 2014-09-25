@@ -349,6 +349,7 @@ func TestLineContinuation(t *testing.T) {
 		}
 	}
 }
+
 /*
 func TestQuotedPrintableEncoding(t *testing.T) {
 	// From http://golang.org/issue/4411
