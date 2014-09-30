@@ -28,9 +28,9 @@ var (
 func (e *env) AddRecipient(rcpt smtpd.MailAddress) error {
 	// filter for recipient
 	/*
-	if strings.HasPrefix(rcpt.Email(), "bad@") {
-		return errors.New("we don't send email to bad@")
-	}
+		if strings.HasPrefix(rcpt.Email(), "bad@") {
+			return errors.New("we don't send email to bad@")
+		}
 	*/
 	return e.BasicEnvelope.AddRecipient(rcpt)
 }
