@@ -1,12 +1,19 @@
 language: go
+
 go:
   - 1.3
   - tip
+
 before_script:
   - make
+
+sudo: false
+
 script: make test
+
 notifications:
   email: false
+
 branches:
   only:
     - master
