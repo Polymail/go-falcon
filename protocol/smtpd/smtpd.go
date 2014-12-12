@@ -496,6 +496,8 @@ func (s *session) handleData() {
 	_, err = io.Copy(ioutil.Discard, reader)
 
 	if err != nil {
+		// reset envelope
+		s.resetEnvelope()
 		// Network error, ignore
 		return
 	}
