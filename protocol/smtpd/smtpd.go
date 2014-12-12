@@ -492,7 +492,7 @@ func (s *session) handleData() {
 	
 	log.Errorf("smtpd: Too big message for: %v", s.mailboxId)
 	
-  // Discard the rest and report an error.
+    // Discard the rest and report an error.
 	_, err = io.Copy(ioutil.Discard, reader)
 
 	if err != nil {
