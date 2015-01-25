@@ -294,7 +294,7 @@ Test attachments oddly encoded with japanese charset.
 
 	{"18.eml", "Re: TEST テストテスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
-	{"19.eml", "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "", "doug@example.com", "Doug Sauder",
+	{"19.eml", "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "\"Jürgen Schmürgen\"", "doug@example.com", "Doug Sauder",
 		"Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
 		"", []goodMailAttachments{}},
 
@@ -1011,27 +1011,6 @@ X-Virus-Status: Clean
 			"\t</body>\r\n" +
 			"</html>", []goodMailAttachments{}},
 
-	{"30.eml", "Поступил новый пользовательский запрос", "support@xxx.net", "", "no-reply@xxx.net", "DDos-Guard", "Вы получили новый пользовательский\r\n" +
-		"запрос\r\n" +
-		"\r\n" +
-		"Информация о клиенте:\r\n" +
-		"Имя: asdasd\r\n" +
-		"Электронная почта: asd\r\n" +
-		"Телефон: asd\r\n" +
-		"Сайт: asdfasd\r\n" +
-		"\r\n" +
-		"Текст запроса:\r\n" +
-		"fasdfasdf\r\n" +
-		"\r\n", "Вы получили новый пользовательский запрс<br/>\r\n" +
-		"<br/>\r\n" +
-		"<u>Информация о клиенте:</u><br/>\r\n" +
-		"Имя: <strong>asd</strong><br/>\r\n" +
-		"Электронная почта: <strong>asd</strong><br/>\r\n" +
-		"Телефон: <strong>asd</strong><br/>\r\n" +
-		"Сайт: <strong>asdfasd</strong><br/>\r\n" +
-		"<br/>\r\n" +
-		"<u>Текст запроса:</u><br/>\r\n" +
-		"fasdfasdf\r\n", []goodMailAttachments{}},
 }
 
 // bad mails

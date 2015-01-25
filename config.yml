@@ -75,7 +75,7 @@ redis:
   hook_username: adminadmin
   hook_password: monkey
   sidekiq_queue: server
-  sidekiq_class: SmtpServerWorker
+  sidekiq_class: SmtpServerJob
 
 proxy:
   enabled: true

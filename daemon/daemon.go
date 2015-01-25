@@ -63,7 +63,7 @@ func writePidInFile(pidFile string) {
 
 func setLoggerOutput() {
 	if *logFile != "" {
-		loggerFileDescr, errorFile = os.OpenFile(*logFile, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0640)
+		loggerFileDescr, errorFile = os.OpenFile(*logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0640)
 		if errorFile != nil {
 			log.SetTarget(stdlog.New(os.Stdout, "", stdlog.LstdFlags))
 			log.Errorf("Error open file %v", errorFile)

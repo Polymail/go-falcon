@@ -2,15 +2,15 @@ package parser
 
 import (
 	"bytes"
-	"code.google.com/p/go.text/encoding/charmap"
-	"code.google.com/p/go.text/encoding/japanese"
-	"code.google.com/p/go.text/encoding/korean"
-	"code.google.com/p/go.text/encoding/simplifiedchinese"
-	"code.google.com/p/go.text/encoding/traditionalchinese"
-	"code.google.com/p/go.text/transform"
 	"github.com/le0pard/go-falcon/utils"
 	"github.com/sloonz/go-iconv"
 	"github.com/sloonz/go-qprintable"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/japanese"
+	"golang.org/x/text/encoding/korean"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/encoding/traditionalchinese"
+	"golang.org/x/text/transform"
 	"io/ioutil"
 	"net/url"
 	"regexp"
@@ -25,6 +25,7 @@ var (
 	mimeSpacesHeaderRE   = regexp.MustCompile(`(\?=)\s*(=\?)`)
 	fixCharsetRE         = regexp.MustCompile(`[_:.\/\\]`)
 	invalidContentIdRE   = regexp.MustCompile(`<(.*)>`)
+	invalidFromToRE      = regexp.MustCompile(`(.*)<(.*)>`)
 )
 
 // fix escaped and unquoted headers values
@@ -250,12 +251,14 @@ func getInvalidContentId(contentId string) string {
 
 // invalid from/to email
 
-func getInvalidFromToHeader(header string) string {
-	if invalidContentIdRE.MatchString(header) {
-		res := invalidContentIdRE.FindStringSubmatch(header)
-		if len(res) == 2 {
-			header = res[1]
+func getInvalidFromToHeader(header string) (string, string) {
+	if invalidFromToRE.MatchString(header) {
+		res := invalidFromToRE.FindStringSubmatch(header)
+		if len(res) == 3 {
+			return MimeHeaderDecode(strings.TrimSpace(res[1])), res[2]
+		} else {
+			return "", res[2]
 		}
 	}
-	return header
+	return "", header
 }

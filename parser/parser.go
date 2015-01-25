@@ -44,6 +44,11 @@ type ParsedEmail struct {
 
 // parse headers
 
+func extractFromToHeader(header string) mail.Address {
+	name, address := getInvalidFromToHeader(header)
+	return mail.Address{Name: name, Address: address}
+}
+
 func getFromOrToHeader(email *ParsedEmail, headerType string) mail.Address {
 	mailAddressRes := mail.Address{}
 
@@ -51,11 +56,7 @@ func getFromOrToHeader(email *ParsedEmail, headerType string) mail.Address {
 	if emailHeader != "" {
 		toEmail, err := mail.ParseAddress(emailHeader)
 		if err != nil {
-			if email.env.Rcpts != nil && len(email.env.Rcpts) > 0 {
-				mailAddressRes = mail.Address{Address: email.env.Rcpts[0].Email()}
-			} else {
-				mailAddressRes = mail.Address{Address: getInvalidFromToHeader(emailHeader)}
-			}
+			mailAddressRes = extractFromToHeader(emailHeader)
 		} else {
 			mailAddressRes = *toEmail
 		}
