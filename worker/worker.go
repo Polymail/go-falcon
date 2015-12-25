@@ -20,6 +20,7 @@ func startParserAndStorageWorker(config *config.Config, channel chan *smtpd.Basi
 	log.Debugf("Starting storage worker")
 	for {
 		envelop := <-channel
+
 		// get settings
 		inboxSettings, err := redisworker.GetCachedInboxSettings(config, envelop.MailboxID)
 		if err != nil || 0 == inboxSettings.MaxMessages || 0 == inboxSettings.RateLimit {

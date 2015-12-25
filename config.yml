@@ -42,6 +42,14 @@ storage:
   pop3_messages_list: "SELECT id, email_size FROM messages WHERE inbox_id = $1 ORDER BY id DESC LIMIT 50"
   pop3_message_one: "SELECT email_size, raw_body FROM messages WHERE inbox_id = $1 AND id = $2"
   pop3_message_delete: "DELETE FROM messages WHERE inbox_id = $1 AND id = $2 RETURNING id"
+  # email address mode sql if enabled
+  email_address_mode_sql: "SELECT id FROM inboxes WHERE email_username = $1"
+
+email_address_mode:
+  enabled: false
+  domains:
+    - "example.com"
+    - "localhost"
 
 pop3:
   enabled: true
