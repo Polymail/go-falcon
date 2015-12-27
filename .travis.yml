@@ -19,3 +19,7 @@ branches:
   only:
     - master
     - development
+
+matrix:
+  allow_failures:
+    - go: tip
