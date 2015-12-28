@@ -739,9 +739,9 @@ func (a addrString) Username() string {
 	if idx := strings.Index(e, "@"); idx != -1 {
 		username := strings.ToLower(e[0:idx])
 		if sidx := strings.Index(username, "+"); sidx != -1 {
-			return strings.ToLower(username[0:sidx])
+			return username[0:sidx]
 		} else {
-			return strings.ToLower(username)
+			return username
 		}
 	}
 	return ""
