@@ -198,7 +198,7 @@ func (s *session) serve() {
 			s.handleRset()
 		case "LIST":
 			s.handleList(line.Arg())
-		case "RETR", "UIDL":
+		case "RETR":
 			s.handleRetr(line.Arg())
 		case "TOP":
 			s.handleTop(line.Arg())
@@ -232,7 +232,6 @@ func (s *session) serve() {
 func (s *session) handleCapa() {
 	s.sendlinef("+OK Capability list follows")
 	s.sendlinef("TOP")
-	s.sendlinef("UIDL")
 	s.sendlinef("SASL LOGIN PLAIN CRAM-MD5")
 	if s.srv.ServerConfig.Pop3.Tls {
 		s.sendlinef("STLS")
