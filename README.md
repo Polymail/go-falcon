@@ -25,6 +25,7 @@ CREATE TABLE inboxes
   max_size integer DEFAULT 0,
   created_at timestamp without time zone,
   updated_at timestamp without time zone,
+  email_username character varying,
   CONSTRAINT inboxes_pkey PRIMARY KEY (id)
 )
 WITH (
@@ -50,6 +51,8 @@ CREATE UNIQUE INDEX index_inboxes_on_username
   ON inboxes
   USING btree
   (username COLLATE pg_catalog."default");
+
+CREATE UNIQUE INDEX index_inboxes_on_email_username ON inboxes USING btree (email_username);
 
 INSERT INTO mailboxes(domain, username, password, created_at, updated_at) VALUES ('leo.com', 'leo', 'pass', now(), now());
 

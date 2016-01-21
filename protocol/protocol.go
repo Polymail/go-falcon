@@ -14,7 +14,7 @@ import (
 
 const (
 	TCP_TIMEOUT        = 30
-	EMAIL_CHANNEL_SIZE = 100
+	EMAIL_CHANNEL_SIZE = 200
 )
 
 type env struct {

@@ -57,6 +57,7 @@ type Server struct {
 type MailAddress interface {
 	Email() string    // email address, as provided
 	Hostname() string // canonical hostname, lowercase
+	Username() string // clear username, without "+" part, lowercase
 }
 
 // Connection is implemented by the SMTP library and provided to callers
@@ -101,6 +102,9 @@ func (e *BasicEnvelope) AddRecipient(rcpt MailAddress) error {
 func (e *BasicEnvelope) BeginData() error {
 	if len(e.Rcpts) == 0 {
 		return SMTPError("554 5.5.1 Error: no valid recipients")
+	}
+	if e.MailboxID <= 0 {
+		return SMTPError("554 5.5.1 Error: no inbox for this email")
 	}
 	return nil
 }
@@ -405,11 +409,6 @@ func (s *session) handleRcpt(line cmdLine) {
 	}
 	if s.checkNeedAuthOrBlocked() {
 		return
-	} else {
-		// store mailbox id in envelop
-		if s.mailboxId > 0 {
-			s.env.AddMailboxId(s.mailboxId)
-		}
 	}
 
 	arg := line.Arg() // "To:<foo@bar.com>"
@@ -419,7 +418,12 @@ func (s *session) handleRcpt(line cmdLine) {
 		s.sendlinef("501 5.1.7 Bad sender address syntax")
 		return
 	}
-	err := s.env.AddRecipient(addrString(m[1]))
+
+	rcptEmail := addrString(m[1])
+	if s.srv.ServerConfig.Email_Address_Mode.Enabled {
+		s.handleToAddressMode(rcptEmail)
+	}
+	err := s.env.AddRecipient(rcptEmail)
 	if err != nil {
 		s.sendSMTPErrorOrLinef(err, "550 bad recipient")
 		return
@@ -443,6 +447,9 @@ func (s *session) handleNginx(line string) {
 					}
 				}
 			}
+		} else {
+			s.sendlinef("250 2.0.0 OK")
+			return
 		}
 	}
 	s.sendlinef("535 5.7.1 authentication failed")
@@ -527,12 +534,14 @@ func (s *session) checkNeedAuthOrBlocked() bool {
 // auth by DB
 
 func (s *session) authByDB(authMethod string) {
-	mailboxId, err := s.srv.ServerConfig.DbPool.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
-	if err != nil {
-		s.sendlinef("535 5.7.1 authentication failed")
-		return
+	if s.srv.ServerConfig.Adapter.Auth {
+		mailboxId, err := s.srv.ServerConfig.DbPool.CheckUser(authMethod, s.authUsername, s.authPassword, s.authCramMd5Login)
+		if err != nil {
+			s.sendlinef("535 5.7.1 authentication failed")
+			return
+		}
+		s.setMailboxIdHook(mailboxId)
 	}
-	s.setMailboxIdHook(mailboxId)
 	s.sendlinef("235 2.0.0 OK, go ahead")
 }
 
@@ -676,6 +685,28 @@ func (s *session) handleStartTLS() {
 	}
 }
 
+// Handle TO address for auth by address
+
+func (s *session) handleToAddressMode(rcptEmail MailAddress) {
+	username := rcptEmail.Username()
+	hostname := rcptEmail.Hostname()
+	if len(hostname) > 0 && posInSlice(s.srv.ServerConfig.Email_Address_Mode.Domains, hostname) > -1 && len(username) > 0 {
+		mailboxId, err := s.srv.ServerConfig.DbPool.CheckAddressMode(username)
+		if err == nil && mailboxId > 0 {
+			s.setMailboxIdHook(mailboxId)
+		}
+	}
+}
+
+func posInSlice(slice []string, value string) int {
+	for p, v := range slice {
+		if v == value {
+			return p
+		}
+	}
+	return -1
+}
+
 // Handle error
 
 func (s *session) handleError(err error) {
@@ -699,6 +730,19 @@ func (a addrString) Hostname() string {
 	e := string(a)
 	if idx := strings.Index(e, "@"); idx != -1 {
 		return strings.ToLower(e[idx+1:])
+	}
+	return ""
+}
+
+func (a addrString) Username() string {
+	e := string(a)
+	if idx := strings.Index(e, "@"); idx != -1 {
+		username := strings.ToLower(e[0:idx])
+		if sidx := strings.Index(username, "+"); sidx != -1 {
+			return username[0:sidx]
+		} else {
+			return username
+		}
 	}
 	return ""
 }

@@ -35,8 +35,12 @@ type Config struct {
 		Rate_Limit    int
 		Workers_Size  int
 	}
-	Storage *storage.StorageConfig
-	Pop3    struct {
+	Storage            *storage.StorageConfig
+	Email_Address_Mode struct {
+		Enabled bool
+		Domains []string
+	}
+	Pop3 struct {
 		Enabled      bool
 		Host         string
 		Port         int

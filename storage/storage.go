@@ -41,6 +41,8 @@ type StorageConfig struct {
 	Pop3_Messages_List           string
 	Pop3_Message_One             string
 	Pop3_Message_Delete          string
+
+	Email_Address_Mode_Sql string
 }
 
 type DBConn struct {
@@ -106,6 +108,21 @@ func (db *DBConn) CheckUserWithPass(authMethod, username, cramPassword, cramSecr
 func (db *DBConn) CheckUser(authMethod, username, cramPassword, cramSecret string) (int, error) {
 	id, _, err := db.CheckUserWithPass(authMethod, username, cramPassword, cramSecret)
 	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+// check address mode
+
+func (db *DBConn) CheckAddressMode(username string) (int, error) {
+	var (
+		id int
+	)
+	log.Debugf("CheckAddressMode by %s", username)
+	err := db.DB.QueryRow(db.config.Email_Address_Mode_Sql, username).Scan(&id)
+	if err != nil {
+		log.Debugf("User Address %s doesn't found in inboxes (sql should return 'id' field): %v", username, err)
 		return 0, err
 	}
 	return id, nil

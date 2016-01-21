@@ -1016,7 +1016,6 @@ X-Virus-Status: Clean
 	{"31.eml", "Re: Testing multipart/signed", "mikel@test.lindsaar.net", "Mikel", "test@test.lindsaar.net", "Test", "This is random text, not what has been signed below, ie, this sig\nemail is not signed correctly.\n", "", []goodMailAttachments{
 		{"signature.asc"},
 	}},
-
 }
 
 // bad mails
