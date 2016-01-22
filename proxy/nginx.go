@@ -59,19 +59,23 @@ func nginxHTTPAuthHandler(w http.ResponseWriter, r *http.Request, config *config
 	protocol := strings.ToLower(r.Header.Get("Auth-Protocol"))
 
 	if protocol == PROTOCOL_SMTP || protocol == PROTOCOL_POP3 {
-		authMethod := strings.ToLower(r.Header.Get("Auth-Method"))
-		username := r.Header.Get("Auth-User")
-		password := r.Header.Get("Auth-Pass")
-		secret := ""
-		if authMethod == utils.AUTH_CRAM_MD5 || authMethod == utils.AUTH_APOP {
-			secret = r.Header.Get("Auth-Salt")
+		if config.Adapter.Auth || config.Pop3.Enabled {
+			authMethod := strings.ToLower(r.Header.Get("Auth-Method"))
+			username := r.Header.Get("Auth-User")
+			password := r.Header.Get("Auth-Pass")
+			secret := ""
+			if authMethod == utils.AUTH_CRAM_MD5 || authMethod == utils.AUTH_APOP {
+				secret = r.Header.Get("Auth-Salt")
+			}
+			id, pass, err := config.DbPool.CheckUserWithPass(authMethod, username, password, secret)
+			if err != nil {
+				nginxResponseFail(w, r)
+				return
+			}
+			nginxResponseSuccess(config, w, protocol, strconv.Itoa(id), pass)
+		} else {
+			nginxResponseSuccess(config, w, protocol, "0", "")
 		}
-		id, pass, err := config.DbPool.CheckUserWithPass(authMethod, username, password, secret)
-		if err != nil {
-			nginxResponseFail(w, r)
-			return
-		}
-		nginxResponseSuccess(config, w, protocol, strconv.Itoa(id), pass)
 	} else {
 		nginxResponseFail(w, r)
 	}
