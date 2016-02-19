@@ -2,8 +2,8 @@ package parser
 
 import (
 	"bytes"
+	"github.com/le0pard/go-falcon/iconv"
 	"github.com/le0pard/go-falcon/utils"
-	"github.com/mattn/go-iconv"
 	"github.com/sloonz/go-qprintable"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/encoding/japanese"
