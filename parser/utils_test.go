@@ -53,6 +53,14 @@ var mimeHeaderTests = []mimeHeaderTest{
 	{"=?utf-8?B?0L3QvtCy0YvQuSDRgdC+0YLRgNGD0LTQvdC40Log4oCUINC00L7RgNC+0YQ=?=\n =?utf-8?B?0LXQtdCy?=", "новый сотрудник — дорофеев"},
 	{"=?utf-8?B?0L3QvtCy0YvQuSDRgdC+0YLRgNGD0LTQvdC40Log4oCUINC00L7RgNC+0YQ=?==?utf-8?B?0LXQtdCy?=", "новый сотрудник — дорофеев"},
 	{"=?UTF-8?Q?This_is_=E3=81=82_string?==?UTF-8?Q?This_is_=E3=81=82_string?= Some non encoded stuff =?UTF-8?B?VGhpcyBpcyDjgYIgc3RyaW5n?= \r\nMore non encoded stuff", "This is あ stringThis is あ string Some non encoded stuff This is あ string \r\nMore non encoded stuff"},
+	{"=?ISO-8859-1?Q?Nicolas_Fouch=E9_has_accepted_your_invitation_to_Gmail?=", "Nicolas Fouché has accepted your invitation to Gmail"},
+	{"=?Shift_JIS?Q?=93=FA=96{=8C=EA=?=", "日本語="},
+	{"=?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=", "u understand the example."},
+	{"=?UTF-16?B?MEIwRDBGMEgwSg==?=", "あいうえお"},
+	{"=?UTF-32?B?AAAwQgAAMEQAADBGAAAwSAAAMEo=?=", "あいうえお"},
+	{"=?iso-2022-jp?B?GyRCJTAlayE8JV0lcyEmJTglYyVRJXMzdDwwMnEbKEI=?=", "グルーポン・ジャパン株式会"},
+	{"=?8bit?Q?ALPH=C3=89E?=", "ALPHÉE"},
+	{"=?UTF-8?B?TGluZHPjgYLjgYJy?=", "Lindsああr"},
 }
 
 func TestMimeHeaderDecode(t *testing.T) {
