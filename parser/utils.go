@@ -3,7 +3,7 @@ package parser
 import (
 	"bytes"
 	"github.com/le0pard/go-falcon/utils"
-	"github.com/sloonz/go-iconv"
+	"github.com/mattn/go-iconv"
 	"github.com/sloonz/go-qprintable"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/encoding/japanese"
@@ -202,7 +202,16 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
 }
 
 func convertByIconv(data, contentCharset string) (string, error) {
-	return iconv.Conv(data, "UTF-8", strings.ToUpper(fixCharset(contentCharset)))
+	converter, err := iconv.Open("UTF-8", strings.ToUpper(fixCharset(contentCharset)))
+	if err != nil {
+		return data, err
+	}
+	defer converter.Close()
+	convertedString, err := converter.Conv(data)
+	if err != nil {
+		return data, err
+	}
+	return convertedString, nil
 }
 
 // quoted-printable
