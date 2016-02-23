@@ -56,8 +56,6 @@ var mimeHeaderTests = []mimeHeaderTest{
 	{"=?ISO-8859-1?Q?Nicolas_Fouch=E9_has_accepted_your_invitation_to_Gmail?=", "Nicolas Fouché has accepted your invitation to Gmail"},
 	{"=?Shift_JIS?Q?=93=FA=96{=8C=EA=?=", "日本語="},
 	{"=?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=\r\n =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=", "If you can read this you understand the example."},
-	{"=?UTF-16?B?MEIwRDBGMEgwSg==?=", "あいうえお"},
-	{"=?UTF-32?B?AAAwQgAAMEQAADBGAAAwSAAAMEo=?=", "あいうえお"},
 	{"=?iso-2022-jp?B?GyRCJTAlayE8JV0lcyEmJTglYyVRJXMzdDwwMnEbKEI=?=", "グルーポン・ジャパン株式会"},
 	{"=?8bit?Q?ALPH=C3=89E?=", "ALPHÉE"},
 	{"=?UTF-8?B?TGluZHPjgYLjgYJy?=", "Lindsああr"},
