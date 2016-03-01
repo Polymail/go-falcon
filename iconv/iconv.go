@@ -135,7 +135,7 @@ func setupIconv() {
 	}
 }
 
-func Open(tocode string, fromcode string) (*Iconv, error) {
+func Open(tocode string, fromcode string) (cd Iconv, err error) {
 	onceSetupIconv.Do(setupIconv)
 
 	pt := C.CString(tocode)
@@ -144,17 +144,18 @@ func Open(tocode string, fromcode string) (*Iconv, error) {
 	defer C.free(unsafe.Pointer(pf))
 	ret, err := C._iconv_open(pt, pf)
 	if err != nil {
-		return nil, err
+		return
 	}
-	return &Iconv{ret}, nil
+	cd = Iconv{ret}
+	return
 }
 
-func (cd *Iconv) Close() error {
+func (cd Iconv) Close() error {
 	_, err := C._iconv_close(cd.pointer)
 	return err
 }
 
-func (cd *Iconv) Conv(input string) (result string, err error) {
+func (cd Iconv) Conv(input string) (result string, err error) {
 	var buf bytes.Buffer
 
 	if len(input) == 0 {
@@ -181,7 +182,7 @@ func (cd *Iconv) Conv(input string) (result string, err error) {
 	return buf.String(), nil
 }
 
-func (cd *Iconv) ConvBytes(inbuf []byte) (result []byte, err error) {
+func (cd Iconv) ConvBytes(inbuf []byte) (result []byte, err error) {
 	var buf bytes.Buffer
 
 	if len(inbuf) == 0 {
