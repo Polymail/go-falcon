@@ -3,146 +3,47 @@
 //
 package iconv
 
-/*
-#ifdef _WIN32
-#include <windows.h>
-#include <errno.h>
-
-typedef int* uintptr;
-typedef int iconv_t;
-
-static HMODULE iconv_lib = NULL;
-static HMODULE msvcrt_lib = NULL;
-static size_t (*iconv) (iconv_t cd, const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft) = NULL;
-static iconv_t (*iconv_open) (const char *tocode, const char *fromcode) = NULL;
-static int (*iconv_close) (iconv_t cd) = NULL;
-static int (*iconvctl) (iconv_t cd, int request, void *argument) = NULL;
-static int* (*iconv_errno) (void) = NULL;
-
-#define ICONV_E2BIG  7
-#define ICONV_EINVAL 22
-#define ICONV_EILSEQ 42
-
-size_t
-_iconv(iconv_t cd, const uintptr inbuf, size_t *inbytesleft, uintptr outbuf, size_t *outbytesleft) {
-  return iconv(cd, (const char**)inbuf, inbytesleft, (char**)outbuf, outbytesleft);
-}
-
-static iconv_t
-_iconv_open(const char *tocode, const char *fromcode) {
-  return iconv_open(tocode, fromcode);
-}
-
-int
-_iconv_close(iconv_t cd) {
-  return iconv_close(cd);
-}
-
-int
-_iconvctl(iconv_t cd, int request, void *argument) {
-  return iconvctl(cd, request, argument);
-}
-
-int
-_iconv_errno(void) {
-  int *p = iconv_errno();
-  return p ? *p : 0;
-}
-
-int
-_iconv_init(const char* iconv_dll) {
-  iconv_lib = 0;
-  if (iconv_dll)
-    iconv_lib = LoadLibrary(iconv_dll);
-  if (iconv_lib == 0)
-    iconv_lib = LoadLibrary("iconv.dll");
-  if (iconv_lib == 0)
-    iconv_lib = LoadLibrary("libiconv.dll");
-  msvcrt_lib = LoadLibrary("msvcrt.dll");
-  if (iconv_lib == 0 || msvcrt_lib == 0) return -1;
-  iconv = (void *) GetProcAddress(iconv_lib, "libiconv");
-  iconv_open = (void *) GetProcAddress(iconv_lib, "libiconv_open");
-  iconv_close = (void *) GetProcAddress(iconv_lib, "libiconv_close");
-  iconvctl = (void *) GetProcAddress(iconv_lib, "libiconvctl");
-  iconv_errno = (void *) GetProcAddress(msvcrt_lib, "_errno");
-  if (iconv == NULL || iconv_open == NULL || iconv_close == NULL
-    || iconvctl == NULL || iconv_errno == NULL) return -2;
-  return 0;
-}
-#else
-#include <iconv.h>
-#include <errno.h>
-#include <stdlib.h>
-#define ICONV_E2BIG  E2BIG
-#define ICONV_EINVAL EINVAL
-#define ICONV_EILSEQ EILSEQ
-#define ICONV_ERRNO  errno
-
-typedef int* uintptr;
-
-int
-_iconv_init(const char* iconv_dll) {
-  return 0;
-}
-
-size_t
-_iconv(iconv_t cd, const uintptr inbuf, size_t *inbytesleft, uintptr outbuf, size_t *outbytesleft) {
-  return iconv(cd, (char**)inbuf, inbytesleft, (char**)outbuf, outbytesleft);
-}
-
-static iconv_t
-_iconv_open(const char *tocode, const char *fromcode) {
-  return iconv_open(tocode, fromcode);
-}
-
-int
-_iconv_close(iconv_t cd) {
-  return iconv_close(cd);
-}
-
-#endif
-
-#cgo darwin LDFLAGS: -liconv
-*/
+// #cgo darwin  LDFLAGS: -liconv
+// #cgo freebsd LDFLAGS: -liconv
+// #cgo windows LDFLAGS: -liconv
+// #include <iconv.h>
+// #include <stdlib.h>
+// #include <errno.h>
+//
+// size_t bridge_iconv(iconv_t cd,
+//                     char *inbuf, size_t *inbytesleft,
+//                     char *outbuf, size_t *outbytesleft) {
+//   return iconv(cd, &inbuf, inbytesleft, &outbuf, outbytesleft);
+// }
 import "C"
 
 import (
 	"bytes"
-	"os"
-	"sync"
+	"io"
 	"syscall"
 	"unsafe"
 )
 
-var EINVAL = syscall.Errno(C.ICONV_EINVAL)
-var EILSEQ = syscall.Errno(C.ICONV_EILSEQ)
-var E2BIG = syscall.Errno(C.ICONV_E2BIG)
+var EINVAL = syscall.Errno(C.EINVAL)
+var EILSEQ = syscall.Errno(C.EILSEQ)
+var E2BIG = syscall.Errno(C.E2BIG)
+
+const DefaultBufSize = 4096
 
 type Iconv struct {
-	pointer C.iconv_t
+	Handle C.iconv_t
 }
 
-var onceSetupIconv sync.Once
-
-func setupIconv() {
-	var ptr *C.char
-	if iconv_dll := os.Getenv("ICONV_DLL"); len(iconv_dll) > 0 {
-		ptr = C.CString(iconv_dll)
-		defer C.free(unsafe.Pointer(ptr))
-	}
-	if C._iconv_init(ptr) != C.int(0) {
-		panic("can't initialize iconv")
-	}
-}
-
+// Open returns a conversion descriptor cd, cd contains a conversion state and can not be used in multiple threads simultaneously.
 func Open(tocode string, fromcode string) (cd Iconv, err error) {
-	onceSetupIconv.Do(setupIconv)
 
-	pt := C.CString(tocode)
-	pf := C.CString(fromcode)
-	defer C.free(unsafe.Pointer(pt))
-	defer C.free(unsafe.Pointer(pf))
-	ret, err := C._iconv_open(pt, pf)
+	tocode1 := C.CString(tocode)
+	defer C.free(unsafe.Pointer(tocode1))
+
+	fromcode1 := C.CString(fromcode)
+	defer C.free(unsafe.Pointer(fromcode1))
+
+	ret, err := C.iconv_open(tocode1, fromcode1)
 	if err != nil {
 		return
 	}
@@ -151,59 +52,74 @@ func Open(tocode string, fromcode string) (cd Iconv, err error) {
 }
 
 func (cd Iconv) Close() error {
-	_, err := C._iconv_close(cd.pointer)
+
+	_, err := C.iconv_close(cd.Handle)
 	return err
 }
 
-func (cd Iconv) Conv(input string) (result string, err error) {
-	var buf bytes.Buffer
+func (cd Iconv) Conv(b []byte, outbuf []byte) (out []byte, inleft int, err error) {
 
-	if len(input) == 0 {
-		return "", nil
+	outn, inleft, err := cd.Do(b, len(b), outbuf)
+	if err == nil || err != E2BIG {
+		out = outbuf[:outn]
+		return
 	}
 
-	inbuf := []byte(input)
-	outbuf := make([]byte, len(inbuf))
-	inbytes := C.size_t(len(inbuf))
-	inptr := &inbuf[0]
+	w := bytes.NewBuffer(nil)
+	w.Write(outbuf[:outn])
 
-	for inbytes > 0 {
-		outbytes := C.size_t(len(outbuf))
-		outptr := &outbuf[0]
-		_, err := C._iconv(cd.pointer,
-			C.uintptr(unsafe.Pointer(&inptr)), &inbytes,
-			C.uintptr(unsafe.Pointer(&outptr)), &outbytes)
-		buf.Write(outbuf[:len(outbuf)-int(outbytes)])
-		if err != nil && err != E2BIG {
-			return buf.String(), err
-		}
-	}
-
-	return buf.String(), nil
+	inleft, err = cd.DoWrite(w, b[len(b)-inleft:], inleft, outbuf)
+	out = w.Bytes()
+	return
 }
 
-func (cd Iconv) ConvBytes(inbuf []byte) (result []byte, err error) {
-	var buf bytes.Buffer
+func (cd Iconv) ConvString(s string) (string, error) {
+	inbuf := []byte(s)
+	outbuf := make([]byte, len(inbuf))
+	s1, _, err := cd.Conv(inbuf, outbuf[:])
+	return string(s1), err
+}
 
-	if len(inbuf) == 0 {
-		return []byte{}, nil
+func (cd Iconv) Do(inbuf []byte, in int, outbuf []byte) (out, inleft int, err error) {
+
+	if in == 0 {
+		return
 	}
 
-	outbuf := make([]byte, len(inbuf)*3)
-	inbytes := C.size_t(len(inbuf))
+	inbytes := C.size_t(in)
+	inptr := &inbuf[0]
+
+	outbytes := C.size_t(len(outbuf))
+	outptr := &outbuf[0]
+	_, err = C.bridge_iconv(cd.Handle,
+		(*C.char)(unsafe.Pointer(inptr)), &inbytes,
+		(*C.char)(unsafe.Pointer(outptr)), &outbytes)
+
+	out = len(outbuf) - int(outbytes)
+	inleft = int(inbytes)
+	return
+}
+
+func (cd Iconv) DoWrite(w io.Writer, inbuf []byte, in int, outbuf []byte) (inleft int, err error) {
+
+	if in == 0 {
+		return
+	}
+
+	inbytes := C.size_t(in)
 	inptr := &inbuf[0]
 
 	for inbytes > 0 {
 		outbytes := C.size_t(len(outbuf))
 		outptr := &outbuf[0]
-		_, err := C._iconv(cd.pointer,
-			C.uintptr(unsafe.Pointer(&inptr)), &inbytes,
-			C.uintptr(unsafe.Pointer(&outptr)), &outbytes)
-		buf.Write(outbuf[:len(outbuf)-int(outbytes)])
+		_, err = C.bridge_iconv(cd.Handle,
+			(*C.char)(unsafe.Pointer(inptr)), &inbytes,
+			(*C.char)(unsafe.Pointer(outptr)), &outbytes)
+		w.Write(outbuf[:len(outbuf)-int(outbytes)])
 		if err != nil && err != E2BIG {
-			return buf.Bytes(), err
+			return int(inbytes), err
 		}
 	}
 
-	return buf.Bytes(), nil
+	return 0, nil
 }

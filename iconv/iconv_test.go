@@ -23,7 +23,7 @@ func TestIconv(t *testing.T) {
 			continue
 		}
 
-		str, err := cd.Conv(data.other)
+		str, err := cd.ConvString(data.other)
 		if err != nil {
 			t.Errorf("Error on conversion: %s\n", err)
 			continue
@@ -48,7 +48,7 @@ func TestIconvReverse(t *testing.T) {
 			continue
 		}
 
-		str, err := cd.Conv(data.utf8)
+		str, err := cd.ConvString(data.utf8)
 		if err != nil {
 			t.Errorf("Error on conversion: %s\n", err)
 			continue
@@ -72,7 +72,7 @@ func TestError(t *testing.T) {
 	}
 
 	cd, _ := Open("ISO-8859-15", "UTF-8")
-	_, err = cd.Conv("\xc3a")
+	_, err = cd.ConvString("\xc3a")
 	if err != EILSEQ {
 		t.Errorf("Unexpected error: %#s (expected %#s)", err, EILSEQ)
 	}

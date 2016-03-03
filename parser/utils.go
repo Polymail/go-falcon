@@ -207,7 +207,7 @@ func convertByIconv(data, contentCharset string) (string, error) {
 		return data, err
 	}
 	defer converter.Close()
-	convertedString, err := converter.Conv(data)
+	convertedString, err := converter.ConvString(data)
 	if err != nil {
 		return data, err
 	}
