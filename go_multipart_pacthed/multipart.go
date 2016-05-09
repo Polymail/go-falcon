@@ -131,12 +131,12 @@ func newPart(mr *Reader) (*Part, error) {
 		return nil, err
 	}
 	bp.r = partReader{bp}
-	/* No need, it is invalid for our case
-	const cte = "Content-Transfer-Encoding"
-	if bp.Header.Get(cte) == "quoted-printable" {
-		bp.Header.Del(cte)
-		bp.r = quotedprintable.NewReader(bp.r)
-	}
+	/*
+		const cte = "Content-Transfer-Encoding"
+		if bp.Header.Get(cte) == "quoted-printable" {
+			bp.Header.Del(cte)
+			bp.r = quotedprintable.NewReader(bp.r)
+		}
 	*/
 	return bp, nil
 }

@@ -350,6 +350,30 @@ func TestLineContinuation(t *testing.T) {
 	}
 }
 
+/*
+func TestQuotedPrintableEncoding(t *testing.T) {
+	// From https://golang.org/issue/4411
+	body := "--0016e68ee29c5d515f04cedf6733\r\nContent-Type: text/plain; charset=ISO-8859-1\r\nContent-Disposition: form-data; name=text\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\nwords words words words words words words words words words words words wor=\r\nds words words words words words words words words words words words words =\r\nwords words words words words words words words words words words words wor=\r\nds words words words words words words words words words words words words =\r\nwords words words words words words words words words\r\n--0016e68ee29c5d515f04cedf6733\r\nContent-Type: text/plain; charset=ISO-8859-1\r\nContent-Disposition: form-data; name=submit\r\n\r\nSubmit\r\n--0016e68ee29c5d515f04cedf6733--"
+	r := NewReader(strings.NewReader(body), "0016e68ee29c5d515f04cedf6733")
+	part, err := r.NextPart()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if te, ok := part.Header["Content-Transfer-Encoding"]; ok {
+		t.Errorf("unexpected Content-Transfer-Encoding of %q", te)
+	}
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, part)
+	if err != nil {
+		t.Error(err)
+	}
+	got := buf.String()
+	want := "words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words words"
+	if got != want {
+		t.Errorf("wrong part value:\n got: %q\nwant: %q", got, want)
+	}
+}
+*/
 // Test parsing an image attachment from gmail, which previously failed.
 func TestNested(t *testing.T) {
 	// nested-mime is the body part of a multipart/mixed email
