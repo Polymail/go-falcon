@@ -209,7 +209,7 @@ Test attachments oddly encoded with japanese charset.
 		}},
 
 	{"15.eml",
-		"Bft Oauth development - Export Utenti", "webmaster@bft.it", "", "mybft@bft.it", "My Bft", "",
+		"Bft Oauth development - Export Utenti", "webmaster@bft.it, giacomo.macri@develon.com, ilenia.trevisan@develon.com", "", "mybft@bft.it", "My Bft", "",
 		`<html>
 <head>
   <style type="text/css" media="screen">
@@ -294,7 +294,7 @@ Test attachments oddly encoded with japanese charset.
 
 	{"18.eml", "Re: TEST テストテスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
-	{"19.eml", "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "\"Jürgen Schmürgen\"", "doug@example.com", "Doug Sauder",
+	{"19.eml", "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "Jürgen Schmürgen", "doug@example.com", "Doug Sauder",
 		"Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
 		"", []goodMailAttachments{}},
 
@@ -709,7 +709,7 @@ X-Virus-Status: Clean
 			"</body>\n" +
 			"</html>\n", []goodMailAttachments{}},
 
-	{"26.eml", "Undelivered Mail Returned to Sender", "rahul.chaudhari@LL.com", "", "MAILER-DAEMON@lvmail01.LL.com", "",
+	{"26.eml", "Undelivered Mail Returned to Sender", "rahul.chaudhari@LL.com", "", "MAILER-DAEMON@lvmail01.LL.com (Mail Delivery System)", "",
 		"This is the mail system at host lvmail01.LL.com.\n" +
 			"\n" +
 			"I'm sorry to have to inform you that your message could not\n" +
