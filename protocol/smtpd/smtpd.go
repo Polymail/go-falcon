@@ -494,6 +494,7 @@ func (s *session) handleData() {
 
 	if err != nil {
 		// Network error, ignore (or just exit)
+		log.Errorf("smtpd: DATA not EOF error: %v+, inbox: %v", err, s.mailboxId)
 		return
 	}
 
