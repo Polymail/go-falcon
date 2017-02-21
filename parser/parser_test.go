@@ -205,7 +205,7 @@ Hi,
 Test attachments oddly encoded with japanese charset.
 
 `, "", []goodMailAttachments{
-			{"01 Quien Te Dij\ufffdat. Pitbull.mp3"},
+			{"01 Quien Te Dij\x8aat. Pitbull.mp3"},
 		}},
 
 	{"15.eml",
