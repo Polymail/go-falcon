@@ -490,6 +490,7 @@ func (s *session) handleData() {
 		s.env.Close()
 		s.resetEnvelope()
 		s.sendlinef("250 2.0.0 Ok: queued")
+		return
 	}
 
 	if err != nil {
