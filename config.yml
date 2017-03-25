@@ -79,7 +79,6 @@ redis:
   port: 6379
   pool: 20
   timeout: 5
-  namespace: development
   hook_username: adminadmin
   hook_password: monkey
   sidekiq_queue: server

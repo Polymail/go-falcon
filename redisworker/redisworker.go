@@ -23,7 +23,7 @@ const (
 // get cached inbox setting
 
 func getRedisCacheInboxKey(config *config.Config, mailboxID int) string {
-	return fmt.Sprintf("%s:inboxes-settings-cache_%d", config.Redis.Namespace, mailboxID)
+	return fmt.Sprintf("inboxes-settings-cache_%d", mailboxID)
 }
 
 func GetCachedInboxSettings(config *config.Config, mailboxID int) (storage.InboxSettings, error) {
@@ -69,7 +69,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 
 	if config.Redis.Hook_Username != "" && config.Redis.Hook_Password != "" {
 		// Faye begin
-		clients, err := redis.Strings(redisCon.Do("SUNION", fmt.Sprintf("%s/channels/inboxes/%s", config.Redis.Namespace, mailboxStr)))
+		clients, err := redis.Strings(redisCon.Do("SUNION", fmt.Sprintf("channels/inboxes/%s", mailboxStr)))
 		if err != nil {
 			log.Errorf("redis SUNION command error: %v", err)
 			return false, err
@@ -77,21 +77,21 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 
 		if clients != nil {
 			for _, clientId := range clients {
-				queue := fmt.Sprintf("%s/clients/%s/messages", config.Redis.Namespace, string(clientId))
+				queue := fmt.Sprintf("clients/%s/messages", string(clientId))
 
 				_, err := redisCon.Do("RPUSH", queue, data)
 				if err != nil {
 					log.Errorf("redis RPUSH command error: %v", err)
 					continue
 				}
-				_, err = redisCon.Do("PUBLISH", fmt.Sprintf("%s/notifications/messages", config.Redis.Namespace), string(clientId))
+				_, err = redisCon.Do("PUBLISH", "notifications/messages", string(clientId))
 				if err != nil {
 					log.Errorf("redis PUBLISH command error: %v", err)
 					continue
 				}
 				//cleanup
 				cutoff := time.Now().UTC().UnixNano() - (1600 * NOTIFICATION_TIMEOUT)
-				score, err := redis.Int64(redisCon.Do("ZSCORE", fmt.Sprintf("%s/clients", config.Redis.Namespace), string(clientId)))
+				score, err := redis.Int64(redisCon.Do("ZSCORE", "clients", string(clientId)))
 				if err != nil {
 					log.Errorf("redis ZSCORE command error: %v", err)
 					continue
@@ -115,8 +115,8 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 		data = fmt.Sprintf("{\"retry\":true,\"queue\":\"%s\",\"class\":\"ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper\",\"args\":[{\"job_class\":\"%s\",\"job_id\":\"%s\",\"queue_name\":\"%s\",\"arguments\":[%s,%s]}],\"jid\":\"%s\",\"enqueued_at\":%s}", config.Redis.Sidekiq_Queue, config.Redis.Sidekiq_Class, utils.GenerateRandString(20), config.Redis.Sidekiq_Queue, mailboxStr, messageStr, utils.GenerateRandString(20), strconv.FormatInt(time.Now().UTC().Unix(), 10))
 
 		redisCon.Send("MULTI")
-		redisCon.Send("SADD", fmt.Sprintf("%s:queues", config.Redis.Namespace), config.Redis.Sidekiq_Queue)
-		redisCon.Send("LPUSH", fmt.Sprintf("%s:queue:%s", config.Redis.Namespace, config.Redis.Sidekiq_Queue), data)
+		redisCon.Send("SADD", "queues", config.Redis.Sidekiq_Queue)
+		redisCon.Send("LPUSH", fmt.Sprintf("queue:%s", config.Redis.Sidekiq_Queue), data)
 		_, err := redisCon.Do("EXEC")
 		if err != nil {
 			log.Errorf("redis sidekiq command error: %v", err)
@@ -132,7 +132,7 @@ func IsNotSpamAttackCampaign(config *config.Config, mailboxID int) bool {
 	redisCon := config.RedisPool.Get()
 	defer redisCon.Close()
 
-	redisKey := fmt.Sprintf("%s:mailbox_msg_count_%d", config.Redis.Namespace, mailboxID)
+	redisKey := fmt.Sprintf("mailbox_msg_count_%d", mailboxID)
 	emailsKeyCount, err := redis.Int(redisCon.Do("INCR", redisKey))
 	if err == nil {
 		if emailsKeyCount > 1 {

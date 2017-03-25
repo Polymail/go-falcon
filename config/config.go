@@ -78,7 +78,6 @@ type Config struct {
 		Port          int
 		Pool          int
 		Timeout       int
-		Namespace     string
 		Hook_Username string
 		Hook_Password string
 		Sidekiq_Queue string
