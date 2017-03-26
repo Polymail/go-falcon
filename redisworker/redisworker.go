@@ -69,7 +69,7 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 
 	if config.Redis.Hook_Username != "" && config.Redis.Hook_Password != "" {
 		// Faye begin
-		clients, err := redis.Strings(redisCon.Do("SUNION", fmt.Sprintf("channels/inboxes/%s", mailboxStr)))
+		clients, err := redis.Strings(redisCon.Do("SUNION", fmt.Sprintf("/channels/inboxes/%s", mailboxStr)))
 		if err != nil {
 			log.Errorf("redis SUNION command error: %v", err)
 			return false, err
@@ -77,21 +77,21 @@ func SendNotifications(config *config.Config, mailboxID, messageID int, subject 
 
 		if clients != nil {
 			for _, clientId := range clients {
-				queue := fmt.Sprintf("clients/%s/messages", string(clientId))
+				queue := fmt.Sprintf("/clients/%s/messages", string(clientId))
 
 				_, err := redisCon.Do("RPUSH", queue, data)
 				if err != nil {
 					log.Errorf("redis RPUSH command error: %v", err)
 					continue
 				}
-				_, err = redisCon.Do("PUBLISH", "notifications/messages", string(clientId))
+				_, err = redisCon.Do("PUBLISH", "/notifications/messages", string(clientId))
 				if err != nil {
 					log.Errorf("redis PUBLISH command error: %v", err)
 					continue
 				}
 				//cleanup
 				cutoff := time.Now().UTC().UnixNano() - (1600 * NOTIFICATION_TIMEOUT)
-				score, err := redis.Int64(redisCon.Do("ZSCORE", "clients", string(clientId)))
+				score, err := redis.Int64(redisCon.Do("ZSCORE", "/clients", string(clientId)))
 				if err != nil {
 					log.Errorf("redis ZSCORE command error: %v", err)
 					continue
