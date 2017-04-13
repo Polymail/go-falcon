@@ -210,8 +210,9 @@ func convertByIconv(data, contentCharset string) (string, error) {
 	convertedString := converter.ConvString(data)
 	if convertedString == "" {
 		return data, nil
+	} else {
+		return convertedString, nil
 	}
-	return convertedString, nil
 }
 
 // quoted-printable
