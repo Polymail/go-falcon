@@ -11,7 +11,7 @@ package iconv
 // #include <errno.h>
 //
 // size_t bridge_iconv(iconv_t cd,
-//                     char *inbuf, size_t *inbytesleft,
+//		       char *inbuf, size_t *inbytesleft,
 //                     char *outbuf, size_t *outbytesleft) {
 //   return iconv(cd, &inbuf, inbytesleft, &outbuf, outbytesleft);
 // }
@@ -24,7 +24,6 @@ import (
 	"unsafe"
 )
 
-var EINVAL = syscall.Errno(C.EINVAL)
 var EILSEQ = syscall.Errno(C.EILSEQ)
 var E2BIG = syscall.Errno(C.E2BIG)
 
@@ -69,15 +68,21 @@ func (cd Iconv) Conv(b []byte, outbuf []byte) (out []byte, inleft int, err error
 	w.Write(outbuf[:outn])
 
 	inleft, err = cd.DoWrite(w, b[len(b)-inleft:], inleft, outbuf)
-	out = w.Bytes()
+	if err != nil {
+		return
+	} else {
+		out = w.Bytes()
+	}
 	return
 }
 
-func (cd Iconv) ConvString(s string) (string, error) {
-	inbuf := []byte(s)
-	outbuf := make([]byte, len(inbuf))
-	s1, _, err := cd.Conv(inbuf, outbuf[:])
-	return string(s1), err
+func (cd Iconv) ConvString(s string) string {
+	var outbuf [512]byte
+	if s1, _, err := cd.Conv([]byte(s), outbuf[:]); err != nil {
+		return ""
+	} else {
+		return string(s1)
+	}
 }
 
 func (cd Iconv) Do(inbuf []byte, in int, outbuf []byte) (out, inleft int, err error) {
@@ -107,9 +112,10 @@ func (cd Iconv) DoWrite(w io.Writer, inbuf []byte, in int, outbuf []byte) (inlef
 	}
 
 	inbytes := C.size_t(in)
-	inptr := &inbuf[0]
 
 	for inbytes > 0 {
+		in = int(inbytes)
+		inptr := &inbuf[len(inbuf)-in]
 		outbytes := C.size_t(len(outbuf))
 		outptr := &outbuf[0]
 		_, err = C.bridge_iconv(cd.Handle,
