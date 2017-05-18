@@ -137,20 +137,20 @@ func (db *DBConn) StoreMail(mailboxId int, subject string, date time.Time, from,
 	strBody := utils.CheckAndFixUtf8(string(rawEmail))
 	sql := strings.Replace(db.config.Messages_Sql, "[[inbox_id]]", strconv.Itoa(mailboxId), 1)
 	// normalize variables
-	if len(subject) > 997 {
-		subject = subject[0:997] + "..."
+	if len(subject) > 1000 {
+		subject = subject[0:1000]
 	}
-	if len(from) > 252 {
-		from = from[0:252] + "..."
+	if len(from) > 255 {
+		from = from[0:255]
 	}
-	if len(from_name) > 252 {
-		from_name = from_name[0:252] + "..."
+	if len(from_name) > 255 {
+		from_name = from_name[0:255]
 	}
-	if len(to) > 252 {
-		to = to[0:252] + "..."
+	if len(to) > 255 {
+		to = to[0:255]
 	}
-	if len(to_name) > 252 {
-		to_name = to_name[0:252] + "..."
+	if len(to_name) > 255 {
+		to_name = to_name[0:255]
 	}
 	// sql
 	err := db.DB.QueryRow(sql,
