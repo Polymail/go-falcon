@@ -12,6 +12,7 @@ import (
 	"path"
 	"strings"
 	"testing"
+	"time"
 )
 
 // good mails
@@ -24,6 +25,7 @@ type goodMailTypeTest struct {
 	Fixture string
 
 	Subject  string
+	Date     string
 	To       string
 	ToName   string
 	From     string
@@ -34,18 +36,22 @@ type goodMailTypeTest struct {
 	Attachments []goodMailAttachments
 }
 
-var goodMailTypeTests = []goodMailTypeTest{
-	{"1.eml", "SMTP e-mail test", "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", "", []goodMailAttachments{}},
+const (
+	TIME_FORMAT = "2006-01-02"
+)
 
-	{"2.eml", "test", "stephen.callaghan@greenfinch.ie", "", "mainstay@sherwoodcompliance.co.uk", "", "", "", []goodMailAttachments{
+var goodMailTypeTests = []goodMailTypeTest{
+	{"1.eml", "SMTP e-mail test", time.Now().UTC().Format(TIME_FORMAT), "test@todomain.com", "A Test User", "me@fromdomain.com", "Private Person", "This is a test e-mail message.", "", []goodMailAttachments{}},
+
+	{"2.eml", "test", "2013-01-28", "stephen.callaghan@greenfinch.ie", "", "mainstay@sherwoodcompliance.co.uk", "", "", "", []goodMailAttachments{
 		{"OICLCostsPaymentProposal.csv"},
 	}},
 
-	{"3.eml", "illness", "Mr. X \"wrongquote@b.com\"", "", "sender@mail.com", "Mr. Sender", "  illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
+	{"3.eml", "illness", "2011-07-31", "Mr. X \"wrongquote@b.com\"", "", "sender@mail.com", "Mr. Sender", "  illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
 
-	{"4.eml", "illness notification ALPHÉE", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
+	{"4.eml", "illness notification ALPHÉE", "2011-07-31", "aaaa@bbbbbb.com", "", "sender@mail.com", "Mr. Sender", "illness 26 Dec - 26 Dec 2007", "", []goodMailAttachments{}},
 
-	{"5.eml", "Welcome to Verical", "MichaelJWilliamstfb24d057-49fb-477d-8cf3-5357f2591641@test.com", "", "support@verical.com", "", "Please view the HTML version of this email.",
+	{"5.eml", "Welcome to Verical", "2012-03-27", "MichaelJWilliamstfb24d057-49fb-477d-8cf3-5357f2591641@test.com", "", "support@verical.com", "", "Please view the HTML version of this email.",
 		`<html>
 
 <head>
@@ -113,7 +119,7 @@ This email may contain information that is legally PRIVILEGED and CONFIDENTIAL i
 			{""},
 		}},
 
-	{"6.eml", "Example subject line", "contactmichaelhart@gmail.com", "", "support@avocosecure.com", "support@avocosecure.com",
+	{"6.eml", "Example subject line", "2012-03-12", "contactmichaelhart@gmail.com", "", "support@avocosecure.com", "support@avocosecure.com",
 		`
 
         Hello
@@ -165,32 +171,32 @@ your browser address entry.
 
 `, []goodMailAttachments{}},
 
-	{"7.eml", "Hello World", "", "", "", "", "Ã¿Ã´Ã¿Ã½", "", []goodMailAttachments{}},
+	{"7.eml", "Hello World", "2011-12-22", "", "", "", "", "Ã¿Ã´Ã¿Ã½", "", []goodMailAttachments{}},
 
-	{"8.eml", "testing", "blah@example.com", "", "foo@example.com", "",
+	{"8.eml", "testing", "2005-06-06", "blah@example.com", "", "foo@example.com", "",
 		"A fax has arrived from remote ID ''.\n------------------------------------------------------------\nTime: 3/9/2006 3:50:52 PM\nReceived from remote ID: \nInbound user ID XXXXXXXXXX, routing code XXXXXXXXX\nResult: (0/352;0/0) Successful Send\nPage record: 1 - 1\nElapsed time: 00:58 on channel 11\n",
 		"", []goodMailAttachments{}},
 
-	{"9.eml", "Re: Test: \"漢字\" mid \"漢字\" tail", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "대부분의 마찬가지로, 우리는 하나님을 믿습니다.\n\n제 이름은 Jamis입니다.", "", []goodMailAttachments{}},
+	{"9.eml", "Re: Test: \"漢字\" mid \"漢字\" tail", "2005-05-02", "jamis@37signals.com", "", "jamis@37signals.com", "Jamis Buck", "대부분의 마찬가지로, 우리는 하나님을 믿습니다.\n\n제 이름은 Jamis입니다.", "", []goodMailAttachments{}},
 
-	{"10.eml", "まみむめも", "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "Mikel Lindsaar",
+	{"10.eml", "まみむめも", time.Now().UTC().Format(TIME_FORMAT), "raasdnil@gmail.com", "みける", "raasdnil@gmail.com", "Mikel Lindsaar",
 		"かきくえこ\n\n-- \nhttp://lindsaar.net/\nRails, RSpec and Life blog....\n",
 		"", []goodMailAttachments{}},
 
-	{"11.eml", "Eelanalüüsi päring", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", []goodMailAttachments{
+	{"11.eml", "Eelanalüüsi päring", "2009-05-13", "jeff@37signals.com", "Jeffrey Hardy", "jeff@37signals.com", "Jeffrey Hardy", "", "", []goodMailAttachments{
 		{"Eelanalüüsi päring.jpg"},
 	}},
 
-	{"12.eml", "this message JUST contains an attachment", "bob@domain.dom", "", "rfinnie@domain.dom", "Ryan Finnie", "", "", []goodMailAttachments{
+	{"12.eml", "this message JUST contains an attachment", "2003-10-24", "bob@domain.dom", "", "rfinnie@domain.dom", "Ryan Finnie", "", "", []goodMailAttachments{
 		{"blah.gz"},
 	}},
 
-	{"13.eml", "testing", "blah@example.com", "", "foo@example.com", "", "This is the first part.\n", "", []goodMailAttachments{
+	{"13.eml", "testing", "2005-06-06", "blah@example.com", "", "foo@example.com", "", "This is the first part.\n", "", []goodMailAttachments{
 		{"This is a test.txt"},
 	}},
 
 	{"14.eml",
-		"Fwd: Signed email causes file attachments", "xxxxx@xxxxxxxxx.com", "xxxxx xxxx", "xxxxxxxxx.xxxxxxx@gmail.com", "xxxxxxxxx xxxxxxx",
+		"Fwd: Signed email causes file attachments", "2005-05-08", "xxxxx@xxxxxxxxx.com", "xxxxx xxxx", "xxxxxxxxx.xxxxxxx@gmail.com", "xxxxxxxxx xxxxxxx",
 		`We should not include these files or vcards as attachments.
 
 ---------- Forwarded message ----------
@@ -207,7 +213,7 @@ Test attachments oddly encoded with japanese charset.
 `, "", []goodMailAttachments{}},
 
 	{"15.eml",
-		"Bft Oauth development - Export Utenti", "webmaster@bft.it, giacomo.macri@develon.com, ilenia.trevisan@develon.com", "", "mybft@bft.it", "My Bft", "",
+		"Bft Oauth development - Export Utenti", "2013-05-16", "webmaster@bft.it, giacomo.macri@develon.com, ilenia.trevisan@develon.com", "", "mybft@bft.it", "My Bft", "",
 		`<html>
 <head>
   <style type="text/css" media="screen">
@@ -268,11 +274,11 @@ Test attachments oddly encoded with japanese charset.
 </html>
 `, []goodMailAttachments{}},
 
-	{"16.eml", "Alerte suite a la recherche", "f.tete@immobilier-confiance.fr", "", "contact@immobilier-confiance.fr", "Immobilier Confiance", "",
+	{"16.eml", "Alerte suite a la recherche", "2011-12-23", "f.tete@immobilier-confiance.fr", "", "contact@immobilier-confiance.fr", "Immobilier Confiance", "",
 		"Bonjour,\nSuite à la recherche ajoutée concernant le contact Test2 TEST\u003cbr/\u003eVoici les réultats : \u003cbr/\u003e\u003cbr/\u003eRésultats qui peuvent s'accorder aux termes de la recherche :\u003cbr/\u003e\u003ctable\u003e\u003ctr\u003e\u003cth\u003eRéférence\u003c/th\u003e\u003cth\u003eType de Bien\u003c/th\u003e\u003cth\u003ePrix Fai\u003c/th\u003e\u003cth\u003eNégociateur\u003c/th\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF901\u003c/td\u003e\u003ctd\u003eferme\u003c/td\u003e\u003ctd\u003e490000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF905\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e269000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF909\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e234000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF915\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e115000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF9152\u003c/td\u003e\u003ctd\u003eloft\u003c/td\u003e\u003ctd\u003e125000\u003c/td\u003e\u003ctd\u003efrédéric Ducrot\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd\u003eREF927\u003c/td\u003e\u003ctd\u003emaison\u003c/td\u003e\u003ctd\u003e179000\u003c/td\u003e\u003ctd\u003eolivier Dal\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
 		[]goodMailAttachments{}},
 
-	{"17.eml", "Testing outlook", "mikel@me.nowhere", "", "email_test@me.nowhere", "Mikel Lindsaar", "Hello\nThis is an outlook test\n\nSo there.\n\nMe.\n",
+	{"17.eml", "Testing outlook", "2007-10-21", "mikel@me.nowhere", "", "email_test@me.nowhere", "Mikel Lindsaar", "Hello\nThis is an outlook test\n\nSo there.\n\nMe.\n",
 		"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\r\n" +
 			"<HTML><HEAD>\r\n" +
 			"<META http-equiv=Content-Type content=\"text/html; charset=iso-8859-1\">\r\n" +
@@ -290,15 +296,15 @@ Test attachments oddly encoded with japanese charset.
 			"\r\n",
 		[]goodMailAttachments{}},
 
-	{"18.eml", "Re: TEST テストテスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
+	{"18.eml", "Re: TEST テストテスト%F%9%H", "2011-08-19", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
-	{"19.eml", "Die Hasen und die Frösche (Microsoft Outlook 00)", "schmuergen@example.com", "Jürgen Schmürgen", "doug@example.com", "Doug Sauder",
+	{"19.eml", "Die Hasen und die Frösche (Microsoft Outlook 00)", "2000-05-17", "schmuergen@example.com", "Jürgen Schmürgen", "doug@example.com", "Doug Sauder",
 		"Die Hasen und die Frösche\n\nDie Hasen klagten einst über ihre mißliche Lage; \"wir leben\", sprach ein Redner, \"in steter Furcht vor Menschen und Tieren, eine Beute der Hunde, der Adler, ja fast aller Raubtiere! Unsere stete Angst ist ärger als der Tod selbst. Auf, laßt uns ein für allemal sterben.\" \n\nIn einem nahen Teich wollten sie sich nun ersäufen; sie eilten ihm zu; allein das außerordentliche Getöse und ihre wunderbare Gestalt erschreckte eine Menge Frösche, die am Ufer saßen, so sehr, daß sie aufs schnellste untertauchten. \n\n\"Halt\", rief nun eben dieser Sprecher, \"wir wollen das Ersäufen noch ein wenig aufschieben, denn auch uns fürchten, wie ihr seht, einige Tiere, welche also wohl noch unglücklicher sein müssen als wir.\" \n",
 		"", []goodMailAttachments{}},
 
-	{"20.eml", "Re: TEST テストテスト%F%9%H", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
+	{"20.eml", "Re: TEST テストテスト%F%9%H", "2011-08-19", "rudeboyjet@gmail.com", "", "atsushi@example.com", "Atsushi Yoshida", "Hello", "", []goodMailAttachments{}},
 
-	{"21.eml", "Test message from Microsoft Outlook 00", "jblow@example.com", "Joe Blow", "doug@example.com", "Doug Sauder",
+	{"21.eml", "Test message from Microsoft Outlook 00", "2000-05-17", "jblow@example.com", "Joe Blow", "doug@example.com", "Doug Sauder",
 		"\n\nThe Hare and the Tortoise \n \nA HARE one day ridiculed the short feet and slow pace of the Tortoise, who replied, laughing:  \"Though you be swift as the wind, I will beat you in a race.\"  The Hare, believing her assertion to be simply impossible, assented to the proposal; and they agreed that the Fox should choose the course and fix the goal.  On the day appointed for the race the two started together.  The Tortoise never for a moment stopped, but went on with a slow but steady pace straight to the end of the course.  The Hare, lying down by the wayside, fell fast asleep.  At last waking up, and moving as fast as he could, he saw the Tortoise had reached the goal, and was comfortably dozing after her fatigue.  \n \nSlow but steady wins the race.  \n\n\n",
 		"\u003c!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"\u003e\n\u003cHTML\u003e\u003cHEAD\u003e\n\u003cMETA content=\"text/html; charset=iso-8859-1\" http-equiv=Content-Type\u003e\n\u003cMETA content=\"MSHTML 5.00.2314.1000\" name=GENERATOR\u003e\u003c/HEAD\u003e\n\u003cBODY\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cIMG align=baseline alt=\"blue ball\" border=0 \nhspace=0 src=\"cid:938014623@17052000-0f9b\"\u003e\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cBR\u003eThe Hare and the Tortoise \u003cBR\u003e&nbsp;\u003cBR\u003eA HARE \none day ridiculed the short feet and slow pace of the Tortoise, who replied, \nlaughing:&nbsp; \"Though you be swift as the wind, I will beat you in a \nrace.\"&nbsp; The Hare, believing her assertion to be simply impossible, assented \nto the proposal; and they agreed that the Fox should choose the course and fix \nthe goal.&nbsp; On the day appointed for the race the two started \ntogether.&nbsp; The Tortoise never for a moment stopped, but went on with a slow \nbut steady pace straight to the end of the course.&nbsp; The Hare, lying down by \nthe wayside, fell fast asleep.&nbsp; At last waking up, and moving as fast as he \ncould, he saw the Tortoise had reached the goal, and was comfortably dozing \nafter her fatigue.&nbsp; \u003cBR\u003e&nbsp;\u003cBR\u003eSlow but steady wins the race.&nbsp; \n\u003c/FONT\u003e\u003c/DIV\u003e\n\u003cDIV\u003e\u003cFONT face=Arial size=2\u003e\u003cBR\u003e&nbsp;\u003c/DIV\u003e\u003c/FONT\u003e\u003c/BODY\u003e\u003c/HTML\u003e\n",
 		[]goodMailAttachments{
@@ -307,7 +313,7 @@ Test attachments oddly encoded with japanese charset.
 			{"redball.png"},
 		}},
 
-	{"22.eml", "testing", "blah@example.com", "", "foo@example.com", "", `This is the first part.
+	{"22.eml", "testing", "2005-06-06", "blah@example.com", "", "foo@example.com", "", `This is the first part.
 Just attaching another PDF, here, to see what the message looks like,
 and to see if I can figure out what is going wrong here.
 `, "", []goodMailAttachments{
@@ -315,7 +321,7 @@ and to see if I can figure out what is going wrong here.
 	}},
 
 	{"23.eml",
-		"ASDAN password change request", "robforrest@asdan.org.uk", "", "info@asdan.org.uk", "ASDAN", `This is an empty HTML Snippet that can be edited hereA password reset has been requested for the ASDAN secure area for this email address.
+		"ASDAN password change request", "2014-04-07", "robforrest@asdan.org.uk", "", "info@asdan.org.uk", "ASDAN", `This is an empty HTML Snippet that can be edited hereA password reset has been requested for the ASDAN secure area for this email address.
 If you did not request this, please delete this email and your password will remain the same.
 If you wish to reset your password, please click on the link below where you will be prompted to enter a new password.
 Reset your password
@@ -626,7 +632,7 @@ This is an empty HTML Snippet that can be edited <a style=\'color: #ae3334;\'  h
 `, []goodMailAttachments{}},
 
 	{"24.eml",
-		"Warning: could not send message for past 8 hours", "jennifer@sss.sssssss.net.au", "", "MAILER-DAEMON@tppppp.com.au", "Mail Delivery Subsystem", `    **********************************************
+		"Warning: could not send message for past 8 hours", "2008-01-16", "jennifer@sss.sssssss.net.au", "", "MAILER-DAEMON@tppppp.com.au", "Mail Delivery Subsystem", `    **********************************************
     **      THIS IS A WARNING MESSAGE ONLY      **
     **  YOU DO NOT NEED TO RESEND YOUR MESSAGE  **
     **********************************************
@@ -674,7 +680,7 @@ X-Virus-Scanned: ClamAV 0.91.2/5484/Wed Jan 16 06:31:27 2008 on mail11.tppppp.co
 X-Virus-Status: Clean
 `, "", []goodMailAttachments{}},
 
-	{"25.eml", "Mail System Error - Returned Mail", "notification+promo@blah.com", "", "Postmaster@ci.com", "Mail Administrator",
+	{"25.eml", "Mail System Error - Returned Mail", "2010-06-29", "notification+promo@blah.com", "", "Postmaster@ci.com", "Mail Administrator",
 		"This Message was undeliverable due to the following reason:\r\n" +
 			"\r\n" +
 			"\r\n" +
@@ -707,7 +713,7 @@ X-Virus-Status: Clean
 			"</body>\n" +
 			"</html>\n", []goodMailAttachments{}},
 
-	{"26.eml", "Undelivered Mail Returned to Sender", "rahul.chaudhari@LL.com", "", "MAILER-DAEMON@lvmail01.LL.com (Mail Delivery System)", "",
+	{"26.eml", "Undelivered Mail Returned to Sender", "2010-02-24", "rahul.chaudhari@LL.com", "", "MAILER-DAEMON@lvmail01.LL.com (Mail Delivery System)", "",
 		"This is the mail system at host lvmail01.LL.com.\n" +
 			"\n" +
 			"I'm sorry to have to inform you that your message could not\n" +
@@ -828,11 +834,11 @@ X-Virus-Status: Clean
 			"Hand Phone - +91.809 783 3437\n" +
 			"Web URL: www.LL.com \n", "", []goodMailAttachments{}},
 
-	{"27.eml", "Cron <root@blabla>", "root", "", "root (Cron Daemon)", "", "blabla-eeb74629", "", []goodMailAttachments{}},
+	{"27.eml", "Cron <root@blabla>", "2014-02-28", "root", "", "root (Cron Daemon)", "", "blabla-eeb74629", "", []goodMailAttachments{}},
 
-	{"28.eml", "[Brokers] loaded 51 broker views - 649 were due refresh", "x@234.com", "", "x@324.com", "", "test\r\n", "", []goodMailAttachments{}},
+	{"28.eml", "[Brokers] loaded 51 broker views - 649 were due refresh", "2014-03-06", "x@234.com", "", "x@324.com", "", "test\r\n", "", []goodMailAttachments{}},
 
-	{"29.eml", "(example@example.com) Re: in Testing Like A Bus", "example@oexample.org", "example@example.com", "rep@example.org", "Test on The City",
+	{"29.eml", "(example@example.com) Re: in Testing Like A Bus", "2014-05-12", "example@oexample.org", "example@example.com", "rep@example.org", "Test on The City",
 		"\r\n" +
 			"\t\r\n" +
 			"\t--- Reply by typing above this line ---\r\n" +
@@ -1009,13 +1015,15 @@ X-Virus-Status: Clean
 			"\t</body>\r\n" +
 			"</html>", []goodMailAttachments{}},
 
-	{"30.eml", "", "@machine.tld:mary@example.net", "Mary Smith", "john.q.public@example.com", "Joe Q. Public", "Hi everyone.", "", []goodMailAttachments{}},
+	{"30.eml", "", "2003-07-01", "@machine.tld:mary@example.net", "Mary Smith", "john.q.public@example.com", "Joe Q. Public", "Hi everyone.", "", []goodMailAttachments{}},
 
-	{"31.eml", "Re: Testing multipart/signed", "mikel@test.lindsaar.net", "Mikel", "test@test.lindsaar.net", "Test", "This is random text, not what has been signed below, ie, this sig\nemail is not signed correctly.\n", "", []goodMailAttachments{
+	{"31.eml", "Re: Testing multipart/signed", "2007-06-04", "mikel@test.lindsaar.net", "Mikel", "test@test.lindsaar.net", "Test", "This is random text, not what has been signed below, ie, this sig\nemail is not signed correctly.\n", "", []goodMailAttachments{
 		{"signature.asc"},
 	}},
 
-	{"32.eml", "Link to download 'Test'", "demo-inbox-1@test.com", "demo-inbox-1@test.com", "from@test.com", "Testing Organizations", "Hello world", "", []goodMailAttachments{}},
+	{"32.eml", "Link to download 'Test'", time.Now().UTC().Format(TIME_FORMAT), "demo-inbox-1@test.com", "demo-inbox-1@test.com", "from@test.com", "Testing Organizations", "Hello world", "", []goodMailAttachments{}},
+
+	{"33.eml", "test", time.Now().UTC().Format(TIME_FORMAT), "support@example.com", "", "support@example.com", "", "hola\r\n", "", []goodMailAttachments{}},
 }
 
 // bad mails
@@ -1079,6 +1087,7 @@ func (s *ParserSuite) TestGoodMailParser(c *C) {
 			c.Errorf("Error in parsing email: %v", err)
 		} else {
 			c.Check(email.Subject, Equals, mail.Subject)
+			c.Check(email.Date.UTC().Format(TIME_FORMAT), Equals, mail.Date)
 			c.Check(email.To.Address, Equals, mail.To)
 			c.Check(email.To.Name, Equals, mail.ToName)
 			c.Check(email.From.Address, Equals, mail.From)

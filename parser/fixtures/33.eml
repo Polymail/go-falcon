@@ -1,0 +1,10 @@
+From: support@example.com
+Subject: test
+To: support@example.com
+Content-Type: text/plain;
+	charset="US-ASCII"
+Reply-To: support@example.com
+Date: Sat, 30 Dec 1899 00:00:00 +0200
+X-Priority: 3
+
+hola

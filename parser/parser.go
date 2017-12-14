@@ -75,6 +75,9 @@ func (email *ParsedEmail) parseEmailHeaders(msg *mail.Message) {
 	if err != nil {
 		email.Date = time.Now()
 	}
+	if email.Date.Year() < 1970 {
+		email.Date = time.Now()
+	}
 	// from
 	email.From = getFromOrToHeader(email, "From")
 	// to
