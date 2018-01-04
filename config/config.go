@@ -67,6 +67,7 @@ type Config struct {
 		Proxy_Mode   bool
 		Host         string
 		Port         int
+		Exclude_Self bool
 		Client_Ports struct {
 			Smtp []int
 			Pop3 []int
@@ -167,11 +168,20 @@ func (config *Config) setDefaultValues() {
 		config.Proxy.Port = 2525
 	}
 	// ports
-	config.SmtpPortRanges = []int{config.Adapter.Port}
+	if config.Proxy.Exclude_Self {
+		config.SmtpPortRanges = []int{}
+	} else {
+		config.SmtpPortRanges = []int{config.Adapter.Port}
+	}
 	if len(config.Proxy.Client_Ports.Smtp) > 0 {
 		config.SmtpPortRanges = append(config.SmtpPortRanges, config.Proxy.Client_Ports.Smtp...)
 	}
-	config.Pop3PortRanges = []int{config.Pop3.Port}
+
+	if config.Proxy.Exclude_Self {
+		config.Pop3PortRanges = []int{}
+	} else {
+		config.Pop3PortRanges = []int{config.Pop3.Port}
+	}
 	if len(config.Proxy.Client_Ports.Pop3) > 0 {
 		config.Pop3PortRanges = append(config.Pop3PortRanges, config.Proxy.Client_Ports.Pop3...)
 	}

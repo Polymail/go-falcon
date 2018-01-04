@@ -89,6 +89,7 @@ proxy:
   proxy_mode: true
   host: localhost
   port: 2526
+  exclude_self: true
   client_ports:
     smtp: []
     pop3: []
