@@ -713,7 +713,7 @@ X-Virus-Status: Clean
 			"</body>\n" +
 			"</html>\n", []goodMailAttachments{}},
 
-	{"26.eml", "Undelivered Mail Returned to Sender", "2010-02-24", "rahul.chaudhari@LL.com", "", "MAILER-DAEMON@lvmail01.LL.com (Mail Delivery System)", "",
+	{"26.eml", "Undelivered Mail Returned to Sender", "2010-02-24", "rahul.chaudhari@LL.com", "", "MAILER-DAEMON@lvmail01.LL.com", "Mail Delivery System",
 		"This is the mail system at host lvmail01.LL.com.\n" +
 			"\n" +
 			"I'm sorry to have to inform you that your message could not\n" +
