@@ -2,6 +2,12 @@ package parser
 
 import (
 	"bytes"
+	"fmt"
+	"io/ioutil"
+	"net/url"
+	"regexp"
+	"strings"
+
 	"github.com/le0pard/go-falcon/iconv"
 	"github.com/le0pard/go-falcon/utils"
 	"github.com/sloonz/go-qprintable"
@@ -11,10 +17,6 @@ import (
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/encoding/traditionalchinese"
 	"golang.org/x/text/transform"
-	"io/ioutil"
-	"net/url"
-	"regexp"
-	"strings"
 )
 
 var (
@@ -139,7 +141,7 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
 		contentCharset = strings.ToLower(contentCharset)
 	}
 
-	if contentCharset != "utf-8" {
+	if contentCharset != "utf-8" && contentCharset != "utf8" && contentCharset != "us-ascii" {
 		switch contentCharset {
 		case "7bit", "8bit":
 			return data
@@ -149,7 +151,7 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
 				b.WriteRune(rune(c))
 			}
 			return b.String()
-		case "shift-jis", "iso-2022-jp", "big5", "gb2312", "iso-8859-2", "iso-8859-6", "iso-8859-8", "koi8-r", "koi8-u", "windows-1251", "euc-kr":
+		case "shift_jis", "shift-jis", "iso-2022-jp", "big5", "gb2312", "gb18030", "gbk", "iso-8859-2", "iso-8859-6", "iso-8859-8", "iso-8859-15", "koi8-r", "koi8-u", "windows-1250", "windows-1251", "windows-1252", "windows-1256", "euc-kr":
 
 			var decoder transform.Transformer
 
@@ -160,22 +162,36 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
 				decoder = traditionalchinese.Big5.NewDecoder()
 			case "gb2312":
 				decoder = simplifiedchinese.HZGB2312.NewDecoder()
+			case "gb18030":
+				decoder = simplifiedchinese.GB18030.NewDecoder()
+			case "gbk":
+				decoder = simplifiedchinese.GBK.NewDecoder()
 			case "iso-8859-2":
 				decoder = charmap.ISO8859_2.NewDecoder()
 			case "iso-8859-6":
 				decoder = charmap.ISO8859_6.NewDecoder()
 			case "iso-8859-8":
 				decoder = charmap.ISO8859_8.NewDecoder()
+			case "iso-8859-15":
+				decoder = charmap.ISO8859_15.NewDecoder()
 			case "koi8-r":
 				decoder = charmap.KOI8R.NewDecoder()
 			case "koi8-u":
 				decoder = charmap.KOI8U.NewDecoder()
+			case "windows-1250":
+				decoder = charmap.Windows1250.NewDecoder()
 			case "windows-1251":
 				decoder = charmap.Windows1251.NewDecoder()
+			case "windows-1252":
+				decoder = charmap.Windows1252.NewDecoder()
+			case "windows-1256":
+				decoder = charmap.Windows1256.NewDecoder()
 			case "euc-kr":
 				decoder = korean.EUCKR.NewDecoder()
-			default:
+			case "shift_jis", "shift-jis":
 				decoder = japanese.ShiftJIS.NewDecoder()
+			default:
+				panic(fmt.Sprintf("programmer: unknown charset (%v)", contentCharset))
 			}
 			tr, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(data), decoder))
 			if err == nil {
@@ -207,12 +223,11 @@ func convertByIconv(data, contentCharset string) (string, error) {
 		return data, err
 	}
 	defer converter.Close()
-	convertedString := converter.ConvString(data)
-	if convertedString == "" {
-		return data, nil
-	} else {
-		return convertedString, nil
+	convertedString, err := converter.ConvString(data)
+	if err != nil {
+		return data, err
 	}
+	return convertedString, nil
 }
 
 // quoted-printable
