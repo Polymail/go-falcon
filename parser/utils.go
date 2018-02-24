@@ -223,11 +223,12 @@ func convertByIconv(data, contentCharset string) (string, error) {
 		return data, err
 	}
 	defer converter.Close()
-	convertedString, err := converter.ConvString(data)
-	if err != nil {
-		return data, err
+	convertedString := converter.ConvString(data)
+	if convertedString == "" {
+		return data, nil
+	} else {
+		return convertedString, nil
 	}
-	return convertedString, nil
 }
 
 // quoted-printable
