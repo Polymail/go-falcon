@@ -2,12 +2,12 @@ package config
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
+	"io/ioutil"
+	"time"
+
 	"github.com/Polymail/go-falcon/log"
 	"github.com/Polymail/go-falcon/storage"
-	"io/ioutil"
-	"launchpad.net/goyaml"
-	"time"
+	"github.com/garyburd/redigo/redis"
 )
 
 // Config represents the supported configuration options for a falcon,
@@ -228,9 +228,5 @@ func (config *Config) initRedisPool() {
 // and returns its representation.
 func readConfigBytes(data []byte) (*Config, error) {
 	config := NewConfig()
-	err := goyaml.Unmarshal(data, &config)
-	if err != nil {
-		return nil, err
-	}
 	return config, nil
 }
