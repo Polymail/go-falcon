@@ -4,11 +4,11 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"fmt"
-	"github.com/le0pard/go-falcon/config"
-	"github.com/le0pard/go-falcon/log"
-	"github.com/le0pard/go-falcon/protocol/pop3"
-	"github.com/le0pard/go-falcon/protocol/smtpd"
-	"github.com/le0pard/go-falcon/worker"
+	"github.com/Polymail/go-falcon/config"
+	"github.com/Polymail/go-falcon/log"
+	"github.com/Polymail/go-falcon/protocol/pop3"
+	"github.com/Polymail/go-falcon/protocol/smtpd"
+	"github.com/Polymail/go-falcon/worker"
 	"time"
 )
 

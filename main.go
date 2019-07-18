@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/le0pard/go-falcon/config"
-	"github.com/le0pard/go-falcon/daemon"
-	"github.com/le0pard/go-falcon/log"
-	"github.com/le0pard/go-falcon/protocol"
-	"github.com/le0pard/go-falcon/proxy"
+	"github.com/Polymail/go-falcon/config"
+	"github.com/Polymail/go-falcon/daemon"
+	"github.com/Polymail/go-falcon/log"
+	"github.com/Polymail/go-falcon/protocol"
+	"github.com/Polymail/go-falcon/proxy"
 )
 
 var (

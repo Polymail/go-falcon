@@ -2,9 +2,9 @@ package parser
 
 import (
 	"bytes"
-	"github.com/le0pard/go-falcon/go_multipart_pacthed"
-	"github.com/le0pard/go-falcon/log"
-	"github.com/le0pard/go-falcon/protocol/smtpd"
+	"github.com/Polymail/go-falcon/go_multipart_pacthed"
+	"github.com/Polymail/go-falcon/log"
+	"github.com/Polymail/go-falcon/protocol/smtpd"
 	"io"
 	"io/ioutil"
 	"mime"

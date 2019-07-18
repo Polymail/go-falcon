@@ -4,7 +4,7 @@ package clamav
 import (
 	"bufio"
 	"fmt"
-	"github.com/le0pard/go-falcon/config"
+	"github.com/Polymail/go-falcon/config"
 	"io"
 	"net"
 	"regexp"

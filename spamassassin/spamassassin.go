@@ -5,7 +5,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"github.com/le0pard/go-falcon/config"
+	"github.com/Polymail/go-falcon/config"
 	"io"
 	"net"
 	"regexp"

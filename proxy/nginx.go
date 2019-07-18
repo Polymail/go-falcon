@@ -2,9 +2,9 @@ package proxy
 
 import (
 	"fmt"
-	"github.com/le0pard/go-falcon/config"
-	"github.com/le0pard/go-falcon/log"
-	"github.com/le0pard/go-falcon/utils"
+	"github.com/Polymail/go-falcon/config"
+	"github.com/Polymail/go-falcon/log"
+	"github.com/Polymail/go-falcon/utils"
 	"net/http"
 	"strconv"
 	"strings"

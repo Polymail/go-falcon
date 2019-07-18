@@ -3,8 +3,8 @@ package config
 import (
 	"fmt"
 	"github.com/garyburd/redigo/redis"
-	"github.com/le0pard/go-falcon/log"
-	"github.com/le0pard/go-falcon/storage"
+	"github.com/Polymail/go-falcon/log"
+	"github.com/Polymail/go-falcon/storage"
 	"io/ioutil"
 	"launchpad.net/goyaml"
 	"time"

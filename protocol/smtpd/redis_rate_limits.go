@@ -6,8 +6,8 @@ package smtpd
 import (
 	"fmt"
 	"github.com/garyburd/redigo/redis"
-	"github.com/le0pard/go-falcon/log"
-	"github.com/le0pard/go-falcon/redisworker"
+	"github.com/Polymail/go-falcon/log"
+	"github.com/Polymail/go-falcon/redisworker"
 )
 
 func (s *session) getInboxRateLimit(mailboxId int) (int, error) {

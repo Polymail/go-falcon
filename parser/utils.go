@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/le0pard/go-falcon/iconv"
-	"github.com/le0pard/go-falcon/utils"
+	"github.com/Polymail/go-falcon/iconv"
+	"github.com/Polymail/go-falcon/utils"
 	"github.com/sloonz/go-qprintable"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/encoding/japanese"

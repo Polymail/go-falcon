@@ -2,8 +2,8 @@ package daemon
 
 import (
 	"flag"
-	"github.com/le0pard/go-falcon/config"
-	"github.com/le0pard/go-falcon/log"
+	"github.com/Polymail/go-falcon/config"
+	"github.com/Polymail/go-falcon/log"
 	stdlog "log"
 	"os"
 	"os/signal"

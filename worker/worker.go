@@ -1,13 +1,13 @@
 package worker
 
 import (
-	"github.com/le0pard/go-falcon/clamav"
-	"github.com/le0pard/go-falcon/config"
-	"github.com/le0pard/go-falcon/log"
-	"github.com/le0pard/go-falcon/parser"
-	"github.com/le0pard/go-falcon/protocol/smtpd"
-	"github.com/le0pard/go-falcon/redisworker"
-	"github.com/le0pard/go-falcon/spamassassin"
+	"github.com/Polymail/go-falcon/clamav"
+	"github.com/Polymail/go-falcon/config"
+	"github.com/Polymail/go-falcon/log"
+	"github.com/Polymail/go-falcon/parser"
+	"github.com/Polymail/go-falcon/protocol/smtpd"
+	"github.com/Polymail/go-falcon/redisworker"
+	"github.com/Polymail/go-falcon/spamassassin"
 )
 
 // start worker

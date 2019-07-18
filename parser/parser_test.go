@@ -2,8 +2,8 @@ package parser
 
 import (
 	"encoding/json"
-	"github.com/le0pard/go-falcon/log"
-	"github.com/le0pard/go-falcon/protocol/smtpd"
+	"github.com/Polymail/go-falcon/log"
+	"github.com/Polymail/go-falcon/protocol/smtpd"
 	"io/ioutil"
 	. "launchpad.net/gocheck"
 	stdlog "log"
