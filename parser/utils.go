@@ -160,11 +160,9 @@ func FixEncodingAndCharsetOfPart(data, contentEncoding, contentCharset string, c
 				decoder = japanese.ISO2022JP.NewDecoder()
 			case "big5":
 				decoder = traditionalchinese.Big5.NewDecoder()
-			case "gb2312":
-				decoder = simplifiedchinese.HZGB2312.NewDecoder()
 			case "gb18030":
 				decoder = simplifiedchinese.GB18030.NewDecoder()
-			case "gbk":
+			case "gbk", "gb2312":
 				decoder = simplifiedchinese.GBK.NewDecoder()
 			case "iso-8859-2":
 				decoder = charmap.ISO8859_2.NewDecoder()
